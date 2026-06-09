@@ -10,11 +10,19 @@ Icon?
 *.swp
 *~
 
-# Node (falls später ein Build dazukommt)
+# Node
 node_modules/
 npm-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# Next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+.turbo
 
 # Env / Secrets
 .env
