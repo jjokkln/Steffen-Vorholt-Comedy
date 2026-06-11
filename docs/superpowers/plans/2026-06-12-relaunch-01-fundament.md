@@ -16,14 +16,14 @@
 - Modify: `package.json` (Scripts: `test`)
 - Create: `.env.example`
 
-- [ ] **Step 1: Pakete installieren**
+- [x] **Step 1: Pakete installieren**
 
 ```bash
 npm install @supabase/supabase-js @supabase/ssr resend framer-motion canvas-confetti
 npm install -D @types/canvas-confetti
 ```
 
-- [ ] **Step 2: Test-Script umstellen** — in `package.json` ersetzen:
+- [x] **Step 2: Test-Script umstellen** — in `package.json` ersetzen:
 
 ```json
 "test": "node --test tests/"
@@ -31,7 +31,7 @@ npm install -D @types/canvas-confetti
 
 (Der alte Media-Test `tests/media-integration.test.mjs` bleibt vorerst liegen; er wird in Task 28 gelöscht. Falls er bei `node --test tests/` fehlschlägt, weil sich Dateien geändert haben: erst in Task 28 relevant — bis dahin darf er gelöscht werden, sobald er bricht.)
 
-- [ ] **Step 3: `.env.example` anlegen**
+- [x] **Step 3: `.env.example` anlegen**
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -42,9 +42,9 @@ NOTIFICATION_EMAIL=
 NEXT_PUBLIC_SITE_URL=https://steffenvorholt.de
 ```
 
-- [ ] **Step 4: Build prüfen** — `npm run build` → Expected: fehlerfrei.
+- [x] **Step 4: Build prüfen** — `npm run build` → Expected: fehlerfrei.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json package-lock.json .env.example
