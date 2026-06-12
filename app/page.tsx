@@ -141,8 +141,8 @@ export default function HomePage() {
               Wichtig: echte Bühnenenergie vor Design-Spielerei.
             </p>
             <div className="actions">
-              <Link className="btn secondary" href="/archiv">
-                Archiv ansehen
+              <Link className="btn secondary" href="/termine">
+                Alle Termine
               </Link>
             </div>
           </div>

@@ -66,7 +66,7 @@ export default function KalenderPage() {
         </div>
       </section>
 
-      <Footer variant="calendar" />
+      <Footer />
     </>
   );
 }

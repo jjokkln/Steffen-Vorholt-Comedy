@@ -7,10 +7,6 @@ const LOGO = "/assets/media/brand/steffen-vorholt-logo-primary.svg";
 
 export default function Nav() {
   const pathname = usePathname();
-  const isShowTermine = /^\/shows\/.+-termine$/.test(pathname);
-  const isShowPage =
-    pathname === "/shows" || (pathname.startsWith("/shows/") && !isShowTermine);
-
   const cls = (active: boolean, extra = "") =>
     [extra, active ? "active" : ""].filter(Boolean).join(" ");
 
@@ -26,26 +22,14 @@ export default function Nav() {
         <Link className={cls(pathname === "/")} href="/">
           Home
         </Link>
-        <Link className={cls(isShowPage)} href="/shows">
+        <Link className={cls(pathname === "/shows" || pathname.startsWith("/shows/"))} href="/shows">
           Shows
         </Link>
         <Link className={cls(pathname === "/termine", "ticket")} href="/termine">
-          Termine
+          Termine &amp; Kalender
         </Link>
-        <Link className={cls(pathname === "/kalender" || isShowTermine)} href="/kalender">
-          Kalender
-        </Link>
-        <Link className={cls(pathname === "/archiv")} href="/archiv">
-          Archiv
-        </Link>
-        <Link className={cls(pathname === "/comedians-bewerben")} href="/comedians-bewerben">
-          Comedians
-        </Link>
-        <Link className={cls(pathname === "/steffen-buchen")} href="/steffen-buchen">
-          Booking
-        </Link>
-        <Link className={cls(pathname.startsWith("/admin"))} href="/admin">
-          Admin
+        <Link className={cls(pathname === "/kontakt")} href="/kontakt">
+          Kontakt &amp; Bewerbung
         </Link>
       </div>
     </nav>

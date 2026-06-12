@@ -9,6 +9,15 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/kalender", destination: "/termine", permanent: true },
+      { source: "/steffen-buchen", destination: "/kontakt", permanent: true },
+      { source: "/comedians-bewerben", destination: "/kontakt", permanent: true },
+      { source: "/archiv", destination: "/", permanent: true },
+      { source: "/shows/:slug-termine", destination: "/shows/:slug", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {
