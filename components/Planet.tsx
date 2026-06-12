@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { mediaUrl } from "@/lib/media";
 import type { CSSProperties } from "react";
 
@@ -24,10 +25,12 @@ export default function Planet({
     "--rot": rotation,
   } as CSSProperties;
 
+  if (!src) return null;
+
   return (
     <span className="planet-wrap" style={style}>
       {withOrbit && <span className="orbit" />}
-      <img className="planet" src={mediaUrl(src)} alt={alt} width={size} height={size} />
+      <Image className="planet" src={mediaUrl(src)} alt={alt} width={size} height={size} />
       {sticker && (
         <span className="sticker" style={{ position: "absolute", top: -10, right: -18 }}>
           {sticker}

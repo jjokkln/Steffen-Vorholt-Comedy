@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import EventCard from "@/components/EventCard";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
@@ -51,7 +52,14 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
         <figure className="show-hero-media">
-          <img src={mediaUrl(show.planet_image_path)} alt={`Planet der Show ${show.name}`} />
+          {show.planet_image_path && (
+            <Image
+              src={mediaUrl(show.planet_image_path)}
+              alt={`Planet der Show ${show.name}`}
+              width={560}
+              height={560}
+            />
+          )}
         </figure>
       </header>
 

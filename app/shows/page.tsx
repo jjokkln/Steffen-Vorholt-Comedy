@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import Footer from "@/components/Footer";
 import { getActiveShows } from "@/lib/data";
 import { mediaUrl } from "@/lib/media";
@@ -31,7 +32,14 @@ export default async function ShowsPage() {
                   <span className="badge">{show.format_label}</span>
                 </div>
                 <div className="show-art">
-                  <img src={mediaUrl(show.planet_image_path)} alt={`Planet der Show ${show.name}`} />
+                  {show.planet_image_path && (
+                    <Image
+                      src={mediaUrl(show.planet_image_path)}
+                      alt={`Planet der Show ${show.name}`}
+                      width={300}
+                      height={300}
+                    />
+                  )}
                 </div>
                 <div className="show-card-copy">
                   <h3>{show.tagline}</h3>

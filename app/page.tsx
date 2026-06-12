@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
 import Ticker from "@/components/Ticker";
@@ -192,7 +193,13 @@ export default async function HomePage() {
             <div className="gallery-grid">
               {gallery.map((g, i) => (
                 <figure key={g.id} style={{ "--rot": `${(i % 3) - 1}deg` } as React.CSSProperties}>
-                  <img src={mediaUrl(g.image_path)} alt={g.caption || "Showfoto"} loading="lazy" />
+                  <Image
+                    src={mediaUrl(g.image_path)}
+                    alt={g.caption || "Showfoto"}
+                    width={800}
+                    height={600}
+                    style={{ width: "100%", height: 220, objectFit: "cover" }}
+                  />
                   {g.caption && <figcaption>{g.caption}</figcaption>}
                 </figure>
               ))}
