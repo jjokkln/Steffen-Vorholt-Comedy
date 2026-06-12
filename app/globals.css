@@ -20,12 +20,14 @@
   --ok:#77ffb7;
   --radius:30px;
   --shadow:0 28px 90px rgba(0,0,0,.38);
+  --gold1:#f5d68a;
+  --gold2:#e8a33d;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0;
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:var(--font-body),Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   color:var(--text);
   background:
     radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),
@@ -102,6 +104,7 @@ button,input,textarea,select{font:inherit}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 24px var(--green);animation:pulse 1.8s infinite}
 @keyframes pulse{50%{transform:scale(1.45);opacity:.55}}
 h1,h2,h3{margin:0;letter-spacing:-.075em;line-height:.93}
+h1,h2,h3,h4{font-family:var(--font-display),Inter,sans-serif}
 h1{font-size:clamp(54px,9vw,132px)}
 h2{font-size:clamp(38px,6vw,84px)}
 h3{font-size:clamp(27px,3.6vw,52px)}
@@ -115,7 +118,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66}
   transition:.18s ease;white-space:nowrap
 }
 .btn:hover{transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)}
-.primary{background:linear-gradient(135deg,var(--yellow),var(--orange),var(--pink));color:#050711;box-shadow:0 18px 44px rgba(255,159,67,.24)}
+.primary{background:linear-gradient(135deg,var(--gold1),var(--gold2));color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28)}
 .secondary{background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--text)}
 .stage{
   position:relative;min-height:540px;display:grid;place-items:center
@@ -463,3 +466,45 @@ th{color:var(--text);background:rgba(255,255,255,.08)}
   background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.35);color:var(--text)}
 .legal .notice strong{color:var(--yellow)}
 .legal ul{padding-left:1.2em}
+
+/* === Cosmic-Galaxie Bausteine === */
+.ticker{overflow:hidden;background:linear-gradient(90deg,var(--green),var(--blue));color:#050711;font-weight:900;letter-spacing:.14em;font-size:12px;text-transform:uppercase}
+.ticker-track{display:flex;gap:48px;white-space:nowrap;padding:9px 0;width:max-content;animation:ticker 26s linear infinite}
+@keyframes ticker{to{transform:translateX(-50%)}}
+
+.sticker{display:inline-block;background:#fff;color:#06070f;font-weight:900;font-size:13px;padding:6px 12px;border-radius:12px;transform:rotate(var(--rot,-3deg));box-shadow:4px 4px 0 var(--sticker-shadow,rgba(124,255,107,.55));transition:transform .2s ease}
+
+.planet-wrap{position:relative;display:inline-grid;place-items:center}
+.planet{border-radius:50%;animation:planet-float 7s ease-in-out infinite;filter:drop-shadow(0 0 38px var(--planet-glow,rgba(124,255,107,.35)));transition:transform .25s ease}
+.planet-wrap:hover .planet{animation-play-state:paused;transform:rotate(-8deg) scale(1.06)}
+.planet-wrap:hover .sticker{transform:rotate(var(--rot,-3deg)) scale(1.12)}
+@keyframes planet-float{50%{transform:translateY(-14px) rotate(3deg)}}
+.orbit{position:absolute;border:1.5px solid rgba(255,255,255,.22);border-radius:50%;width:135%;height:44%;transform:rotate(-16deg);pointer-events:none}
+
+.hero-cluster{position:relative;min-height:380px}
+.hero-cluster .cluster-item{position:absolute}
+
+.shooting-star{position:fixed;top:12%;left:-10%;width:140px;height:2px;background:linear-gradient(90deg,transparent,#fff);transform:rotate(18deg);animation:shoot 9s linear infinite;opacity:0;pointer-events:none;z-index:0}
+@keyframes shoot{0%,86%{opacity:0;transform:translateX(0) rotate(18deg)}88%{opacity:1}100%{opacity:0;transform:translateX(120vw) rotate(18deg)}}
+
+.proof-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:24px;color:var(--muted);font-size:14px}
+.proof-row b{color:var(--text);font-size:20px;font-family:var(--font-display),sans-serif}
+
+.buzzer-zone{display:grid;place-items:center;gap:18px;text-align:center}
+.buzzer{width:150px;height:150px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff7a7a,#e02525 60%,#8f0f0f);color:#fff;font-weight:950;font-size:22px;letter-spacing:.08em;box-shadow:0 14px 0 #7a0c0c,0 26px 60px rgba(224,37,37,.35);transition:transform .08s ease,box-shadow .08s ease}
+.buzzer:active{transform:translateY(10px);box-shadow:0 4px 0 #7a0c0c,0 12px 30px rgba(224,37,37,.3)}
+.buzzer-line{font-size:clamp(18px,2.4vw,26px);font-weight:800;color:var(--text);max-width:640px;min-height:2.4em}
+
+.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.gallery-grid figure{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);transform:rotate(var(--rot,0deg));transition:transform .25s ease}
+.gallery-grid figure:hover{transform:rotate(0) scale(1.03)}
+.gallery-grid img{width:100%;height:220px;object-fit:cover}
+.gallery-grid figcaption{padding:10px 14px;font-size:13px;color:var(--muted)}
+
+.calendar-event{animation:event-pulse 2.6s ease-in-out infinite}
+@keyframes event-pulse{50%{filter:brightness(1.2)}}
+
+@media (prefers-reduced-motion: reduce){
+  .ticker-track,.planet,.shooting-star,.calendar-event{animation:none}
+  body:before{animation:none}
+}
