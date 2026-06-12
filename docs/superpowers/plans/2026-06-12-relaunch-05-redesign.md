@@ -17,7 +17,7 @@
 **Files:**
 - Modify: `app/layout.tsx`, `app/globals.css`
 
-- [ ] **Step 1: Fonts in `app/layout.tsx`** — oben ergänzen und am `<body>` (bzw. `<html>`-Kind mit className) registrieren:
+- [x] **Step 1: Fonts in `app/layout.tsx`** — oben ergänzen und am `<body>` (bzw. `<html>`-Kind mit className) registrieren:
 
 ```tsx
 import { Inter, Space_Grotesk } from "next/font/google";
@@ -28,7 +28,7 @@ const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", 
 // <body> erhält: className={`${inter.variable} ${grotesk.variable}`}
 ```
 
-- [ ] **Step 2: `app/globals.css` anpassen.**
+- [x] **Step 2: `app/globals.css` anpassen.**
   (a) In `body { font-family: ... }` ersetzen durch `font-family: var(--font-body), Inter, ui-sans-serif, system-ui, sans-serif;`
   (b) Nach der `h1,h2,h3`-Regel ergänzen: `h1,h2,h3,h4{font-family:var(--font-display),Inter,sans-serif}`
   (c) In `:root` ergänzen: `--gold1:#f5d68a;--gold2:#e8a33d;`
@@ -84,9 +84,9 @@ const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", 
 }
 ```
 
-- [ ] **Step 3: Build + Sichtprüfung** — `npm run build`; Headlines sind jetzt Space Grotesk, Primary-Buttons gold.
+- [x] **Step 3: Build + Sichtprüfung** — `npm run build`; Headlines sind jetzt Space Grotesk, Primary-Buttons gold.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add -A
@@ -100,7 +100,7 @@ git commit -m "feat: Cosmic-Galaxie Design-Tokens, Fonts und CSS-Bausteine"
 **Files:**
 - Create: `components/motion/Reveal.tsx`, `components/motion/Counter.tsx`, `components/motion/WordReveal.tsx`, `components/Ticker.tsx`, `components/Planet.tsx`
 
-- [ ] **Step 1: `components/motion/Reveal.tsx`:**
+- [x] **Step 1: `components/motion/Reveal.tsx`:**
 
 ```tsx
 "use client";
@@ -124,7 +124,7 @@ export default function Reveal({ children, delay = 0 }: { children: ReactNode; d
 }
 ```
 
-- [ ] **Step 2: `components/motion/Counter.tsx`:**
+- [x] **Step 2: `components/motion/Counter.tsx`:**
 
 ```tsx
 "use client";
@@ -164,7 +164,7 @@ export default function Counter({ to, suffix = "" }: { to: number; suffix?: stri
 }
 ```
 
-- [ ] **Step 3: `components/motion/WordReveal.tsx`:**
+- [x] **Step 3: `components/motion/WordReveal.tsx`:**
 
 ```tsx
 "use client";
@@ -192,7 +192,7 @@ export default function WordReveal({ text, className }: { text: string; classNam
 }
 ```
 
-- [ ] **Step 4: `components/Ticker.tsx`** (Server Component — nächster Termin aus DB):
+- [x] **Step 4: `components/Ticker.tsx`** (Server Component — nächster Termin aus DB):
 
 ```tsx
 import { getPublishedEvents } from "@/lib/data";
@@ -217,7 +217,7 @@ export default async function Ticker() {
 }
 ```
 
-- [ ] **Step 5: `components/Planet.tsx`** (Planet-Bild + Orbit + Sticker; Glow/Schatten in Show-Farbe):
+- [x] **Step 5: `components/Planet.tsx`** (Planet-Bild + Orbit + Sticker; Glow/Schatten in Show-Farbe):
 
 ```tsx
 import { mediaUrl } from "@/lib/media";
@@ -260,7 +260,7 @@ export default function Planet({
 }
 ```
 
-- [ ] **Step 6: `components/motion/MouseParallax.tsx`** (Planeten folgen sanft der Maus):
+- [x] **Step 6: `components/motion/MouseParallax.tsx`** (Planeten folgen sanft der Maus):
 
 ```tsx
 "use client";
@@ -294,9 +294,9 @@ export default function MouseParallax({ children, strength = 18 }: { children: R
 }
 ```
 
-- [ ] **Step 7: Build** — `npm run build` → fehlerfrei (Komponenten noch unbenutzt).
+- [x] **Step 7: Build** — `npm run build` → fehlerfrei (Komponenten noch unbenutzt).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add -A
@@ -310,7 +310,7 @@ git commit -m "feat: Motion-Primitives (Reveal, Counter, WordReveal), Ticker und
 **Files:**
 - Create: `components/Buzzer.tsx`
 
-- [ ] **Step 1: Komponente:**
+- [x] **Step 1: Komponente:**
 
 ```tsx
 "use client";
@@ -348,7 +348,7 @@ export default function Buzzer({ oneLiners }: { oneLiners: string[] }) {
 }
 ```
 
-- [ ] **Step 2: Build** — grün. **Step 3: Commit**
+- [x] **Step 2: Build** — grün. **Step 3: Commit**
 
 ```bash
 git add -A
@@ -363,7 +363,7 @@ git commit -m "feat: Buzzer-Komponente mit Konfetti und One-Linern"
 - Modify (ersetzen): `app/page.tsx`
 - Delete: `components/HomeHero.tsx` (und in `app/globals.css` dürfen die `.hero-layout-toggle`-Regeln entfernt werden)
 
-- [ ] **Step 1: `app/page.tsx` komplett ersetzen:**
+- [x] **Step 1: `app/page.tsx` komplett ersetzen:**
 
 ```tsx
 import type { Metadata } from "next";
@@ -609,16 +609,16 @@ export default async function HomePage() {
 }
 ```
 
-- [ ] **Step 2: HomeHero entfernen**
+- [x] **Step 2: HomeHero entfernen**
 
 ```bash
 rm components/HomeHero.tsx
 grep -rn "HomeHero" app components   # Expected: keine Treffer
 ```
 
-- [ ] **Step 3: Build + Sichtprüfung (gründlich)** — `npm run build`; Dev: Ticker läuft, Headline staggert, Planeten schweben + Sticker poppt beim Hover, Counter zählen beim Scrollen, Buzzer feuert Konfetti + One-Liner aus der DB, Galerie erscheint nur mit Inhalten. macOS: „Reduce Motion" in Systemeinstellungen testweise an → Dauerläufer stehen.
+- [x] **Step 3: Build + Sichtprüfung (gründlich)** — `npm run build`; Dev: Ticker läuft, Headline staggert, Planeten schweben + Sticker poppt beim Hover, Counter zählen beim Scrollen, Buzzer feuert Konfetti + One-Liner aus der DB, Galerie erscheint nur mit Inhalten. macOS: „Reduce Motion" in Systemeinstellungen testweise an → Dauerläufer stehen.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add -A
@@ -633,7 +633,7 @@ git commit -m "feat: neue Cosmic-Galaxie-Startseite mit Ticker, Planeten-Cluster
 - Create: `app/not-found.tsx`
 - Modify: `components/Footer.tsx`
 
-- [ ] **Step 1: `app/not-found.tsx`:**
+- [x] **Step 1: `app/not-found.tsx`:**
 
 ```tsx
 import Link from "next/link";
@@ -666,7 +666,7 @@ export default function NotFound() {
 }
 ```
 
-- [ ] **Step 2: Footer-Gag** — in `components/Footer.tsx` ganz unten innerhalb des `<footer>` nach dem `.footer-grid`-div ergänzen:
+- [x] **Step 2: Footer-Gag** — in `components/Footer.tsx` ganz unten innerhalb des `<footer>` nach dem `.footer-grid`-div ergänzen:
 
 ```tsx
 <div className="container" style={{ paddingBlock: "18px", color: "var(--muted)", fontSize: 13 }}>
@@ -674,11 +674,20 @@ export default function NotFound() {
 </div>
 ```
 
-- [ ] **Step 3: Build + Sichtprüfung** — `/gibt-es-nicht` zeigt die Comedy-404.
+- [x] **Step 3: Build + Sichtprüfung** — `/gibt-es-nicht` zeigt die Comedy-404.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add -A
 git commit -m "feat: Comedy-404 und Footer-Schlusszeile"
 ```
+
+---
+
+## Abschluss-Notizen (2026-06-12)
+
+Tasks 20–24 umgesetzt, Build + Tests (11/11) grün. Production-Server verifiziert: 404-Seite rendert, Ticker auf Startseite, Footer-Schlusszeile. Hinweise:
+
+- `.hero-layout-toggle`-CSS-Regeln noch in `globals.css` (Plan: „dürfen entfernt werden") — Kandidat für Aufräum-Task 28, ebenso `.stage`/`.home-hero`-Regeln des alten Heros.
+- Browser-Sichtprüfung (Hover, Konfetti, Reduce-Motion in macOS-Systemeinstellungen) steht als manuelle Prüfung durch den User aus.
