@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import EventSummary from "@/components/EventSummary";
-import Calendar from "@/components/Calendar";
 import BookingList from "@/components/BookingList";
 import Footer from "@/components/Footer";
 
@@ -51,7 +50,6 @@ export default function KalenderPage() {
                   <span className="status draft">Comedy Check-In</span>
                 </div>
               </div>
-              <Calendar />
             </div>
 
             <div className="section-head" style={{ marginTop: "36px" }}>
