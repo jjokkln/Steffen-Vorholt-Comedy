@@ -26,7 +26,7 @@ export default function BrainLoadingPage() {
             <Link className="btn primary" href="/shows/brain-loading-termine">
               Brain-Loading-Kalender
             </Link>
-            <Link className="btn secondary" href="/comedians-bewerben">
+            <Link className="btn secondary" href="/kontakt#bewerben">
               Als Comedian bewerben
             </Link>
           </div>

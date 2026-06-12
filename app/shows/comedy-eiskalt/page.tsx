@@ -24,7 +24,7 @@ export default function ComedyEiskaltPage() {
             <Link className="btn primary" href="/shows/comedy-eiskalt-termine">
               Comedy-Eiskalt-Kalender
             </Link>
-            <Link className="btn secondary" href="/comedians-bewerben">
+            <Link className="btn secondary" href="/kontakt#bewerben">
               Comedian bewerben
             </Link>
           </div>

@@ -77,7 +77,7 @@ export default function HomePage() {
               <Link className="btn primary" href="/shows/comedy-eiskalt">
                 Show öffnen
               </Link>
-              <Link className="btn secondary" href="/comedians-bewerben">
+              <Link className="btn secondary" href="/kontakt#bewerben">
                 Bewerben
               </Link>
             </div>

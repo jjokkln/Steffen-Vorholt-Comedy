@@ -76,7 +76,7 @@ export default function HomeHero() {
           <Link className="btn secondary" href="/shows">
             🪐 Shows entdecken
           </Link>
-          <Link className="btn secondary" href="/steffen-buchen">
+          <Link className="btn secondary" href="/kontakt">
             🎤 Steffen buchen
           </Link>
         </div>
