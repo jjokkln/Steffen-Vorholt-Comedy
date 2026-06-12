@@ -61,7 +61,7 @@ git commit -m "chore: Supabase-, Resend- und Motion-Dependencies + Env-Vorlage"
 
 - [ ] **Step 1: 🛑 STOP — User-Input nötig.** Den User (Lenny) bitten: Supabase-Projekt anlegen (Region EU/Frankfurt), dann `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` eintragen. Außerdem in Supabase unter Auth → Sign In/Up: **Signups deaktivieren** und zwei Accounts manuell anlegen (Steffen + Lenny, E-Mail + Passwort). Erst weitermachen, wenn `.env.local` gefüllt ist.
 
-- [ ] **Step 2: Migration schreiben** — `supabase/migrations/0001_init.sql`:
+- [x] **Step 2: Migration schreiben** — `supabase/migrations/0001_init.sql`:
 
 ```sql
 -- Tabellen
@@ -173,7 +173,7 @@ create policy "admin delete media buckets" on storage.objects for delete to auth
   using (bucket_id in ('planets','gallery','media'));
 ```
 
-- [ ] **Step 3: Seed schreiben** — `supabase/seed.sql`. Inhalte stammen aus `lib/events.ts`, `app/page.tsx`, `app/shows/*/page.tsx` und `app/impressum/page.tsx` (Bestand). Die beiden Mock-„Termin pflegen"-Events werden NICHT migriert.
+- [x] **Step 3: Seed schreiben** — `supabase/seed.sql`. Inhalte stammen aus `lib/events.ts`, `app/page.tsx`, `app/shows/*/page.tsx` und `app/impressum/page.tsx` (Bestand). Die beiden Mock-„Termin pflegen"-Events werden NICHT migriert.
 
 ```sql
 insert into public.shows (slug, name, tagline, description, format_label, color, planet_image_path, principle_items, cities_text, sort_order) values
@@ -255,7 +255,7 @@ insert into public.site_media (key, file_path) values
 
 - [ ] **Step 4: SQL ausführen** — beide Dateien nacheinander im Supabase SQL-Editor ausführen (oder via `supabase db push`, falls CLI eingerichtet). Expected: keine Fehler; Tabellen + 3 Shows + 2 Events sichtbar im Table Editor.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit** _(vorgezogen — Steps 1+4 stehen noch aus, siehe STOP-Punkt)_
 
 ```bash
 git add supabase/
@@ -269,7 +269,7 @@ git commit -m "feat: Supabase-Schema, RLS, Storage-Buckets und Seed-Daten"
 **Files:**
 - Create: `lib/supabase/public.ts`, `lib/supabase/server.ts`, `lib/types.ts`, `middleware.ts`
 
-- [ ] **Step 1: Public-Client (cookie-los, für statische öffentliche Seiten)** — `lib/supabase/public.ts`:
+- [x] **Step 1: Public-Client (cookie-los, für statische öffentliche Seiten)** — `lib/supabase/public.ts`:
 
 ```ts
 import { createClient } from "@supabase/supabase-js";
@@ -283,7 +283,7 @@ export function createPublicClient() {
 }
 ```
 
-- [ ] **Step 2: SSR-Client (Admin)** — `lib/supabase/server.ts`:
+- [x] **Step 2: SSR-Client (Admin)** — `lib/supabase/server.ts`:
 
 ```ts
 import { cookies } from "next/headers";
@@ -310,7 +310,7 @@ export async function createServerSupabase() {
 }
 ```
 
-- [ ] **Step 3: Typen** — `lib/types.ts`:
+- [x] **Step 3: Typen** — `lib/types.ts`:
 
 ```ts
 export interface Show {
@@ -371,7 +371,7 @@ export interface OneLiner {
 }
 ```
 
-- [ ] **Step 4: Middleware (schützt /admin)** — `middleware.ts` (Projekt-Root):
+- [x] **Step 4: Middleware (schützt /admin)** — `middleware.ts` (Projekt-Root):
 
 ```ts
 import { type NextRequest, NextResponse } from "next/server";
@@ -405,9 +405,9 @@ export async function middleware(request: NextRequest) {
 export const config = { matcher: ["/admin/:path*"] };
 ```
 
-- [ ] **Step 5: Build prüfen** — `npm run build`. Expected: fehlerfrei (Middleware greift erst, wenn `/admin/login` existiert — Aufruf von `/admin` im Dev-Server leitet ab jetzt auf eine 404 `/admin/login` um; das ist bis Task 11 OK).
+- [x] **Step 5: Build prüfen** — `npm run build`. Expected: fehlerfrei (Middleware greift erst, wenn `/admin/login` existiert — Aufruf von `/admin` im Dev-Server leitet ab jetzt auf eine 404 `/admin/login` um; das ist bis Task 11 OK).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/supabase/ lib/types.ts middleware.ts
@@ -422,7 +422,7 @@ git commit -m "feat: Supabase-Clients (public/ssr), Auth-Middleware, Typen"
 - Create: `lib/event-helpers.ts`
 - Test: `tests/event-helpers.test.ts`
 
-- [ ] **Step 1: Failing Test schreiben** — `tests/event-helpers.test.ts`:
+- [x] **Step 1: Failing Test schreiben** — `tests/event-helpers.test.ts`:
 
 ```ts
 import { test } from "node:test";
@@ -453,9 +453,9 @@ test("formatDay/formatMonth/formatDateLong deutsch", () => {
 });
 ```
 
-- [ ] **Step 2: Test laufen lassen** — `npm test` → Expected: FAIL (`Cannot find module '../lib/event-helpers.ts'`).
+- [x] **Step 2: Test laufen lassen** — `npm test` → Expected: FAIL (`Cannot find module '../lib/event-helpers.ts'`). _(Hinweis: `node --test tests/` akzeptiert auf Node 24 kein Verzeichnis — Test-Script wurde auf Glob `tests/**/*.test.*` umgestellt.)_
 
-- [ ] **Step 3: Implementieren** — `lib/event-helpers.ts` (framework-frei, keine Supabase-Imports!):
+- [x] **Step 3: Implementieren** — `lib/event-helpers.ts` (framework-frei, keine Supabase-Imports!):
 
 ```ts
 const MONTHS_SHORT = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
@@ -487,9 +487,9 @@ export function formatDateLong(dateIso: string): string {
 }
 ```
 
-- [ ] **Step 4: Test laufen lassen** — `npm test` → Expected: PASS (3 Tests).
+- [x] **Step 4: Test laufen lassen** — `npm test` → Expected: PASS (3 Tests).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/event-helpers.ts tests/event-helpers.test.ts
@@ -504,7 +504,7 @@ git commit -m "feat: Event-Helper (Partition kommend/vergangen, deutsche Datumsf
 - Create: `lib/data.ts`, `lib/media.ts`, `lib/revalidate.ts`
 - Test: `tests/media.test.ts`
 
-- [ ] **Step 1: Failing Test für mediaUrl** — `tests/media.test.ts`:
+- [x] **Step 1: Failing Test für mediaUrl** — `tests/media.test.ts`:
 
 ```ts
 import { test } from "node:test";
@@ -525,9 +525,9 @@ test("mediaUrl: leer bleibt leer", () => {
 });
 ```
 
-- [ ] **Step 2: `npm test`** → Expected: FAIL (Modul fehlt).
+- [x] **Step 2: `npm test`** → Expected: FAIL (Modul fehlt).
 
-- [ ] **Step 3: Implementieren** — `lib/media.ts`:
+- [x] **Step 3: Implementieren** — `lib/media.ts`:
 
 ```ts
 /** Konvention: führender "/" = lokale Datei aus public/, sonst Supabase-Storage-Pfad "bucket/datei". */
@@ -614,11 +614,11 @@ export async function getSiteMedia(key: string): Promise<string> {
 }
 ```
 
-- [ ] **Step 4: `npm test`** → Expected: PASS. Danach `npm run build` → Expected: fehlerfrei.
+- [x] **Step 4: `npm test`** → Expected: PASS. Danach `npm run build` → Expected: fehlerfrei.
 
 - [ ] **Step 5: Smoke-Check gegen echte DB** — `npx tsx -e` steht nicht zur Verfügung; stattdessen kurz im Dev-Server prüfen, sobald Phase 2 die erste Seite umstellt. Alternativ: `node --env-file=.env.local -e "fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/shows?select=slug', {headers:{apikey:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}}).then(r=>r.json()).then(console.log)"` → Expected: Array mit 3 Slugs.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/data.ts lib/media.ts lib/revalidate.ts tests/media.test.ts
