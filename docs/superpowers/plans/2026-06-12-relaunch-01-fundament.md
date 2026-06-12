@@ -59,7 +59,7 @@ git commit -m "chore: Supabase-, Resend- und Motion-Dependencies + Env-Vorlage"
 - Create: `supabase/migrations/0001_init.sql`
 - Create: `supabase/seed.sql`
 
-- [ ] **Step 1: 🛑 STOP — User-Input nötig.** Den User (Lenny) bitten: Supabase-Projekt anlegen (Region EU/Frankfurt), dann `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` eintragen. Außerdem in Supabase unter Auth → Sign In/Up: **Signups deaktivieren** und zwei Accounts manuell anlegen (Steffen + Lenny, E-Mail + Passwort). Erst weitermachen, wenn `.env.local` gefüllt ist.
+- [x] **Step 1: 🛑 STOP — User-Input nötig.** Den User (Lenny) bitten: Supabase-Projekt anlegen (Region EU/Frankfurt), dann `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` eintragen. Außerdem in Supabase unter Auth → Sign In/Up: **Signups deaktivieren** und zwei Accounts manuell anlegen (Steffen + Lenny, E-Mail + Passwort). Erst weitermachen, wenn `.env.local` gefüllt ist. _(Projekt + `.env.local` erledigt. ⚠️ Noch offen, User-Bestätigung ausstehend: Signups deaktiviert + 2 Accounts — wird erst ab Task 11 gebraucht.)_
 
 - [x] **Step 2: Migration schreiben** — `supabase/migrations/0001_init.sql`:
 
@@ -253,7 +253,7 @@ insert into public.site_media (key, file_path) values
 ('hero_video', '/assets/media/steffen/steffen-stage-loop-hero.mp4');
 ```
 
-- [ ] **Step 4: SQL ausführen** — beide Dateien nacheinander im Supabase SQL-Editor ausführen (oder via `supabase db push`, falls CLI eingerichtet). Expected: keine Fehler; Tabellen + 3 Shows + 2 Events sichtbar im Table Editor.
+- [x] **Step 4: SQL ausführen** — beide Dateien nacheinander im Supabase SQL-Editor ausführen (oder via `supabase db push`, falls CLI eingerichtet). Expected: keine Fehler; Tabellen + 3 Shows + 2 Events sichtbar im Table Editor. _(Via MCP `apply_migration` (init) + `execute_sql` ausgeführt; verifiziert: 7 Tabellen mit RLS, 3 Shows, 2 Events, 5 One-Liner, Impressum, Hero-Video.)_
 
 - [x] **Step 5: Commit** _(vorgezogen — Steps 1+4 stehen noch aus, siehe STOP-Punkt)_
 
@@ -616,7 +616,7 @@ export async function getSiteMedia(key: string): Promise<string> {
 
 - [x] **Step 4: `npm test`** → Expected: PASS. Danach `npm run build` → Expected: fehlerfrei.
 
-- [ ] **Step 5: Smoke-Check gegen echte DB** — `npx tsx -e` steht nicht zur Verfügung; stattdessen kurz im Dev-Server prüfen, sobald Phase 2 die erste Seite umstellt. Alternativ: `node --env-file=.env.local -e "fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/shows?select=slug', {headers:{apikey:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}}).then(r=>r.json()).then(console.log)"` → Expected: Array mit 3 Slugs.
+- [x] **Step 5: Smoke-Check gegen echte DB** — `npx tsx -e` steht nicht zur Verfügung; stattdessen kurz im Dev-Server prüfen, sobald Phase 2 die erste Seite umstellt. Alternativ: `node --env-file=.env.local -e "fetch(process.env.NEXT_PUBLIC_SUPABASE_URL+'/rest/v1/shows?select=slug', {headers:{apikey:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}}).then(r=>r.json()).then(console.log)"` → Expected: Array mit 3 Slugs. _(Bestanden: brain-loading, comedy-eiskalt, comedy-check-in.)_
 
 - [x] **Step 6: Commit**
 
