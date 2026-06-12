@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Calendar from "@/components/Calendar";
 import TermineFilters from "@/components/TermineFilters";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import { getActiveShows, getPublishedEvents } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
+import { comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
 
 export const revalidate = 3600;
 
@@ -52,6 +54,7 @@ export default async function TerminePage() {
         <TermineFilters events={upcoming} shows={shows} />
       </section>
 
+      <JsonLd data={upcoming.map((e) => comedyEventJsonLd(eventToJsonLdInput(e)))} />
       <Footer />
     </>
   );

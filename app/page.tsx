@@ -9,7 +9,9 @@ import Reveal from "@/components/motion/Reveal";
 import Counter from "@/components/motion/Counter";
 import WordReveal from "@/components/motion/WordReveal";
 import MouseParallax from "@/components/motion/MouseParallax";
+import JsonLd from "@/components/JsonLd";
 import { getActiveShows, getActiveOneLiners, getGalleryItems, getSiteMedia } from "@/lib/data";
+import { personJsonLd } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
 
 export const revalidate = 3600;
@@ -235,6 +237,7 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
+      <JsonLd data={personJsonLd()} />
       <Footer />
     </>
   );

@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import EventCard from "@/components/EventCard";
 import Footer from "@/components/Footer";
+import JsonLd from "@/components/JsonLd";
 import { getActiveShows, getEventsForShowId, getShowBySlug } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
+import { breadcrumbJsonLd, comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
 
 export const revalidate = 3600;
@@ -91,6 +93,15 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
 
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([
+            { name: "Shows", path: "/shows" },
+            { name: show.name, path: `/shows/${show.slug}` },
+          ]),
+          ...upcoming.map((e) => comedyEventJsonLd(eventToJsonLdInput(e))),
+        ]}
+      />
       <Footer />
     </>
   );
