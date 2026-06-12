@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import FakeForm from "@/components/FakeForm";
+import ContactForm from "@/components/ContactForm";
 import Footer from "@/components/Footer";
 import { getActiveShows } from "@/lib/data";
 
@@ -31,8 +31,12 @@ export default async function KontaktPage() {
             <h2>Steffen buchen.</h2>
             <p className="lead">Comedy, Moderation oder beides – für Firmenfeiern, Galas und Events.</p>
           </div>
-          <FakeForm message="Booking-Anfrage gespeichert" className="card form">
-            <h3>Booking-Anfrage</h3>
+          <ContactForm
+            type="booking"
+            title="Booking-Anfrage"
+            submitLabel="Anfrage senden"
+            successMessage="Deine Anfrage ist gelandet. Steffen meldet sich, sobald er das Mikro aus der Hand legt."
+          >
             <div className="form two">
               <label>
                 Name
@@ -73,15 +77,18 @@ export default async function KontaktPage() {
               Nachricht
               <textarea name="message" placeholder="Ort, Gästezahl, Ablauf, gewünschte Leistung..." />
             </label>
-            <button className="btn primary">Anfrage senden</button>
-          </FakeForm>
+          </ContactForm>
         </div>
       </section>
 
       <section className="container section" id="bewerben">
         <div className="feature">
-          <FakeForm message="Bewerbung gespeichert" className="card form">
-            <h3>Comedian-Bewerbung</h3>
+          <ContactForm
+            type="comedian"
+            title="Comedian-Bewerbung"
+            submitLabel="Bewerbung absenden"
+            successMessage="Bewerbung empfangen! Steffen schaut sich deine Links persönlich an."
+          >
             <div className="form two">
               <label>
                 Name
@@ -124,8 +131,7 @@ export default async function KontaktPage() {
               Nachricht
               <textarea name="message" />
             </label>
-            <button className="btn primary">Bewerbung absenden</button>
-          </FakeForm>
+          </ContactForm>
           <div>
             <div className="eyebrow">🎭 Für Comedians</div>
             <h2>Du willst selbst auf die Bühne?</h2>
