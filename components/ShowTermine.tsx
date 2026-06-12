@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BookingList from "@/components/BookingList";
+import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
 
 export default function ShowTermine({
@@ -47,7 +47,7 @@ export default function ShowTermine({
           </div>
           <p>Im finalen Build kommen diese Daten aus Supabase und können im Admin gepflegt werden.</p>
         </div>
-        <BookingList showOnly={show} />
+        <EventGrid showOnly={show} includePast />
       </section>
 
       <section className="container section">
