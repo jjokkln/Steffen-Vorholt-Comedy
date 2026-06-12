@@ -8,6 +8,13 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swa
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://steffenvorholt.de"),
+  alternates: { canonical: "./" },
+  openGraph: {
+    siteName: "Steffen Vorholt Comedy",
+    locale: "de_DE",
+    type: "website",
+  },
   title: "Steffen Vorholt – Comedy-Universum",
   description: "Drei Shows. Ein Host. Unendlich viele Lacher.",
 };
