@@ -9,7 +9,8 @@ Comedy Check-In) im „Cosmic-Galaxie"-Design — mit Supabase-Backend und Admin
 - Next.js (App Router) · React · TypeScript · plain CSS (`app/globals.css`, kein Tailwind)
 - **Supabase**: Postgres (Shows, Termine, Anfragen, Galerie, One-Liner, Impressum), Auth, Storage
 - **Resend** für E-Mail-Benachrichtigungen bei Anfragen (optional in Dev)
-- framer-motion + canvas-confetti für Motion (respektiert `prefers-reduced-motion`)
+- Three.js + GSAP ScrollTrigger für den scrollgebundenen 2.5D-Hero und Abschnittsübergänge
+- canvas-confetti für den Buzzer; alle Motion-Pfade respektieren `prefers-reduced-motion`
 - Öffentliche Seiten: ISR (`revalidate = 3600`) + Sofort-Revalidation nach jeder Admin-Mutation
 
 ## Setup
@@ -62,6 +63,12 @@ lib/                      Supabase-Clients, Datenzugriff, Actions, Helper (getes
 supabase/                 0001_init.sql (Schema/RLS/Storage) + seed.sql
 public/assets/media/...   Lokale Medien (unter /assets/media/… ausgeliefert)
 ```
+
+## Motion & Performance
+
+Die Startseite lädt Three.js nur clientseitig für den Hero. Desktop nutzt eine angeheftete,
+scrollgebundene 2.5D-Sequenz; Mobile und `prefers-reduced-motion` erhalten eine reduzierte,
+nicht angeheftete bzw. statische Variante. Der WebGL-Renderer pausiert außerhalb des Hero-Bereichs.
 
 ## SEO
 
