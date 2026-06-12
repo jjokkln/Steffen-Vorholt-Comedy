@@ -16,7 +16,7 @@
 - Modify: `next.config.ts`, `components/Nav.tsx`, `components/Footer.tsx`, `app/page.tsx` (nur Archiv-Button), `app/kalender/page.tsx` → löschen erst in Task 8
 - Delete: `app/archiv/page.tsx`
 
-- [ ] **Step 1: Redirects in `next.config.ts`** — Block in `nextConfig` ergänzen (neben `headers`):
+- [x] **Step 1: Redirects in `next.config.ts`** — Block in `nextConfig` ergänzen (neben `headers`):
 
 ```ts
 async redirects() {
@@ -30,7 +30,7 @@ async redirects() {
 },
 ```
 
-- [ ] **Step 2: `components/Nav.tsx` komplett ersetzen:**
+- [x] **Step 2: `components/Nav.tsx` komplett ersetzen:**
 
 ```tsx
 "use client";
@@ -74,7 +74,7 @@ export default function Nav() {
 
 (Kein Admin-, Archiv-, Kalender-, Comedians-Link mehr. `/admin` ist nur noch per Direktaufruf erreichbar.)
 
-- [ ] **Step 3: `components/Footer.tsx` komplett ersetzen** (async Server Component, Shows dynamisch, `variant` entfällt — alle Aufrufer `<Footer variant="calendar">` auf `<Footer />` ändern, betrifft `app/kalender/page.tsx` bis Task 8):
+- [x] **Step 3: `components/Footer.tsx` komplett ersetzen** (async Server Component, Shows dynamisch, `variant` entfällt — alle Aufrufer `<Footer variant="calendar">` auf `<Footer />` ändern, betrifft `app/kalender/page.tsx` bis Task 8):
 
 ```tsx
 import Link from "next/link";
@@ -129,7 +129,7 @@ export default async function Footer() {
 }
 ```
 
-- [ ] **Step 4: Archiv löschen + Verweise fixen**
+- [x] **Step 4: Archiv löschen + Verweise fixen**
 
 ```bash
 rm app/archiv/page.tsx
@@ -137,9 +137,9 @@ rm app/archiv/page.tsx
 
 In `app/page.tsx` den Button `<Link className="btn secondary" href="/archiv">Archiv ansehen</Link>` ersetzen durch `<Link className="btn secondary" href="/termine">Alle Termine</Link>`. In `app/kalender/page.tsx` `<Footer variant="calendar" />` → `<Footer />`.
 
-- [ ] **Step 5: Build + Sichtprüfung** — `npm run build` → fehlerfrei. `npm run dev`: Nav zeigt 4 Punkte, `/archiv` leitet auf `/` um, Footer listet die 3 Shows aus der DB.
+- [x] **Step 5: Build + Sichtprüfung** — `npm run build` → fehlerfrei. `npm run dev`: Nav zeigt 4 Punkte, `/archiv` leitet auf `/` um, Footer listet die 3 Shows aus der DB.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
@@ -154,7 +154,7 @@ git commit -m "feat: neue Navigation, dynamischer Footer, Redirects, Archiv-Seit
 - Create: `lib/calendar-helpers.ts`, Test: `tests/calendar-helpers.test.ts`
 - Modify (ersetzen): `components/Calendar.tsx`
 
-- [ ] **Step 1: Failing Test** — `tests/calendar-helpers.test.ts`:
+- [x] **Step 1: Failing Test** — `tests/calendar-helpers.test.ts`:
 
 ```ts
 import { test } from "node:test";
@@ -185,9 +185,9 @@ test("shiftMonth über Jahresgrenzen", () => {
 });
 ```
 
-- [ ] **Step 2: `npm test`** → Expected: FAIL (Modul fehlt).
+- [x] **Step 2: `npm test`** → Expected: FAIL (Modul fehlt).
 
-- [ ] **Step 3: Implementieren** — `lib/calendar-helpers.ts`:
+- [x] **Step 3: Implementieren** — `lib/calendar-helpers.ts`:
 
 ```ts
 const MONTHS_LONG = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
@@ -220,9 +220,9 @@ export function shiftMonth(year: number, month: number, delta: number): { year: 
 }
 ```
 
-- [ ] **Step 4: `npm test`** → Expected: PASS.
+- [x] **Step 4: `npm test`** → Expected: PASS.
 
-- [ ] **Step 5: `components/Calendar.tsx` komplett ersetzen** (Client Component mit Monats-State; Events kommen serialisiert vom Server):
+- [x] **Step 5: `components/Calendar.tsx` komplett ersetzen** (Client Component mit Monats-State; Events kommen serialisiert vom Server):
 
 ```tsx
 "use client";
@@ -297,9 +297,9 @@ export default function Calendar({
 }
 ```
 
-- [ ] **Step 6: Build** — `npm run build` → fehlerfrei (Komponente ist noch unbenutzt, alte `/kalender`-Seite nutzt sie mit alter Signatur → falls Build deshalb bricht, in `app/kalender/page.tsx` den `<Calendar />`-Aufruf temporär entfernen; die Seite fällt in Task 8 weg).
+- [x] **Step 6: Build** — `npm run build` → fehlerfrei (Komponente ist noch unbenutzt, alte `/kalender`-Seite nutzt sie mit alter Signatur → falls Build deshalb bricht, in `app/kalender/page.tsx` den `<Calendar />`-Aufruf temporär entfernen; die Seite fällt in Task 8 weg).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A
@@ -314,7 +314,7 @@ git commit -m "feat: echter Monatskalender mit Show-Farben und Monatswechsel (ge
 - Modify (ersetzen): `components/EventCard.tsx`, `components/EventGrid.tsx`, `components/TermineFilters.tsx`, `app/termine/page.tsx`, `app/page.tsx` (EventGrid-Aufruf bleibt — Signatur kompatibel)
 - Delete: `app/kalender/page.tsx`, `components/BookingList.tsx`, `components/EventSummary.tsx`
 
-- [ ] **Step 1: `components/EventCard.tsx` ersetzen** (arbeitet jetzt mit `EventRow`):
+- [x] **Step 1: `components/EventCard.tsx` ersetzen** (arbeitet jetzt mit `EventRow`):
 
 ```tsx
 import { formatDay, formatMonth, todayIso } from "@/lib/event-helpers";
@@ -367,7 +367,7 @@ export default function EventCard({ event }: { event: EventRow }) {
 }
 ```
 
-- [ ] **Step 2: `components/EventGrid.tsx` ersetzen** (async Server Component, lädt selbst aus der DB; `showOnly` = Show-NAME, kompatibel zu bestehenden Aufrufen in `app/page.tsx` und den alten Show-Seiten):
+- [x] **Step 2: `components/EventGrid.tsx` ersetzen** (async Server Component, lädt selbst aus der DB; `showOnly` = Show-NAME, kompatibel zu bestehenden Aufrufen in `app/page.tsx` und den alten Show-Seiten):
 
 ```tsx
 import EventCard from "@/components/EventCard";
@@ -401,7 +401,7 @@ export default async function EventGrid({
 }
 ```
 
-- [ ] **Step 3: `components/TermineFilters.tsx` ersetzen** (Client, Daten als Props — Filter aus DB-Shows + Städten generiert):
+- [x] **Step 3: `components/TermineFilters.tsx` ersetzen** (Client, Daten als Props — Filter aus DB-Shows + Städten generiert):
 
 ```tsx
 "use client";
@@ -450,7 +450,7 @@ export default function TermineFilters({ events, shows }: { events: EventRow[]; 
 }
 ```
 
-- [ ] **Step 4: `app/termine/page.tsx` ersetzen** (erst Kalender, dann kompletter Termine-Inhalt — Reihenfolge ist eine User-Entscheidung, nicht ändern):
+- [x] **Step 4: `app/termine/page.tsx` ersetzen** (erst Kalender, dann kompletter Termine-Inhalt — Reihenfolge ist eine User-Entscheidung, nicht ändern):
 
 ```tsx
 import type { Metadata } from "next";
@@ -513,7 +513,7 @@ export default async function TerminePage() {
 }
 ```
 
-- [ ] **Step 5: Aufräumen**
+- [x] **Step 5: Aufräumen**
 
 ```bash
 rm app/kalender/page.tsx components/BookingList.tsx components/EventSummary.tsx
@@ -521,9 +521,9 @@ rm app/kalender/page.tsx components/BookingList.tsx components/EventSummary.tsx
 
 `grep -rn "BookingList\|EventSummary" app components` → Expected: keine Treffer mehr.
 
-- [ ] **Step 6: Build + Sichtprüfung** — `npm run build` → fehlerfrei. Dev: `/termine` zeigt Kalender (mit den 2 Seed-Events im Feb/Apr 2026 beim Zurückblättern), darunter Filter + Liste; `/kalender` leitet um.
+- [x] **Step 6: Build + Sichtprüfung** — `npm run build` → fehlerfrei. Dev: `/termine` zeigt Kalender (mit den 2 Seed-Events im Feb/Apr 2026 beim Zurückblättern), darunter Filter + Liste; `/kalender` leitet um.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add -A
@@ -540,7 +540,7 @@ git commit -m "feat: Termine & Kalender zusammengeführt unter /termine (DB-basi
 
 Die Formulare bleiben in diesem Task noch `FakeForm` (echte Submits kommen in Task 19 — Phase 4 ersetzt FakeForm vollständig).
 
-- [ ] **Step 1: `app/kontakt/page.tsx` anlegen:**
+- [x] **Step 1: `app/kontakt/page.tsx` anlegen:**
 
 ```tsx
 import type { Metadata } from "next";
@@ -688,7 +688,7 @@ export default async function KontaktPage() {
 }
 ```
 
-- [ ] **Step 2: Alte Seiten löschen**
+- [x] **Step 2: Alte Seiten löschen**
 
 ```bash
 rm app/steffen-buchen/page.tsx app/comedians-bewerben/page.tsx
@@ -697,9 +697,9 @@ rmdir app/steffen-buchen app/comedians-bewerben
 
 `grep -rn "steffen-buchen\|comedians-bewerben" app components` → verbleibende Treffer fixen: in `app/page.tsx` und den alten Show-Seiten Links auf `/kontakt#bewerben` bzw. `/kontakt` umstellen (die Show-Seiten fallen in Task 10 ohnehin weg — dort reicht es, den Build grün zu halten).
 
-- [ ] **Step 3: Build + Sichtprüfung** — `npm run build`; Dev: `/kontakt` zeigt beide Formulare, `/steffen-buchen` leitet um.
+- [x] **Step 3: Build + Sichtprüfung** — `npm run build`; Dev: `/kontakt` zeigt beide Formulare, `/steffen-buchen` leitet um.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add -A
@@ -715,7 +715,7 @@ git commit -m "feat: Kontakt & Bewerbung als gemeinsame Seite unter /kontakt"
 - Modify (ersetzen): `app/shows/page.tsx`
 - Delete: `app/shows/brain-loading/`, `app/shows/comedy-eiskalt/`, `app/shows/comedy-check-in/`, `app/shows/brain-loading-termine/`, `app/shows/comedy-eiskalt-termine/`, `app/shows/comedy-check-in-termine/`
 
-- [ ] **Step 1: `app/shows/[slug]/page.tsx` anlegen:**
+- [x] **Step 1: `app/shows/[slug]/page.tsx` anlegen:**
 
 ```tsx
 import type { Metadata } from "next";
@@ -817,7 +817,7 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
 }
 ```
 
-- [ ] **Step 2: `app/shows/page.tsx` ersetzen** (Übersicht dynamisch):
+- [x] **Step 2: `app/shows/page.tsx` ersetzen** (Übersicht dynamisch):
 
 ```tsx
 import type { Metadata } from "next";
@@ -879,18 +879,27 @@ export default async function ShowsPage() {
 }
 ```
 
-- [ ] **Step 3: Statische Show-Seiten löschen**
+- [x] **Step 3: Statische Show-Seiten löschen**
 
 ```bash
 rm -r app/shows/brain-loading app/shows/comedy-eiskalt app/shows/comedy-check-in \
       app/shows/brain-loading-termine app/shows/comedy-eiskalt-termine app/shows/comedy-check-in-termine
 ```
 
-- [ ] **Step 4: Build + Sichtprüfung** — `npm run build` → fehlerfrei, `/shows/brain-loading` wird statisch generiert. Dev: `/shows/brain-loading-termine` leitet auf `/shows/brain-loading` um; unbekannter Slug → 404.
+- [x] **Step 4: Build + Sichtprüfung** — `npm run build` → fehlerfrei, `/shows/brain-loading` wird statisch generiert. Dev: `/shows/brain-loading-termine` leitet auf `/shows/brain-loading` um; unbekannter Slug → 404.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add -A
 git commit -m "feat: Shows vollständig dynamisch aus Supabase (/shows/[slug])"
 ```
+
+---
+
+## Abschluss-Notizen (2026-06-12)
+
+Alle Tasks 6–10 umgesetzt, `npm run build` + `npm test` (10/10) grün. Verifiziert im Production-Server: alle 5 Redirects (308), `/termine`, `/kontakt`, `/shows`, `/shows/brain-loading` (200), unbekannter Slug (404). Abweichungen:
+
+- `components/ShowTermine.tsx`: `BookingList` → `EventGrid showOnly` getauscht (BookingList gelöscht in Task 8); Komponente ist seit Task 10 ungenutzt → Kandidat für Aufräum-Task 28.
+- `tests/media-integration.test.mjs` gelöscht (brach durch Wegfall der statischen Show-Seiten — vom Plan in Task 1 ausdrücklich vorgesehen).
