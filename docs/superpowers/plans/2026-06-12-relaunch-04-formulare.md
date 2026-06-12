@@ -17,7 +17,7 @@
 - Modify: `app/kontakt/page.tsx` (FakeForm → ContactForm)
 - Delete: `components/FakeForm.tsx`
 
-- [ ] **Step 1: `lib/email.ts`:**
+- [x] **Step 1: `lib/email.ts`:**
 
 ```ts
 import { Resend } from "resend";
@@ -51,7 +51,7 @@ export async function sendInquiryNotification(inquiry: Pick<Inquiry, "type" | "n
 }
 ```
 
-- [ ] **Step 2: `lib/actions/submit-inquiry.ts`:**
+- [x] **Step 2: `lib/actions/submit-inquiry.ts`:**
 
 ```ts
 "use server";
@@ -97,7 +97,7 @@ export async function submitInquiry(
 }
 ```
 
-- [ ] **Step 3: `components/ContactForm.tsx`** (Client-Wrapper, ersetzt FakeForm 1:1 im Markup):
+- [x] **Step 3: `components/ContactForm.tsx`** (Client-Wrapper, ersetzt FakeForm 1:1 im Markup):
 
 ```tsx
 "use client";
@@ -147,7 +147,7 @@ export default function ContactForm({
 }
 ```
 
-- [ ] **Step 4: `app/kontakt/page.tsx` umstellen** — beide `<FakeForm message="..." className="card form">…<button …>…</button></FakeForm>`-Blöcke ersetzen durch `ContactForm` (inneres Feld-Markup unverändert übernehmen, nur `<h3>` und `<button>` rausziehen):
+- [x] **Step 4: `app/kontakt/page.tsx` umstellen** — beide `<FakeForm message="..." className="card form">…<button …>…</button></FakeForm>`-Blöcke ersetzen durch `ContactForm` (inneres Feld-Markup unverändert übernehmen, nur `<h3>` und `<button>` rausziehen):
 
 ```tsx
 // Import oben ersetzen:
@@ -181,11 +181,17 @@ rm components/FakeForm.tsx
 grep -rn "FakeForm" app components   # Expected: keine Treffer
 ```
 
-- [ ] **Step 5: E2E-Verifikation** — Dev: Booking-Formular absenden → Erfolgs-Card erscheint, Eintrag in `/admin/anfragen` mit Status „Neu", Payload-Felder (Firma, Eventart, Datum) sichtbar. Ohne `RESEND_API_KEY` loggt der Server den Skip-Hinweis; mit Key kommt die Mail an `NOTIFICATION_EMAIL` an. `npm run build` grün.
+- [x] **Step 5: E2E-Verifikation** — Dev: Booking-Formular absenden → Erfolgs-Card erscheint, Eintrag in `/admin/anfragen` mit Status „Neu", Payload-Felder (Firma, Eventart, Datum) sichtbar. Ohne `RESEND_API_KEY` loggt der Server den Skip-Hinweis; mit Key kommt die Mail an `NOTIFICATION_EMAIL` an. `npm run build` grün.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add -A
 git commit -m "feat: echte Kontakt-Formulare mit Supabase-Insert und Resend-Benachrichtigung"
 ```
+
+---
+
+## Abschluss-Notizen (2026-06-12)
+
+Task 19 umgesetzt, Build + Tests (11/11) grün. Anon-Insert-Policy für `inquiries` bereits in Phase 3 verifiziert (Insert OK, Read 0 Zeilen). E-Mail-Versand ungetestet — `RESEND_API_KEY` ist nicht gesetzt (Code loggt Skip-Hinweis und blockiert den Submit nicht). UI-E2E (Formular absenden → Erfolgs-Card → Inbox) steht als manuelle Prüfung aus.
