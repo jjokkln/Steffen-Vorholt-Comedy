@@ -1,82 +1,53 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import { getActiveShows } from "@/lib/data";
+import { mediaUrl } from "@/lib/media";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Shows – Steffen Vorholt",
-  description: "Brain Loading, Comedy Eiskalt und Comedy Check-In.",
+  description: "Alle Comedy-Formate von Steffen Vorholt im Überblick.",
 };
 
-export default function ShowsPage() {
+export default async function ShowsPage() {
+  const shows = await getActiveShows();
   return (
     <>
       <header className="container section">
-        <div className="eyebrow">🪐 Shows</div>
-        <h1>Drei Shows als eigene Welten.</h1>
-        <p className="lead">
-          Das Comedy-Universum besteht aus Brain Loading, Comedy Eiskalt und Comedy Check-In. Jede
-          Show bekommt eigene Farben, eigene Animationen und eine klare Ticketstrecke.
-        </p>
+        <div className="eyebrow">🪐 Wähle deine Mission</div>
+        <h1>Jede Show ein eigener Planet.</h1>
+        <p className="lead">Impro, Open Mic oder Boarding – such dir aus, wo du landen willst.</p>
       </header>
 
       <section className="container section">
         <div className="grid-3">
-          <article className="card show-card brain">
-            <div>
-              <span className="badge">Brain Loading</span>
-              <div className="show-art">
-                <img
-                  src="/assets/media/shows/brain-loading/brain-loading-planet.webp"
-                  alt="Brain-Loading-Planet"
-                />
+          {shows.map((show) => (
+            <article className="card show-card" key={show.id}>
+              <div>
+                <div className="top">
+                  <span className="badge">{show.name}</span>
+                  <span className="badge">{show.format_label}</span>
+                </div>
+                <div className="show-art">
+                  <img src={mediaUrl(show.planet_image_path)} alt={`Planet der Show ${show.name}`} />
+                </div>
+                <div className="show-card-copy">
+                  <h3>{show.tagline}</h3>
+                  <p>{show.description}</p>
+                </div>
               </div>
-              <div className="show-card-copy">
-                <h3>Impro mit Buzzer.</h3>
-                <p>Das Publikum entscheidet Ort, Aktion oder Figur in der improvisierten Story.</p>
+              <div className="actions">
+                <Link className="btn primary" href={`/shows/${show.slug}`}>
+                  Show öffnen
+                </Link>
+                <Link className="btn secondary" href="/termine">
+                  Tickets
+                </Link>
               </div>
-            </div>
-            <Link className="btn primary" href="/shows/brain-loading">
-              Öffnen
-            </Link>
-          </article>
-
-          <article className="card show-card ice">
-            <div>
-              <span className="badge">Comedy Eiskalt</span>
-              <div className="show-art">
-                <img
-                  src="/assets/media/shows/comedy-eiskalt/comedy-eiskalt-planet.webp"
-                  alt="Comedy-Eiskalt-Planet"
-                />
-              </div>
-              <div className="show-card-copy">
-                <h3>Open Mic im Eis.</h3>
-                <p>Newcomer, erfahrene Comedians und ein Profi-Finale in Bergisch Gladbach.</p>
-              </div>
-            </div>
-            <Link className="btn primary" href="/shows/comedy-eiskalt">
-              Öffnen
-            </Link>
-          </article>
-
-          <article className="card show-card checkin">
-            <div>
-              <span className="badge">Comedy Check-In</span>
-              <div className="show-art">
-                <img
-                  src="/assets/media/shows/comedy-check-in/comedy-check-in-planet.webp"
-                  alt="Comedy-Check-In-Planet"
-                />
-              </div>
-              <div className="show-card-copy">
-                <h3>Captain & Co-Pilot.</h3>
-                <p>Comedy-Abend mit zwei Moderatoren und dem Spiel „Dein Moderator hat…“.</p>
-              </div>
-            </div>
-            <Link className="btn primary" href="/shows/comedy-check-in">
-              Öffnen
-            </Link>
-          </article>
+            </article>
+          ))}
         </div>
       </section>
 
