@@ -36,5 +36,8 @@ next-env.d.ts
 .superpowers/
 .worktrees/
 
+# Claude Code local config
+.claude/
+
 # Logs
 *.log
