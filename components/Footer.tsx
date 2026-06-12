@@ -45,6 +45,9 @@ export default async function Footer() {
           </p>
         </div>
       </div>
+      <div className="container" style={{ paddingBlock: "18px", color: "var(--muted)", fontSize: 13 }}>
+        © {new Date().getFullYear()} Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Neuss und Andromeda gebaut.
+      </div>
     </footer>
   );
 }
