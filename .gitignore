@@ -34,6 +34,7 @@ next-env.d.ts
 
 # Superpowers brainstorming sessions
 .superpowers/
+.worktrees/
 
 # Logs
 *.log
