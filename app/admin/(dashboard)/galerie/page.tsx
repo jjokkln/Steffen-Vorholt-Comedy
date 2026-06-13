@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
-import { addGalleryItem, updateGalleryItem, deleteGalleryItem, replaceHeroVideo } from "@/lib/actions/gallery";
+import { addGalleryItem, updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
 import { mediaUrl } from "@/lib/media";
+import HeroVideoUpload from "@/components/admin/HeroVideoUpload";
 import type { GalleryItem } from "@/lib/types";
 
 export default async function AdminGaleriePage() {
@@ -48,13 +49,7 @@ export default async function AdminGaleriePage() {
       </div>
 
       <h2 style={{ marginTop: 42 }}>Hero-Video</h2>
-      <p>Aktuell: {hero?.file_path ?? "—"}</p>
-      <form className="card form" action={replaceHeroVideo}>
-        <label>
-          Neues Video (MP4, möglichst &lt; 20 MB) <input name="video" type="file" accept="video/mp4" required />
-        </label>
-        <button className="btn primary">Video ersetzen</button>
-      </form>
+      <HeroVideoUpload current={hero?.file_path ?? ""} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getActiveShows } from "@/lib/data";
 
-const LOGO = "/assets/media/brand/steffen-vorholt-logo-primary.svg";
+const LOGO = "/assets/media/brand/logo_steffen.png";
 
 export default async function Footer() {
   const shows = await getActiveShows();

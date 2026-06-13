@@ -1,8 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+
+export type FormState = { ok: boolean; message: string; at: number } | null;
 
 function slugify(name: string): string {
   return name
@@ -33,6 +36,15 @@ async function uploadPlanet(supabase: Awaited<ReturnType<typeof createServerSupa
   return `planets/${path}`;
 }
 
+async function uploadBackground(supabase: Awaited<ReturnType<typeof createServerSupabase>>, slug: string, file: File | null): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+  const ext = file.name.split(".").pop() || "webp";
+  const path = `bg-${slug}-${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+  if (error) throw new Error(`Hintergrund-Upload fehlgeschlagen: ${error.message}`);
+  return `media/${path}`;
+}
+
 function showFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name ist Pflicht.");
@@ -49,32 +61,48 @@ function showFields(formData: FormData) {
   };
 }
 
-export async function createShow(formData: FormData) {
+export async function createShow(_prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
-  const fields = showFields(formData);
-  const slug = slugify(fields.name);
-  const planetPath = await uploadPlanet(supabase, slug, formData.get("planet") as File | null);
-  const { error } = await supabase.from("shows").insert({
-    ...fields,
-    slug,
-    planet_image_path: planetPath ?? "",
-  });
-  if (error) throw new Error(`Show anlegen fehlgeschlagen: ${error.message}`);
+  let newId: string;
+  try {
+    const fields = showFields(formData);
+    const slug = slugify(fields.name);
+    const planetPath = await uploadPlanet(supabase, slug, formData.get("planet") as File | null);
+    const backgroundPath = await uploadBackground(supabase, slug, formData.get("background") as File | null);
+    const { data, error } = await supabase.from("shows").insert({
+      ...fields,
+      slug,
+      planet_image_path: planetPath ?? "",
+      background_image_path: backgroundPath ?? "",
+    }).select("id").single();
+    if (error) throw new Error(error.message);
+    newId = data.id as string;
+  } catch (err) {
+    return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
+  }
   revalidatePublic();
-  redirect("/admin/shows");
+  // Auf die Bearbeiten-Seite der neuen Show, damit direkt Videos hinzugefügt werden können.
+  redirect(`/admin/shows/${newId}`);
 }
 
-export async function updateShow(id: string, formData: FormData) {
+export async function updateShow(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
-  const fields = showFields(formData);
-  const update: Record<string, unknown> = { ...fields };
-  const { data: existing } = await supabase.from("shows").select("slug").eq("id", id).single();
-  const planetPath = await uploadPlanet(supabase, existing?.slug ?? "show", formData.get("planet") as File | null);
-  if (planetPath) update.planet_image_path = planetPath;
-  const { error } = await supabase.from("shows").update(update).eq("id", id);
-  if (error) throw new Error(`Show speichern fehlgeschlagen: ${error.message}`);
+  try {
+    const fields = showFields(formData);
+    const update: Record<string, unknown> = { ...fields };
+    const { data: existing } = await supabase.from("shows").select("slug").eq("id", id).single();
+    const planetPath = await uploadPlanet(supabase, existing?.slug ?? "show", formData.get("planet") as File | null);
+    if (planetPath) update.planet_image_path = planetPath;
+    const backgroundPath = await uploadBackground(supabase, existing?.slug ?? "show", formData.get("background") as File | null);
+    if (backgroundPath) update.background_image_path = backgroundPath;
+    const { error } = await supabase.from("shows").update(update).eq("id", id);
+    if (error) throw new Error(error.message);
+  } catch (err) {
+    return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
+  }
   revalidatePublic();
-  redirect("/admin/shows");
+  revalidatePath(`/admin/shows/${id}`);
+  return { ok: true, message: "Gespeichert!", at: Date.now() };
 }
 
 export async function deleteShow(id: string) {

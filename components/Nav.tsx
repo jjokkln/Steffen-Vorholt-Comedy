@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const LOGO = "/assets/media/brand/steffen-vorholt-logo-primary.svg";
+const LOGO = "/assets/media/brand/logo_steffen.png";
 
 export default function Nav() {
   const pathname = usePathname();

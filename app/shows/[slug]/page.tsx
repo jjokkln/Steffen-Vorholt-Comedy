@@ -5,7 +5,7 @@ import Image from "next/image";
 import EventCard from "@/components/EventCard";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
-import { getActiveShows, getEventsForShowId, getShowBySlug } from "@/lib/data";
+import { getActiveShows, getEventsForShowId, getShowBySlug, getVideosForShowId } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
 import { breadcrumbJsonLd, comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
@@ -29,11 +29,22 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const show = await getShowBySlug(slug);
   if (!show) notFound();
-  const events = await getEventsForShowId(show.id);
+  const [events, videos] = await Promise.all([
+    getEventsForShowId(show.id),
+    getVideosForShowId(show.id),
+  ]);
   const { upcoming } = partitionEvents(events);
+  const backgroundUrl = show.background_image_path ? mediaUrl(show.background_image_path) : "";
 
   return (
     <>
+      {backgroundUrl && (
+        <div
+          className="show-page-bg"
+          aria-hidden="true"
+          style={{ backgroundImage: `url(${backgroundUrl})` }}
+        />
+      )}
       <header className="container section hero">
         <div>
           <div className="eyebrow">
@@ -81,6 +92,29 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
               <h3>Städte &amp; Locations</h3>
               <p>{show.cities_text}</p>
             </div>
+          </div>
+        </section>
+      )}
+
+      {videos.length > 0 && (
+        <section className="container section">
+          <div className="section-head">
+            <h2>Videos</h2>
+            <p>Reinschauen, bevor du dabei bist.</p>
+          </div>
+          <div className="grid-3 show-videos">
+            {videos.map((v) => (
+              <figure key={v.id} className={`show-video${v.orientation === "portrait" ? " portrait" : ""}`}>
+                <video
+                  src={mediaUrl(v.video_path)}
+                  poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
+                  controls
+                  preload="metadata"
+                  playsInline
+                />
+                {v.title && <figcaption>{v.title}</figcaption>}
+              </figure>
+            ))}
           </div>
         </section>
       )}

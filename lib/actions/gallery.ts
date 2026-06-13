@@ -41,14 +41,11 @@ export async function deleteGalleryItem(id: string) {
   revalidatePath("/admin/galerie");
 }
 
-export async function replaceHeroVideo(formData: FormData) {
+/** Speichert den Pfad eines bereits per Direkt-Upload hochgeladenen Hero-Videos. */
+export async function setHeroVideoPath(path: string) {
+  if (!path) throw new Error("Video-Pfad fehlt.");
   const supabase = await createServerSupabase();
-  const file = formData.get("video") as File | null;
-  if (!file || file.size === 0) throw new Error("Video ist Pflicht.");
-  const path = `hero-${Date.now()}.mp4`;
-  const { error: upErr } = await supabase.storage.from("media").upload(path, file, { contentType: "video/mp4" });
-  if (upErr) throw new Error(`Video-Upload fehlgeschlagen: ${upErr.message}`);
-  const { error } = await supabase.from("site_media").upsert({ key: "hero_video", file_path: `media/${path}`, updated_at: new Date().toISOString() });
+  const { error } = await supabase.from("site_media").upsert({ key: "hero_video", file_path: path, updated_at: new Date().toISOString() });
   if (error) throw new Error(`Video speichern fehlgeschlagen: ${error.message}`);
   revalidatePublic();
   revalidatePath("/admin/galerie");

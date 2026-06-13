@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
   },
+  experimental: {
+    // Bilder/Poster laufen über Server-Actions; Videos gehen per Direkt-Upload an Supabase Storage.
+    // Hinweis: Auf Vercel gilt zusätzlich ein hartes Plattform-Limit von ~4,5 MB pro Server-Action.
+    serverActions: { bodySizeLimit: "25mb" },
+  },
   async redirects() {
     return [
       { source: "/kalender", destination: "/termine", permanent: true },

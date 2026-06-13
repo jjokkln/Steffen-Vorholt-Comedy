@@ -7,10 +7,23 @@ export interface Show {
   format_label: string;
   color: string;
   planet_image_path: string;
+  background_image_path: string;
   principle_items: { title: string; text: string }[];
   cities_text: string;
   sort_order: number;
   is_active: boolean;
+}
+
+export type VideoOrientation = "landscape" | "portrait";
+
+export interface ShowVideo {
+  id: string;
+  show_id: string;
+  video_path: string;
+  poster_path: string;
+  title: string;
+  orientation: VideoOrientation;
+  sort_order: number;
 }
 
 export interface EventRow {

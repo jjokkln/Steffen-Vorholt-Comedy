@@ -1,5 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/public";
-import type { EventRow, GalleryItem, OneLiner, Show } from "@/lib/types";
+import type { EventRow, GalleryItem, OneLiner, Show, ShowVideo } from "@/lib/types";
 
 const EVENT_SELECT = "*, shows(name, slug, color)";
 
@@ -29,6 +29,16 @@ export async function getEventsForShowId(showId: string): Promise<EventRow[]> {
     .from("events").select(EVENT_SELECT).eq("is_published", true).eq("show_id", showId).order("date");
   if (error) throw new Error(`getEventsForShowId: ${error.message}`);
   return data as EventRow[];
+}
+
+export async function getVideosForShowId(showId: string): Promise<ShowVideo[]> {
+  const { data, error } = await createPublicClient()
+    .from("show_videos").select("*").eq("show_id", showId).order("sort_order");
+  // Tolerant, falls die Migration 0002 (Tabelle show_videos) noch nicht eingespielt ist:
+  // Deployment bleibt reihenfolge-unabhängig, Videos erscheinen, sobald die Tabelle existiert.
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getVideosForShowId: ${error.message}`);
+  return data as ShowVideo[];
 }
 
 export async function getGalleryItems(): Promise<GalleryItem[]> {

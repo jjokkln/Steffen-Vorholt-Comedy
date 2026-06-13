@@ -1,16 +1,22 @@
+"use client";
+
+import { useActionState } from "react";
 import type { Show } from "@/lib/types";
+import type { FormState } from "@/lib/actions/shows";
 import { mediaUrl } from "@/lib/media";
+import Toast from "@/components/admin/Toast";
 
 export default function ShowForm({
   show,
   action,
 }: {
   show?: Show;
-  action: (formData: FormData) => Promise<void>;
+  action: (prev: FormState, formData: FormData) => Promise<FormState>;
 }) {
+  const [state, formAction, pending] = useActionState(action, null);
   const principles = (show?.principle_items ?? []).map((p) => `${p.title} :: ${p.text}`).join("\n");
   return (
-    <form className="card form" action={action}>
+    <form className="card form" action={formAction}>
       <div className="form two">
         <label>
           Name *
@@ -54,10 +60,25 @@ export default function ShowForm({
         )}
         <input name="planet" type="file" accept="image/*" />
       </label>
+      <label>
+        Hintergrundbild (liegt hinter der ganzen Show-Seite, am besten ruhiges Motiv, &ge; 1920&times;1080){" "}
+        {show?.background_image_path && (
+          <img
+            src={mediaUrl(show.background_image_path)}
+            alt=""
+            style={{ width: 128, height: 72, objectFit: "cover", borderRadius: 10 }}
+          />
+        )}
+        <input name="background" type="file" accept="image/*" />
+      </label>
       <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
         <input name="is_active" type="checkbox" defaultChecked={show?.is_active ?? true} /> Show ist aktiv (öffentlich sichtbar)
       </label>
-      <button className="btn primary">{show ? "Speichern" : "Show anlegen"}</button>
+      <button className="btn primary" disabled={pending}>
+        {pending ? "Speichert…" : show ? "Speichern" : "Show anlegen"}
+      </button>
+      {state && !state.ok && <p style={{ color: "var(--danger)", margin: 0 }}>{state.message}</p>}
+      {state?.ok && <Toast key={state.at} message={state.message} />}
     </form>
   );
 }
