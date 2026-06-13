@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
-import Ticker from "@/components/Ticker";
 import Planet from "@/components/Planet";
 import Buzzer from "@/components/Buzzer";
 import HeroScrollExperience from "@/components/home/HeroScrollExperience";
 import SectionTransition from "@/components/home/SectionTransition";
 import type { HeroPlanetRole } from "@/components/home/hero-types";
+import CaptainVideo from "@/components/CaptainVideo";
 import JsonLd from "@/components/JsonLd";
 import { getActiveShows, getActiveOneLiners, getGalleryItems, getSiteMedia } from "@/lib/data";
 import { personJsonLd } from "@/lib/jsonld";
@@ -53,7 +53,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <Ticker />
       <HeroScrollExperience
         planets={heroPlanets}
         showCount={47}
@@ -82,7 +81,7 @@ export default async function HomePage() {
                     <Planet
                       src={show.planet_image_path}
                       alt={`Planet der Show ${show.name}`}
-                      size={150}
+                      size={280}
                       color={show.color}
                     />
                   </div>
@@ -177,14 +176,7 @@ export default async function HomePage() {
             </div>
             <div className="captain-media">
               {heroVideo ? (
-                <video
-                  src={mediaUrl(heroVideo)}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                />
+                <CaptainVideo src={mediaUrl(heroVideo)} />
               ) : (
                 <div className="media-placeholder">Bühnen-Video folgt</div>
               )}

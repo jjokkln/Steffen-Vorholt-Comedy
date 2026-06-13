@@ -43,10 +43,12 @@ export default function Buzzer({ oneLiners }: { oneLiners: string[] }) {
 
   return (
     <div className="buzzer-zone" ref={rootRef}>
-      <span className="buzzer-energy" aria-hidden="true" />
-      <button type="button" className="buzzer" onClick={fire} aria-label="Buzzer drücken">
-        BUZZ
-      </button>
+      <div className="buzzer-target">
+        <span className="buzzer-energy" aria-hidden="true" />
+        <button type="button" className="buzzer" onClick={fire} aria-label="Buzzer drücken">
+          BUZZ
+        </button>
+      </div>
       <p className="buzzer-line" aria-live="polite">
         {line ?? "Drück den Buzzer. Trau dich."}
       </p>

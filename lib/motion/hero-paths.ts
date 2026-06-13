@@ -25,49 +25,43 @@ export const HERO_PHASES = {
   portalEnd: 0.82,
 } as const;
 
+// Ruhe-Dreieck: die drei Planeten bilden eine versetzte Triangle-Formation
+// (Apex oben/mittig = größter Planet, zwei Basis-Planeten unten links/rechts)
+// statt einer flachen Reihe. Leicht asymmetrisch, damit es natürlich „versetzt"
+// wirkt. Die WebGL-Szene liest nur progress=0; das Idle-Float in
+// HeroGalaxyScene lässt sie sanft innerhalb des Dreiecks herumschweben.
 const DESKTOP_PATHS: PlanetPose[][] = [
+  // primary (Brain Loading) – APEX oben, leicht links der Mitte, größter Planet
   [
-    { at: 0, x: 2.8, y: 1.6, z: -3.8, scale: 0.45, rotation: -0.16, opacity: 0 },
-    { at: 0.18, x: 1.2, y: 0.8, z: -0.7, scale: 0.95, rotation: -0.05, opacity: 1 },
-    { at: 0.42, x: 0.7, y: 0.25, z: 0.2, scale: 1.1, rotation: 0.06, opacity: 1 },
-    { at: 0.58, x: 0.25, y: 0.15, z: 0.7, scale: 1.3, rotation: 0.12, opacity: 1 },
-    { at: 0.72, x: -1.1, y: 0.05, z: 2.5, scale: 2.65, rotation: -0.1, opacity: 1 },
-    { at: 0.82, x: -2.75, y: -0.2, z: 3.7, scale: 4.1, rotation: -0.2, opacity: 0.72 },
-    { at: 1, x: -3.6, y: -2.05, z: 0.8, scale: 1.25, rotation: -0.28, opacity: 0 },
+    { at: 0, x: -0.20, y:  1.08, z: 0, scale: 1.06, rotation: -0.03, opacity: 1 },
+    { at: 1, x: -0.20, y:  1.08, z: 0, scale: 1.06, rotation: -0.03, opacity: 1 },
   ],
+  // secondary (Comedy Eiskalt) – Basis unten links
   [
-    { at: 0, x: 4.1, y: 1.5, z: -4.4, scale: 0.38, rotation: 0.16, opacity: 0 },
-    { at: 0.18, x: 2.45, y: 0.45, z: -1.2, scale: 0.72, rotation: 0.08, opacity: 1 },
-    { at: 0.42, x: 2.2, y: 0.9, z: -0.2, scale: 0.82, rotation: -0.05, opacity: 1 },
-    { at: 0.58, x: 2.7, y: 0.7, z: 0.15, scale: 0.88, rotation: -0.12, opacity: 1 },
-    { at: 0.82, x: 3.1, y: -0.25, z: 0.65, scale: 1.08, rotation: 0.1, opacity: 0.9 },
-    { at: 1, x: 2.9, y: -2.2, z: 0, scale: 0.92, rotation: 0.18, opacity: 0 },
+    { at: 0, x: -2.65, y: -0.92, z: 0, scale: 1.00, rotation:  0.04, opacity: 1 },
+    { at: 1, x: -2.65, y: -0.92, z: 0, scale: 1.00, rotation:  0.04, opacity: 1 },
   ],
+  // tertiary (Comedy Check-In) – Basis unten rechts
   [
-    { at: 0, x: 2.2, y: -1.8, z: -5, scale: 0.32, rotation: -0.22, opacity: 0 },
-    { at: 0.18, x: 0.9, y: -0.9, z: -1.7, scale: 0.56, rotation: -0.12, opacity: 1 },
-    { at: 0.42, x: 1.2, y: -0.65, z: -0.45, scale: 0.68, rotation: 0.04, opacity: 1 },
-    { at: 0.58, x: 0.75, y: -1.05, z: 0.1, scale: 0.72, rotation: 0.12, opacity: 1 },
-    { at: 0.82, x: 0.5, y: -1.25, z: 0.55, scale: 0.92, rotation: -0.08, opacity: 0.9 },
-    { at: 1, x: 0.15, y: -2.25, z: 0, scale: 0.82, rotation: -0.16, opacity: 0 },
+    { at: 0, x:  2.70, y: -0.72, z: 0, scale: 0.94, rotation:  0.03, opacity: 1 },
+    { at: 1, x:  2.70, y: -0.72, z: 0, scale: 0.94, rotation:  0.03, opacity: 1 },
   ],
 ];
 
+// Mobil: gestaffelte Reihe (untereinander leicht versetzt), damit sich die
+// Planeten auf schmalen Screens nicht überlappen.
 const MOBILE_PATHS: PlanetPose[][] = [
   [
-    { at: 0, x: 1.2, y: 0.8, z: -2, scale: 0.6, rotation: -0.1, opacity: 0 },
-    { at: 0.45, x: 0.7, y: 0.4, z: -0.3, scale: 0.9, rotation: 0, opacity: 1 },
-    { at: 1, x: 0.25, y: 0.2, z: 0, scale: 1, rotation: 0.06, opacity: 1 },
+    { at: 0, x: -1.25, y:  0.62, z: 0, scale: 0.64, rotation: -0.05, opacity: 1 },
+    { at: 1, x: -1.25, y:  0.62, z: 0, scale: 0.64, rotation: -0.05, opacity: 1 },
   ],
   [
-    { at: 0, x: 2.2, y: -0.1, z: -2.5, scale: 0.45, rotation: 0.14, opacity: 0 },
-    { at: 0.55, x: 1.25, y: -0.15, z: -0.5, scale: 0.65, rotation: 0.04, opacity: 1 },
-    { at: 1, x: 1.05, y: -0.25, z: 0, scale: 0.72, rotation: -0.04, opacity: 1 },
+    { at: 0, x:  1.18, y:  0.12, z: 0, scale: 0.58, rotation:  0.04, opacity: 1 },
+    { at: 1, x:  1.18, y:  0.12, z: 0, scale: 0.58, rotation:  0.04, opacity: 1 },
   ],
   [
-    { at: 0, x: 0.5, y: -1.7, z: -3, scale: 0.36, rotation: -0.18, opacity: 0 },
-    { at: 0.6, x: 0.25, y: -1, z: -0.6, scale: 0.52, rotation: -0.04, opacity: 1 },
-    { at: 1, x: 0.1, y: -0.85, z: 0, scale: 0.6, rotation: 0.05, opacity: 1 },
+    { at: 0, x: -0.18, y: -0.92, z: 0, scale: 0.52, rotation: -0.03, opacity: 1 },
+    { at: 1, x: -0.18, y: -0.92, z: 0, scale: 0.52, rotation: -0.03, opacity: 1 },
   ],
 ];
 
@@ -114,7 +108,9 @@ export function getHeroSceneProfile(
   const desktop = mode === "desktop";
   return {
     fov: 38,
-    dprCap: desktop ? 1.75 : 1.25,
+    // Niedrigere Render-Auflösung = weniger Canvas-Pixel, die das blur-Nav pro
+    // Frame neu rastern muss. Für die dekorativen Planeten-Sprites unkritisch.
+    dprCap: desktop ? 1.5 : 1.25,
     starCount: desktop ? 120 : 48,
     trailCount: desktop ? 24 : 0,
     paths: (desktop ? DESKTOP_PATHS : MOBILE_PATHS)

@@ -8,7 +8,6 @@ import { getHeroSceneProfile, samplePlanetPose } from "@/lib/motion/hero-paths";
 interface HeroGalaxySceneProps {
   planets: HeroPlanet[];
   motionState: MutableRefObject<HeroMotionState>;
-  stickerRefs: MutableRefObject<Record<string, HTMLSpanElement | null>>;
   onReady: () => void;
   onFallback: () => void;
 }
@@ -16,7 +15,6 @@ interface HeroGalaxySceneProps {
 export default function HeroGalaxyScene({
   planets,
   motionState,
-  stickerRefs,
   onReady,
   onFallback,
 }: HeroGalaxySceneProps) {
@@ -37,7 +35,7 @@ export default function HeroGalaxyScene({
 
         const renderer = new THREE.WebGLRenderer({
           alpha: true,
-          antialias: true,
+          antialias: false,
           powerPreference: "high-performance",
         });
         renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -55,7 +53,6 @@ export default function HeroGalaxyScene({
           material: import("three").SpriteMaterial;
           sprite: import("three").Sprite;
           aspect: number;
-          projected: import("three").Vector3;
         }> = [];
         let rendererDisposed = false;
 
@@ -108,7 +105,6 @@ export default function HeroGalaxyScene({
               material,
               sprite,
               aspect,
-              projected: new THREE.Vector3(),
             };
           }),
         );
@@ -165,6 +161,7 @@ export default function HeroGalaxyScene({
         const pointer = { x: 0, y: 0 };
         let inView = true;
         let documentVisible = !document.hidden;
+        const startTime = performance.now();
 
         const resize = () => {
           const width = Math.max(1, mount.clientWidth);
@@ -180,41 +177,48 @@ export default function HeroGalaxyScene({
           renderer.setSize(width, height, false);
         };
 
+        let renderTick = 0;
         const render = () => {
+          // Backdrop-Recomposite-Last halbieren: die sanfte Idle-Float-Animation
+          // braucht nicht die volle Display-Rate. Jeder 2. Frame genügt und
+          // entlastet das blur-Nav massiv, das den dauer-repaintenden Canvas
+          // sonst pro Frame neu rastern muss (Ursache des Homepage-Ruckelns).
+          renderTick += 1;
+          if (renderTick % 2 === 0) return;
+
           const progress = motionState.current.progress;
-          pointer.x += (motionState.current.pointerX - pointer.x) * 0.08;
-          pointer.y += (motionState.current.pointerY - pointer.y) * 0.08;
+          const rawPtrX = motionState.current.pointerX;
+          const rawPtrY = motionState.current.pointerY;
+          pointer.x += (rawPtrX - pointer.x) * 0.08;
+          pointer.y += (rawPtrY - pointer.y) * 0.08;
+
+          // Sanftes Idle-Float: die Planeten schweben dauerhaft, da sie nicht
+          // mehr per Scroll bewegt werden. Günstig (3 Sprites) und nur aktiv,
+          // solange der Hero im Viewport ist (IntersectionObserver pausiert).
+          const elapsed = (performance.now() - startTime) / 1000;
 
           spriteEntries.forEach((entry, index) => {
             const path = profile.paths[index];
             if (!path) return;
             const pose = samplePlanetPose(path, progress);
             const pointerWeight = index === primaryIndex ? 0.28 : 0.16;
+            // Sanftes elliptisches Drift pro Planet (eigene Phase/Frequenz je
+            // index), damit sie innerhalb ihrer Dreiecks-Position herumschweben.
+            const floatX = Math.cos(elapsed * 0.5 + index * 2.1) * 0.12;
+            const floatY = Math.sin(elapsed * 0.6 + index * 1.8) * 0.13;
+            const floatRot = Math.sin(elapsed * 0.45 + index * 1.2) * 0.025;
             entry.sprite.position.set(
-              pose.x + pointer.x * pointerWeight,
-              pose.y - pointer.y * pointerWeight,
+              pose.x + pointer.x * pointerWeight + floatX,
+              pose.y - pointer.y * pointerWeight + floatY,
               pose.z,
             );
             entry.sprite.scale.set(
-              1.75 * entry.aspect * pose.scale,
-              1.75 * pose.scale,
+              2.2 * entry.aspect * pose.scale,
+              2.2 * pose.scale,
               1,
             );
-            entry.material.rotation = pose.rotation;
+            entry.material.rotation = pose.rotation + floatRot;
             entry.material.opacity = pose.opacity;
-
-            const label = stickerRefs.current[entry.planet.id];
-            if (label) {
-              entry.projected.copy(entry.sprite.position).project(camera);
-              const x = (entry.projected.x * 0.5 + 0.5) * mount.clientWidth;
-              const y = (-entry.projected.y * 0.5 + 0.5) * mount.clientHeight;
-              const visible =
-                Math.abs(entry.projected.z) <= 1 && pose.opacity > 0.08 && progress < 0.88;
-              label.style.opacity = visible ? String(Math.min(1, pose.opacity)) : "0";
-              label.style.transform =
-                `translate3d(${x}px, ${y}px, 0) translate(-50%, -135%) ` +
-                `rotate(${pose.rotation * 57.2958}deg)`;
-            }
           });
 
           const portalIn = Math.min(1, Math.max(0, (progress - 0.58) / 0.14));
@@ -304,7 +308,7 @@ export default function HeroGalaxyScene({
       disposed = true;
       cleanupScene?.();
     };
-  }, [motionState, onFallback, onReady, planets, stickerRefs]);
+  }, [motionState, onFallback, onReady, planets]);
 
   return <div className="hero-galaxy-mount" ref={mountRef} aria-hidden="true" />;
 }

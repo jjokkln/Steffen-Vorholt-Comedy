@@ -32,7 +32,6 @@ export default function HeroScrollExperience({
 }: HeroScrollExperienceProps) {
   const rootRef = useRef<HTMLElement>(null);
   const motionState = useRef<HeroMotionState>({ progress: 0, pointerX: 0, pointerY: 0 });
-  const stickerRefs = useRef<Record<string, HTMLSpanElement | null>>({});
   const [sceneEnabled, setSceneEnabled] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
 
@@ -102,27 +101,26 @@ export default function HeroScrollExperience({
             });
           });
 
-          if (conditions.desktop) {
-            gsap.timeline({
-              scrollTrigger: {
-                trigger: root,
-                start: "top top",
-                end: () => `+=${Math.round(window.innerHeight * 1.5)}`,
-                pin: true,
-                scrub: 0.9,
-                anticipatePin: 1,
-                invalidateOnRefresh: true,
-                onUpdate: (self) => {
-                  motionState.current.progress = self.progress;
-                },
-              },
-            })
-              .to("[data-scroll-cue]", { autoAlpha: 0, y: 12, duration: 0.12 }, 0.08)
-              .to("[data-hero-copy]", { xPercent: -8, opacity: 0.42, ease: "none" }, 0.58)
-              .to(root, { "--hero-portal": 1, ease: "none" }, 0.58)
-              .to("[data-hero-copy]", { xPercent: -16, opacity: 0, ease: "none" }, 0.82);
-          } else {
-            motionState.current.progress = 1;
+          // Planeten ruhen als feste Reihe (progress=0 desktop, =1 mobil) und
+          // schweben per Idle-Float in der WebGL-Szene – KEIN Scroll-Pin/Scrub
+          // mehr. Das war die Ursache des Ruckelns: pin+scrub ließ Canvas,
+          // Portal-Glow und Copy hinter dem backdrop-filter-Nav jeden Frame neu
+          // rastern. Nur ein günstiger, nicht-gepinnter Fade des Scroll-Cues.
+          motionState.current.progress = conditions.desktop ? 0 : 1;
+
+          gsap.to("[data-scroll-cue]", {
+            autoAlpha: 0,
+            y: 12,
+            duration: 0.3,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: root,
+              start: "top top-=40",
+              toggleActions: "play none none reverse",
+            },
+          });
+
+          if (!conditions.desktop) {
             gsap.from("[data-hero-fallback]", {
               y: 24,
               autoAlpha: 0,
@@ -160,6 +158,50 @@ export default function HeroScrollExperience({
       onPointerLeave={handlePointerLeave}
     >
       <div className="hero-portal-glow" aria-hidden="true" />
+
+      <div className={`hero-visual-stage${sceneReady ? " webgl-ready" : ""}`}>
+        {sceneEnabled && (
+          <HeroGalaxyScene
+            planets={planets}
+            motionState={motionState}
+            onReady={handleReady}
+            onFallback={handleFallback}
+          />
+        )}
+
+        <div
+          className={`hero-static-fallback${sceneReady ? " is-hidden" : ""}`}
+          data-hero-fallback
+          aria-hidden="true"
+        >
+          {planets.map((planet) => {
+            const size =
+              planet.role === "primary" ? 260 : planet.role === "secondary" ? 185 : 148;
+            return (
+              <span
+                className={`hero-fallback-planet is-${planet.role}`}
+                key={planet.id}
+                style={{
+                  "--planet-glow": `${planet.color}59`,
+                  "--sticker-shadow": `${planet.color}8C`,
+                } as CSSProperties}
+              >
+                {planet.role === "primary" && <span className="orbit" />}
+                <img
+                  className="planet"
+                  src={planet.imageUrl}
+                  alt=""
+                  width={size}
+                  height={size}
+                  loading={planet.role === "primary" ? "eager" : "lazy"}
+                  fetchPriority={planet.role === "primary" ? "high" : "auto"}
+                />
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="container hero-scroll-grid">
         <div className="hero-scroll-copy" data-hero-copy>
           <div className="eyebrow">
@@ -184,68 +226,6 @@ export default function HeroScrollExperience({
             <span><b data-counter={showCount}>{showCount}</b> Shows gespielt</span>
             <span><b data-counter={cityCount}>{cityCount}</b> Städte</span>
             <span><b data-counter={formatCount}>{formatCount}</b> eigene Formate</span>
-          </div>
-        </div>
-
-        <div className="hero-visual-stage">
-          {sceneEnabled && (
-            <HeroGalaxyScene
-              planets={planets}
-              motionState={motionState}
-              stickerRefs={stickerRefs}
-              onReady={handleReady}
-              onFallback={handleFallback}
-            />
-          )}
-
-          <div
-            className={`hero-static-fallback${sceneReady ? " is-hidden" : ""}`}
-            data-hero-fallback
-            aria-hidden="true"
-          >
-            {planets.map((planet) => {
-              const size =
-                planet.role === "primary" ? 190 : planet.role === "secondary" ? 132 : 104;
-              return (
-                <span
-                  className={`hero-fallback-planet is-${planet.role}`}
-                  key={planet.id}
-                  style={{
-                    "--planet-glow": `${planet.color}59`,
-                    "--sticker-shadow": `${planet.color}8C`,
-                  } as CSSProperties}
-                >
-                  {planet.role === "primary" && <span className="orbit" />}
-                  <img
-                    className="planet"
-                    src={planet.imageUrl}
-                    alt=""
-                    width={size}
-                    height={size}
-                    loading={planet.role === "primary" ? "eager" : "lazy"}
-                    fetchPriority={planet.role === "primary" ? "high" : "auto"}
-                  />
-                  <span className="sticker" style={{ position: "absolute", top: -10, right: -18 }}>
-                    {planet.name}
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-
-          <div className={`hero-webgl-labels${sceneReady ? " is-ready" : ""}`} aria-hidden="true">
-            {planets.map((planet) => (
-              <span
-                className="sticker hero-webgl-label"
-                key={planet.id}
-                ref={(element) => {
-                  stickerRefs.current[planet.id] = element;
-                }}
-                style={{ "--sticker-shadow": `${planet.color}8C` } as CSSProperties}
-              >
-                {planet.name}
-              </span>
-            ))}
           </div>
         </div>
       </div>

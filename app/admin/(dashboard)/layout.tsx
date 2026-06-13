@@ -15,26 +15,30 @@ const ADMIN_NAV = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <header className="container section" style={{ paddingBlock: "42px" }}>
+      <header className="container" style={{ paddingBlock: "48px 32px" }}>
         <div className="eyebrow">🛠️ Mission Control</div>
       </header>
-      <section className="container section" style={{ paddingTop: 0 }}>
+      <div className="container" style={{ paddingBottom: "clamp(48px, 6vw, 96px)" }}>
         <div className="admin-layout">
-          <aside className="sidebar">
-            {ADMIN_NAV.map((n) => (
-              <Link key={n.href} href={n.href}>
-                {n.label}
-              </Link>
-            ))}
-            <form action={logout}>
-              <button className="btn secondary" style={{ marginTop: 18, width: "100%" }}>
+          <aside className="sidebar" aria-label="Admin-Navigation">
+            <nav aria-label="Bereich wählen">
+              {ADMIN_NAV.map((n) => (
+                <Link key={n.href} href={n.href}>
+                  {n.label}
+                </Link>
+              ))}
+            </nav>
+            <form action={logout} style={{ marginTop: 24 }}>
+              <button className="btn secondary" style={{ width: "100%" }}>
                 Logout
               </button>
             </form>
           </aside>
-          <main>{children}</main>
+          <main id="main-content" tabIndex={-1}>
+            {children}
+          </main>
         </div>
-      </section>
+      </div>
     </>
   );
 }
