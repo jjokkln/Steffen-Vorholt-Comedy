@@ -61,6 +61,17 @@ export default function ShowForm({
         <input name="planet" type="file" accept="image/*" />
       </label>
       <label>
+        Titelbild — erscheint groß in der Hero-Section der Show-Subpage{" "}
+        {show?.header_image_path && (
+          <img
+            src={mediaUrl(show.header_image_path)}
+            alt=""
+            style={{ width: 128, height: 72, objectFit: "cover", borderRadius: 10 }}
+          />
+        )}
+        <input name="header_image" type="file" accept="image/*" />
+      </label>
+      <label>
         Hintergrundbild (liegt hinter der ganzen Show-Seite, am besten ruhiges Motiv, &ge; 1920&times;1080){" "}
         {show?.background_image_path && (
           <img

@@ -8,10 +8,19 @@ export interface Show {
   color: string;
   planet_image_path: string;
   background_image_path: string;
+  header_image_path: string;
   principle_items: { title: string; text: string }[];
   cities_text: string;
   sort_order: number;
   is_active: boolean;
+}
+
+export interface ShowImage {
+  id: string;
+  show_id: string;
+  image_path: string;
+  alt_text: string;
+  sort_order: number;
 }
 
 export type VideoOrientation = "landscape" | "portrait";

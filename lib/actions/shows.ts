@@ -45,6 +45,15 @@ async function uploadBackground(supabase: Awaited<ReturnType<typeof createServer
   return `media/${path}`;
 }
 
+async function uploadHeader(supabase: Awaited<ReturnType<typeof createServerSupabase>>, slug: string, file: File | null): Promise<string | null> {
+  if (!file || file.size === 0) return null;
+  const ext = file.name.split(".").pop() || "webp";
+  const path = `header-${slug}-${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+  if (error) throw new Error(`Titelbild-Upload fehlgeschlagen: ${error.message}`);
+  return `media/${path}`;
+}
+
 function showFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name ist Pflicht.");
@@ -69,11 +78,13 @@ export async function createShow(_prev: FormState, formData: FormData): Promise<
     const slug = slugify(fields.name);
     const planetPath = await uploadPlanet(supabase, slug, formData.get("planet") as File | null);
     const backgroundPath = await uploadBackground(supabase, slug, formData.get("background") as File | null);
+    const headerPath = await uploadHeader(supabase, slug, formData.get("header_image") as File | null);
     const { data, error } = await supabase.from("shows").insert({
       ...fields,
       slug,
       planet_image_path: planetPath ?? "",
       background_image_path: backgroundPath ?? "",
+      header_image_path: headerPath ?? "",
     }).select("id").single();
     if (error) throw new Error(error.message);
     newId = data.id as string;
@@ -95,6 +106,8 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
     if (planetPath) update.planet_image_path = planetPath;
     const backgroundPath = await uploadBackground(supabase, existing?.slug ?? "show", formData.get("background") as File | null);
     if (backgroundPath) update.background_image_path = backgroundPath;
+    const headerPath = await uploadHeader(supabase, existing?.slug ?? "show", formData.get("header_image") as File | null);
+    if (headerPath) update.header_image_path = headerPath;
     const { error } = await supabase.from("shows").update(update).eq("id", id);
     if (error) throw new Error(error.message);
   } catch (err) {

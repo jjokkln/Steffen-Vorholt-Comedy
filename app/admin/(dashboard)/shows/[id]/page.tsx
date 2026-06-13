@@ -1,30 +1,56 @@
 import { notFound } from "next/navigation";
 import ShowForm from "@/components/admin/ShowForm";
 import ShowVideoUpload from "@/components/admin/ShowVideoUpload";
+import ShowImageUpload from "@/components/admin/ShowImageUpload";
 import { updateShow } from "@/lib/actions/shows";
 import { deleteShowVideo, updateShowVideoOrientation } from "@/lib/actions/show-videos";
+import { deleteShowImage } from "@/lib/actions/show-images";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { mediaUrl } from "@/lib/media";
-import type { Show, ShowVideo } from "@/lib/types";
+import type { Show, ShowImage, ShowVideo } from "@/lib/types";
 
 export default async function EditShowPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createServerSupabase();
-  const [{ data }, { data: videoRows }] = await Promise.all([
+  const [{ data }, { data: videoRows }, { data: imageRows }] = await Promise.all([
     supabase.from("shows").select("*").eq("id", id).maybeSingle(),
     supabase.from("show_videos").select("*").eq("show_id", id).order("sort_order"),
+    supabase.from("show_images").select("*").eq("show_id", id).order("sort_order"),
   ]);
   if (!data) notFound();
   const show = data as Show;
   const videos = (videoRows ?? []) as ShowVideo[];
+  const images = (imageRows ?? []) as ShowImage[];
 
   return (
     <>
       <h2>{show.name} bearbeiten</h2>
       <ShowForm show={show} action={updateShow.bind(null, show.id)} />
 
+      <h2 style={{ marginTop: 42 }}>Fotos dieser Show</h2>
+      <p>Erscheinen in der Mediengalerie auf der Show-Seite.</p>
+      <ShowImageUpload showId={show.id} />
+
+      {images.length > 0 && (
+        <div className="grid-3" style={{ marginTop: 24 }}>
+          {images.map((img) => (
+            <div className="card" key={img.id} style={{ padding: 14 }}>
+              <img
+                src={mediaUrl(img.image_path)}
+                alt={img.alt_text || ""}
+                style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 12, marginBottom: 10 }}
+              />
+              {img.alt_text && <p style={{ margin: "0 0 8px", fontWeight: 850, fontSize: 13 }}>{img.alt_text}</p>}
+              <form action={deleteShowImage.bind(null, img.id, show.id)}>
+                <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
+              </form>
+            </div>
+          ))}
+        </div>
+      )}
+
       <h2 style={{ marginTop: 42 }}>Videos dieser Show</h2>
-      <p>Werden auf der Show-Seite in einem eigenen Abschnitt angezeigt.</p>
+      <p>Werden in der Mediengalerie auf der Show-Seite angezeigt.</p>
       <ShowVideoUpload showId={show.id} />
 
       {videos.length > 0 && (

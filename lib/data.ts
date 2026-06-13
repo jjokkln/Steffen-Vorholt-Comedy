@@ -1,5 +1,5 @@
 import { createPublicClient } from "@/lib/supabase/public";
-import type { EventRow, GalleryItem, OneLiner, Show, ShowVideo } from "@/lib/types";
+import type { EventRow, GalleryItem, OneLiner, Show, ShowImage, ShowVideo } from "@/lib/types";
 
 const EVENT_SELECT = "*, shows(name, slug, color)";
 
@@ -39,6 +39,14 @@ export async function getVideosForShowId(showId: string): Promise<ShowVideo[]> {
   if (error?.code === "PGRST205") return [];
   if (error) throw new Error(`getVideosForShowId: ${error.message}`);
   return data as ShowVideo[];
+}
+
+export async function getImagesForShowId(showId: string): Promise<ShowImage[]> {
+  const { data, error } = await createPublicClient()
+    .from("show_images").select("*").eq("show_id", showId).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getImagesForShowId: ${error.message}`);
+  return data as ShowImage[];
 }
 
 export async function getGalleryItems(): Promise<GalleryItem[]> {
