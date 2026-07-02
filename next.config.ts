@@ -19,7 +19,9 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/kalender", destination: "/termine", permanent: true },
+      { source: "/kalender", destination: "/shows", permanent: true },
+      { source: "/termine", destination: "/shows", permanent: true },
+      { source: "/comedian", destination: "/steffen", permanent: true },
       { source: "/steffen-buchen", destination: "/kontakt", permanent: true },
       { source: "/comedians-bewerben", destination: "/kontakt", permanent: true },
       { source: "/archiv", destination: "/", permanent: true },

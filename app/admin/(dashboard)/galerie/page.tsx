@@ -2,7 +2,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { addGalleryItem, updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
 import { mediaUrl } from "@/lib/media";
 import HeroVideoUpload from "@/components/admin/HeroVideoUpload";
-import type { GalleryItem } from "@/lib/types";
+import { GALLERY_CATEGORIES, type GalleryItem } from "@/lib/types";
 
 export default async function AdminGaleriePage() {
   const supabase = await createServerSupabase();
@@ -24,9 +24,18 @@ export default async function AdminGaleriePage() {
             Bildunterschrift <input name="caption" placeholder="z. B. Brain Loading, Köln 2025" />
           </label>
           <label>
-            Sortierung <input name="sort_order" type="number" defaultValue={0} />
+            Kategorie
+            <select name="category" defaultValue="">
+              <option value="">— Weitere —</option>
+              {GALLERY_CATEGORIES.map((c) => (
+                <option key={c.key} value={c.key}>{c.label}</option>
+              ))}
+            </select>
           </label>
         </div>
+        <label>
+          Sortierung <input name="sort_order" type="number" defaultValue={0} />
+        </label>
         <button className="btn primary">Hochladen</button>
       </form>
 
@@ -36,6 +45,12 @@ export default async function AdminGaleriePage() {
             <img src={mediaUrl(g.image_path)} alt={g.caption} style={{ borderRadius: 12, marginBottom: 10 }} />
             <form className="form" action={updateGalleryItem.bind(null, g.id)}>
               <input name="caption" defaultValue={g.caption} />
+              <select name="category" defaultValue={g.category ?? ""}>
+                <option value="">— Weitere —</option>
+                {GALLERY_CATEGORIES.map((c) => (
+                  <option key={c.key} value={c.key}>{c.label}</option>
+                ))}
+              </select>
               <input name="sort_order" type="number" defaultValue={g.sort_order} />
               <div className="actions" style={{ marginTop: 8 }}>
                 <button className="btn secondary">Speichern</button>

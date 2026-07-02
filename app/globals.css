@@ -143,6 +143,25 @@ p{color:var(--muted);font-size:17px;line-height:1.66}
 .eventbar,.filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}
 .chip{border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text);padding:10px 13px;border-radius:999px;font-weight:850;cursor:pointer}
 .chip.active{background:var(--text);color:#050711}
+.view-toggle{display:flex;gap:8px;flex-shrink:0}
+.map-placeholder{display:flex;align-items:center;justify-content:center;min-height:320px;font-weight:850;color:var(--muted);text-align:center}
+.nrw-map-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:start}
+.nrw-map-panel{container-type:inline-size}
+.map-events-grid{display:grid;grid-template-columns:1fr;gap:20px}
+@container (min-width:480px){.map-events-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.nrw-map-figure{border:1px solid var(--line);border-radius:24px;background:rgba(0,0,0,.24);padding:14px;position:sticky;top:90px}
+.nrw-map-svg{width:100%;height:auto;display:block;overflow:visible}
+.nrw-marker{cursor:pointer}
+.nrw-marker circle{transition:transform .2s ease}
+.nrw-marker:hover circle:last-of-type,.nrw-marker.active circle:last-of-type{transform:scale(1.15)}
+.nrw-marker-label{fill:var(--text);font-size:2.6px;font-weight:850;paint-order:stroke;stroke:#050711;stroke-width:.8px}
+.nrw-marker:focus{outline:none}
+.nrw-marker:focus-visible circle:last-of-type{stroke:#fff;stroke-width:.8px}
+.nrw-marker-halo{transform-box:fill-box;transform-origin:center;opacity:.6;animation:nrw-halo 2.6s ease-out infinite}
+.nrw-marker:nth-of-type(2n) .nrw-marker-halo{animation-delay:-.8s}
+.nrw-marker:nth-of-type(3n) .nrw-marker-halo{animation-delay:-1.6s}
+@keyframes nrw-halo{0%{opacity:.55;transform:scale(.7)}70%,100%{opacity:0;transform:scale(1.8)}}
+@media (max-width:820px){.nrw-map-layout{grid-template-columns:1fr}.nrw-map-figure{position:static}}
 .event-card{min-height:265px;display:flex;flex-direction:column;justify-content:space-between}
 .event-top{display:flex;justify-content:space-between;gap:14px;align-items:start}
 .datebox{min-width:76px;text-align:center;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.24)}
@@ -244,7 +263,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 @media(max-width:1050px){
   .hero,.feature,.grid-2,.admin-layout{grid-template-columns:1fr}
   .admin-layout{min-height:auto;padding:18px;gap:18px}
-  .grid-3{grid-template-columns:1fr}
+  .grid-3,.contact-grid{grid-template-columns:1fr}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   .calendar{grid-template-columns:repeat(2,minmax(0,1fr))}
   .show-media-grid[data-count="3"]{grid-template-columns:1fr 1fr}
@@ -409,6 +428,22 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 /* === Cosmic-Galaxie Bausteine === */
 .sticker{display:inline-block;background:#fff;color:#06070f;font-weight:900;font-size:13px;padding:6px 12px;border-radius:12px;transform:rotate(var(--rot,-3deg));box-shadow:4px 4px 0 var(--sticker-shadow,rgba(124,255,107,.55));transition:transform .2s ease}
 
+/* Ticker: reine transform-Animation, per will-change auf einen eigenen
+   Compositor-Layer promoted + contain, damit nichts außerhalb neu gerastert
+   wird (der Vorgänger fehlte genau das, siehe Commit 502c497). */
+.ticker{
+  position:relative;overflow:hidden;contain:layout style paint;
+  border-bottom:1px solid var(--line);background:rgba(255,255,255,.03);
+  padding-block:9px;
+}
+.ticker-track{
+  display:flex;gap:44px;white-space:nowrap;width:max-content;
+  font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--muted);
+  will-change:transform;
+  animation:ticker-scroll 32s linear infinite;
+}
+@keyframes ticker-scroll{to{transform:translateX(-50%)}}
+
 .planet-wrap{position:relative;display:inline-grid;place-items:center}
 .planet{border-radius:50%;animation:planet-float 7s ease-in-out infinite;filter:drop-shadow(0 0 38px var(--planet-glow,rgba(124,255,107,.35)));transition:transform .25s ease}
 .planet-wrap:hover .planet{animation-play-state:paused;transform:rotate(-8deg) scale(1.06)}
@@ -439,18 +474,44 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   min-height:calc(100vh - 84px);
   overflow:hidden;
   isolation:isolate;
+  transform-origin:50% 20%;
+  will-change:transform;
   background:
     radial-gradient(circle at 22% 32%,rgba(155,92,255,.3),transparent 32%),
     radial-gradient(circle at 82% 42%,rgba(66,217,255,.16),transparent 34%);
 }
-.hero-portal-glow{
-  position:absolute;inset:-25%;z-index:0;pointer-events:none;
-  opacity:.16;
-  transform:scale(.92);
-  background:
-    radial-gradient(circle at 48% 52%,rgba(124,255,107,.35),transparent 18%),
-    radial-gradient(circle at 56% 48%,rgba(66,217,255,.28),transparent 32%),
-    radial-gradient(circle at 46% 52%,rgba(155,92,255,.3),transparent 48%);
+/* Hero pinnt (Desktop) während die folgende "Wähl deine Mission"-Karte per
+   negativem margin-top darüber zieht – siehe HeroScrollExperience.tsx für die
+   Scroll-Progress-getriebene transform/filter-Mutation auf .hero-scroll-shell. */
+.hero-pin-block{position:relative}
+@media(min-width:901px){
+  .hero-pin-block .hero-scroll-shell{position:sticky;top:84px;z-index:1}
+}
+.home-shows-pin{
+  position:relative;z-index:2;overflow:hidden;
+  margin-top:-64px;
+  border-radius:40px 40px 0 0;
+  background:linear-gradient(180deg,#0b0620 0%,#070a1e 55%,#04050c 100%);
+  box-shadow:0 -70px 130px rgba(0,0,0,.65),0 -1px 0 rgba(255,255,255,.1);
+}
+.home-shows-pin .drag-handle{
+  display:block;width:56px;height:5px;border-radius:999px;
+  background:rgba(255,255,255,.25);margin:20px auto 0;
+}
+/* Sternschnuppen: dünne Lichtstreifen, die alle paar Sekunden diagonal durch
+   den Hero ziehen. Reine transform/opacity-Animation, pointer-events:none. */
+.hero-comet{
+  position:absolute;z-index:0;top:10%;left:-14%;width:190px;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(174,235,255,.95));
+  border-radius:999px;opacity:0;
+  animation:comet 13s linear infinite;animation-delay:2.5s;
+}
+.hero-comet.is-second{top:56%;left:-18%;width:130px;animation-duration:19s;animation-delay:9s}
+@keyframes comet{
+  0%{transform:translate3d(0,0,0) rotate(20deg);opacity:0}
+  3%{opacity:.85}
+  11%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}
+  100%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}
 }
 /* Lesbarkeits-Scrim: dunkelt die linke Hälfte (unter der Copy) ab, läuft nach
    rechts transparent aus, wo die Planeten-Reihe sichtbar bleibt. */
@@ -465,36 +526,91 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   align-items:center;padding-block:clamp(64px,8vw,118px);
 }
 .hero-scroll-copy{position:relative;z-index:6;max-width:min(46rem,100%)}
-.hero-scroll-title{display:grid;gap:.02em}
+/* Kleiner als das globale h1-Clamp: die Headline muss zweizeilig bleiben,
+   sonst wächst der Hero über den Viewport und die CTAs rutschen aus dem Bild. */
+.hero-scroll-title{display:grid;gap:.02em;font-size:clamp(44px,6vw,92px)}
 .hero-line-mask{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
 .hero-line-mask>span,.hero-line-mask>em{display:block;width:max-content;max-width:100%}
-/* Full-bleed-Bühne: Planeten-Reihe spannt sich über die ganze Hero-Breite und
-   schwebt hinter dem Text (Copy liegt per z-index darüber). */
-.hero-visual-stage{position:absolute;inset:0;z-index:1;pointer-events:none}
-.hero-galaxy-mount,.hero-static-fallback{
-  position:absolute;inset:0
+
+/* Orbital-System: Steffen (Astronaut, Link zu /steffen) ist das Zentralgestirn,
+   die drei Show-Planeten kreisen auf sichtbaren Bahnen um ihn. Die Systemgröße
+   koppelt an vh/vw, damit alle drei Planeten bei JEDER Fenstergröße komplett im
+   Hero sichtbar bleiben (das alte Layout mit absoluten %-Positionen hat den
+   dritten Planeten auf kleinen Screens aus dem Viewport geschoben). */
+.hero-system{
+  position:absolute;top:50%;right:clamp(8px,3vw,72px);translate:0 -50%;
+  z-index:1;width:min(72vh,46vw,760px);aspect-ratio:1;
 }
-.hero-galaxy-mount{z-index:2;pointer-events:none;opacity:0;transition:opacity .45s ease}
-.hero-visual-stage.webgl-ready .hero-galaxy-mount{opacity:1}
-.hero-galaxy-canvas{width:100%;height:100%;display:block;pointer-events:none}
-.hero-static-fallback{
-  z-index:1;transition:opacity .45s ease,visibility .45s ease;pointer-events:none
+.hero-system::before{
+  content:"";position:absolute;inset:29%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(245,214,138,.30),rgba(155,92,255,.12) 46%,transparent 72%);
+  filter:blur(8px);
 }
-.hero-static-fallback.is-hidden{opacity:0;visibility:hidden}
-.hero-fallback-planet{position:absolute}
-.hero-fallback-planet.is-primary{right:18%;top:8%}
-.hero-fallback-planet.is-secondary{right:26%;top:42%}
-.hero-fallback-planet.is-tertiary{right:5%;bottom:8%}
-.hero-scroll-cue{
-  position:absolute;left:50%;bottom:18px;z-index:8;translate:-50% 0;
-  display:grid;justify-items:center;gap:8px;color:var(--muted);
-  font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase
+/* Orbit-Mechanik: der Carrier rotiert 360°, der Planet hängt am oberen Rand
+   der Bahn und rotiert exakt gegenläufig, damit Bild + Sticker aufrecht bleiben. */
+@keyframes orbit-spin{from{transform:rotate(var(--start))}to{transform:rotate(calc(var(--start) + 360deg))}}
+@keyframes orbit-hold{from{transform:rotate(calc(var(--start) * -1))}to{transform:rotate(calc(var(--start) * -1 - 360deg))}}
+.hero-carrier{position:absolute;inset:0;pointer-events:none;transform:rotate(var(--start));animation:orbit-spin var(--period) linear infinite}
+.hero-carrier.is-primary{--start:38deg;--period:110s;--orbit-r:27%;--planet-size:30%}
+.hero-carrier.is-secondary{--start:255deg;--period:150s;--orbit-r:40%;--planet-size:22%}
+.hero-carrier.is-tertiary{--start:132deg;--period:190s;--orbit-r:50%;--planet-size:18%}
+/* Zentrierung über inset:0 + margin:auto statt translate: GSAP setzt beim
+   Entrance-Tween `translate:none` und würde eine translate-Zentrierung kippen. */
+.hero-orbit{
+  position:absolute;inset:0;margin:auto;border-radius:50%;pointer-events:none;
+  width:calc(var(--orbit-r) * 2);height:calc(var(--orbit-r) * 2);
+  border:1px solid rgba(255,255,255,.16);
 }
-.hero-scroll-cue i{
-  display:block;width:1px;height:34px;transform-origin:top;
-  background:linear-gradient(var(--gold1),transparent);animation:scroll-cue 1.5s ease-in-out infinite
+.hero-orbit.is-primary{--orbit-r:27%}
+.hero-orbit.is-secondary{--orbit-r:40%;border-color:rgba(255,255,255,.12)}
+.hero-orbit.is-tertiary{--orbit-r:50%;border-color:rgba(255,255,255,.09)}
+.hero-planet{
+  position:absolute;left:50%;top:calc(50% - var(--orbit-r));translate:-50% -50%;
+  width:var(--planet-size);pointer-events:auto;display:block;text-decoration:none;cursor:pointer;
+  transform:rotate(calc(var(--start) * -1));
+  animation:orbit-hold var(--period) linear infinite;
 }
-@keyframes scroll-cue{50%{transform:scaleY(.45);opacity:.45}}
+.hero-planet.is-primary{--rot:-4deg}
+.hero-planet.is-secondary{--rot:3deg}
+.hero-planet.is-tertiary{--rot:-2deg}
+.hero-planet-inner{display:block;position:relative}
+.hero-planet-float{display:block;animation:planet-float 7s ease-in-out infinite}
+.hero-carrier.is-secondary .hero-planet-float{animation-delay:-2.4s}
+.hero-carrier.is-tertiary .hero-planet-float{animation-delay:-4.8s}
+.hero-planet .planet{width:100%;height:auto;display:block;animation:none}
+.hero-planet:focus-visible{outline:none}
+.hero-planet:hover .planet,.hero-planet:focus-visible .planet{transform:scale(1.07);filter:drop-shadow(0 0 60px var(--planet-color,rgba(124,255,107,.6)))}
+.hero-planet:hover .sticker,.hero-planet:focus-visible .sticker{transform:rotate(var(--rot,-3deg)) scale(1.12)}
+.hero-planet-sticker{position:absolute;top:-10px;right:-14px;z-index:1;white-space:nowrap}
+/* Annäherung pausiert das ganze System sanft – klickbare, stillstehende Ziele. */
+.hero-system:hover .hero-carrier,.hero-system:focus-within .hero-carrier,
+.hero-system:hover .hero-planet,.hero-system:focus-within .hero-planet,
+.hero-system:hover .hero-planet-float,.hero-system:focus-within .hero-planet-float{animation-play-state:paused}
+.hero-sun{
+  position:absolute;inset:0;margin:auto;width:max-content;height:max-content;
+  display:block;text-decoration:none;cursor:pointer;pointer-events:auto;
+}
+.hero-sun-orb{
+  display:grid;place-items:center;width:clamp(70px,11.5vh,112px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 32%,rgba(245,214,138,.42),rgba(8,11,26,.94) 74%);
+  border:1px solid rgba(245,214,138,.55);font-size:clamp(32px,5.4vh,54px);
+  box-shadow:0 0 34px rgba(232,163,61,.38);transition:transform .3s ease,box-shadow .3s ease;
+}
+.hero-sun-label{
+  position:absolute;top:calc(100% + 9px);left:50%;translate:-50% 0;
+  font-size:12px;font-weight:850;color:#fff;background:rgba(8,11,26,.85);
+  padding:4px 11px;border-radius:999px;border:1px solid rgba(245,214,138,.45);white-space:nowrap
+}
+.hero-sun:focus-visible{outline:none}
+.hero-sun:hover .hero-sun-orb,.hero-sun:focus-visible .hero-sun-orb{
+  transform:scale(1.07);box-shadow:0 0 52px rgba(232,163,61,.65)
+}
+@media (max-width:900px){
+  .hero-system{position:relative;top:auto;right:auto;translate:none;width:min(88vw,420px);margin:10px auto 0}
+  .hero-sun-orb{width:clamp(64px,20vw,88px);font-size:clamp(28px,9vw,40px)}
+  /* Sticker mittig über dem Planeten, sonst ragen sie am Viewport-Rand raus */
+  .hero-planet-sticker{font-size:11px;padding:5px 9px;right:auto;left:50%;top:-20px;translate:-50% 0}
+}
 
 .section-transition{position:relative;isolation:isolate}
 .section-transition.is-track{overflow:hidden}
@@ -517,22 +633,21 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .captain-media{overflow:hidden;border-radius:24px;border:1px solid var(--line);aspect-ratio:9/16;max-height:min(72vh,600px);margin-inline:auto}
 .captain-media>div{width:100%;height:100%}
 .captain-media video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
+/* Querformat-Variante für /steffen (Handoff will 16/10 statt Hochformat) */
+.captain-media.is-wide{aspect-ratio:16/10;max-height:none;margin-inline:0}
 
 @media(max-width:900px){
   .hero-scroll-shell{min-height:max(620px,82vh)}
   .hero-scroll-grid{
-    min-height:auto;grid-template-columns:1fr;padding-block:clamp(72px,12vw,110px)
+    min-height:auto;grid-template-columns:1fr;gap:26px;padding-block:clamp(56px,10vw,96px)
   }
-  .hero-scroll-cue{display:none}
-  .hero-fallback-planet.is-primary{left:8%;top:6%}
-  .hero-fallback-planet.is-secondary{right:4%;top:38%}
-  .hero-fallback-planet.is-tertiary{left:38%;bottom:0}
+  /* Gestapeltes Layout: Scrim gleichmäßig statt links-lastig */
+  .hero-scroll-shell::after{
+    background:linear-gradient(180deg,rgba(5,7,17,.55),rgba(5,7,17,.12) 62%,transparent)
+  }
 }
 @media(max-width:680px){
   .hero-scroll-title{font-size:48px}
-  .hero-fallback-planet.is-primary{left:3%;top:4%;transform:scale(.8)}
-  .hero-fallback-planet.is-secondary{right:-4%;top:40%;transform:scale(.76)}
-  .hero-fallback-planet.is-tertiary{left:32%;bottom:-6%;transform:scale(.76)}
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -542,15 +657,87 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .sticker,
   .dot,
   .calendar-event,
-  .hero-scroll-cue i{
+  .ticker-track,
+  .nrw-marker-halo,
+  .hero-carrier,
+  .hero-planet,
+  .hero-planet-float,
+  .hero-comet{
     animation:none!important
   }
-  .hero-static-fallback,
+  .hero-scroll-shell,
   .section-transition,
   .section-transition *,
   .buzzer-zone{
     transition:none!important
   }
-  .hero-webgl-labels{display:none}
-  .hero-static-fallback{opacity:1!important;visibility:visible!important}
+  .hero-pin-block .hero-scroll-shell{
+    position:relative!important;top:auto!important;transform:none!important;filter:none!important
+  }
 }
+
+/* ── YouTube-Galerie (Homepage, Comedian-Seite, Show-Seiten, Archiv) ── */
+.youtube-grid{display:grid;gap:20px;align-items:start}
+.youtube-grid[data-count="1"]{grid-template-columns:minmax(0,700px);justify-content:center;width:100%}
+.youtube-grid[data-count="2"]{grid-template-columns:1fr 1fr}
+.youtube-grid[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.youtube-grid[data-count="4"]{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.youtube-item{margin:0;display:flex;flex-direction:column;gap:10px}
+.youtube-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:var(--shadow)}
+.youtube-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.youtube-item figcaption{color:var(--muted);font-weight:850;font-size:14px}
+
+/* ── Comedians (Show-Teilnehmer & Ensemble) ── */
+.comedian-card{display:flex;flex-direction:column;gap:14px;overflow:hidden}
+.comedian-photo{width:100%;height:260px;object-fit:cover;border-radius:22px;border:1px solid var(--line)}
+.comedian-body{display:flex;flex-direction:column;gap:8px}
+.comedian-meta{color:var(--muted);font-weight:850;font-size:14px;margin:0}
+.social-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.social-chip{display:inline-flex;padding:7px 13px;border-radius:999px;background:rgba(0,0,0,.34);border:1px solid var(--line);font-size:13px;font-weight:900;color:rgba(255,255,255,.9);transition:background .15s,color .15s}
+.social-chip:hover{background:var(--panel2);color:#fff}
+
+/* ── Auftritte (Comedian-Seite Timeline) ── */
+.appearance-card{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.appearance-date{color:var(--muted);font-weight:850;font-size:14px;margin:0}
+.appearance-sub{margin:0}
+.appearance-card .btn{margin-top:auto}
+
+/* ── Partner ── */
+/* ── Kontakt: 3 farbcodierte Karten nebeneinander ── */
+.contact-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.contact-card{gap:14px}
+.contact-card-icon{
+  display:grid;place-items:center;width:44px;height:44px;border-radius:50%;
+  font-size:20px;margin-bottom:4px;
+  background:conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green));
+}
+.contact-card-desc{margin:-6px 0 4px;font-size:14px}
+.contact-card-hint{margin:0;font-size:12px;color:var(--muted);text-align:center}
+.contact-card.is-green{border-color:rgba(124,255,107,.28);background:linear-gradient(180deg,rgba(124,255,107,.07),rgba(255,255,255,.03))}
+.contact-card.is-green .contact-card-icon{background:conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
+.contact-card.is-gold{border-color:rgba(255,209,102,.32);background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(255,255,255,.03))}
+.contact-card.is-gold .contact-card-icon{background:conic-gradient(from 130deg,var(--orange),var(--yellow),var(--captain),var(--orange))}
+.contact-card.is-blue{border-color:rgba(66,217,255,.28);background:linear-gradient(180deg,rgba(66,217,255,.07),rgba(255,255,255,.03))}
+.contact-card.is-blue .contact-card-icon{background:conic-gradient(from 80deg,#fff,var(--ice),var(--turq),#4f7dff,#fff)}
+
+.partner-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:20px}
+.partner-card{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;justify-content:center;min-height:160px}
+.partner-card img{max-height:96px;width:auto;object-fit:contain}
+.partner-name{font-weight:950;font-size:18px}
+
+/* ── Angebote / Aktionen ── */
+.offer-card{display:flex;flex-direction:column;gap:0;overflow:hidden;padding:0}
+.offer-poster-wrap{position:relative}
+.offer-poster{width:100%;height:200px;object-fit:cover}
+.offer-badge{position:absolute;top:14px;left:16px;padding:7px 12px;border-radius:999px;background:var(--pink);color:#fff;font-size:12px;font-weight:900}
+.offer-body{display:flex;flex-direction:column;gap:10px;padding:18px}
+.offer-body h3{margin:0}
+.offer-subtitle{font-weight:850;color:var(--text);margin:0}
+.offer-code{margin:0;font-weight:850}
+.offer-code span{display:inline-block;background:var(--text);color:#050711;padding:3px 10px;border-radius:8px;letter-spacing:.04em}
+.offer-validity{margin:0;font-size:13px;color:var(--muted)}
+.show-hint{margin:18px 0 0;display:inline-block;padding:9px 14px;border:1px solid var(--line);border-left-width:4px;border-radius:10px;background:rgba(255,255,255,.05);font-weight:850}
+
+/* ── Archiv unten auf der Shows-Seite ── */
+.archive-block{margin-top:28px}
+.archive-block h3{margin:0 0 16px}

@@ -1,5 +1,18 @@
 import { createPublicClient } from "@/lib/supabase/public";
-import type { EventRow, GalleryItem, OneLiner, Show, ShowImage, ShowVideo } from "@/lib/types";
+import type {
+  Appearance,
+  Comedian,
+  EventRow,
+  GalleryItem,
+  Offer,
+  OneLiner,
+  Partner,
+  Show,
+  ShowComedian,
+  ShowImage,
+  ShowVideo,
+  YoutubeVideo,
+} from "@/lib/types";
 
 const EVENT_SELECT = "*, shows(name, slug, color)";
 
@@ -49,11 +62,80 @@ export async function getImagesForShowId(showId: string): Promise<ShowImage[]> {
   return data as ShowImage[];
 }
 
+export async function getActiveComedians(): Promise<Comedian[]> {
+  const { data, error } = await createPublicClient()
+    .from("comedians").select("*").eq("is_active", true).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getActiveComedians: ${error.message}`);
+  return data as Comedian[];
+}
+
+export async function getComediansForShowId(showId: string): Promise<ShowComedian[]> {
+  const { data, error } = await createPublicClient()
+    .from("show_comedians")
+    .select("*, comedians(*)")
+    .eq("show_id", showId)
+    .order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getComediansForShowId: ${error.message}`);
+  // Inaktive Comedians herausfiltern (RLS liefert sie via Join evtl. nicht, daher defensiv)
+  return (data as ShowComedian[]).filter((sc) => sc.comedians);
+}
+
+export async function getReferenceYoutubeVideos(): Promise<YoutubeVideo[]> {
+  const { data, error } = await createPublicClient()
+    .from("youtube_videos").select("*").is("show_id", null).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getReferenceYoutubeVideos: ${error.message}`);
+  return data as YoutubeVideo[];
+}
+
+export async function getYoutubeVideosForShowId(showId: string): Promise<YoutubeVideo[]> {
+  const { data, error } = await createPublicClient()
+    .from("youtube_videos").select("*").eq("show_id", showId).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getYoutubeVideosForShowId: ${error.message}`);
+  return data as YoutubeVideo[];
+}
+
+export async function getAllShowVideos(): Promise<ShowVideo[]> {
+  const { data, error } = await createPublicClient()
+    .from("show_videos").select("*").order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getAllShowVideos: ${error.message}`);
+  return data as ShowVideo[];
+}
+
+export async function getPublishedAppearances(): Promise<Appearance[]> {
+  const { data, error } = await createPublicClient()
+    .from("appearances").select("*").eq("is_published", true)
+    .order("date", { ascending: true, nullsFirst: false });
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getPublishedAppearances: ${error.message}`);
+  return data as Appearance[];
+}
+
+export async function getActivePartners(): Promise<Partner[]> {
+  const { data, error } = await createPublicClient()
+    .from("partners").select("*").eq("is_active", true).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getActivePartners: ${error.message}`);
+  return data as Partner[];
+}
+
 export async function getGalleryItems(): Promise<GalleryItem[]> {
   const { data, error } = await createPublicClient()
     .from("gallery_items").select("*").order("sort_order");
   if (error) throw new Error(`getGalleryItems: ${error.message}`);
   return data as GalleryItem[];
+}
+
+export async function getActiveOffers(): Promise<Offer[]> {
+  const { data, error } = await createPublicClient()
+    .from("offers").select("*").eq("is_active", true).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getActiveOffers: ${error.message}`);
+  return data as Offer[];
 }
 
 export async function getActiveOneLiners(): Promise<OneLiner[]> {

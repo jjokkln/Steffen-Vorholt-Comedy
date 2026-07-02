@@ -25,3 +25,14 @@ export function formatMonth(dateIso: string): string {
 export function formatDateLong(dateIso: string): string {
   return `${Number(dateIso.slice(8, 10))}. ${MONTHS_LONG[Number(dateIso.slice(5, 7)) - 1]} ${dateIso.slice(0, 4)}`;
 }
+
+export function upcomingAppearances<T extends { date: string | null }>(
+  appearances: T[],
+  limit: number,
+  today: string = todayIso(),
+): T[] {
+  return appearances
+    .filter((a) => !a.date || a.date >= today)
+    .sort((a, b) => (a.date ?? "9999").localeCompare(b.date ?? "9999"))
+    .slice(0, limit);
+}

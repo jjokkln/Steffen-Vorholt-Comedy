@@ -1,10 +1,9 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { setInquiryStatus, deleteInquiry } from "@/lib/actions/inquiries";
-import type { Inquiry } from "@/lib/types";
+import { INQUIRY_LABELS, type Inquiry } from "@/lib/types";
 
 const STATUS_LABEL = { new: "Neu", read: "Gelesen", answered: "Beantwortet" } as const;
 const STATUS_CLS = { new: "missing", read: "draft", answered: "live" } as const;
-const TYPE_LABEL = { booking: "🎤 Booking", comedian: "🎭 Comedian" } as const;
 
 export default async function AdminAnfragenPage() {
   const supabase = await createServerSupabase();
@@ -18,7 +17,7 @@ export default async function AdminAnfragenPage() {
       {inquiries.map((q) => (
         <details className="card" key={q.id} style={{ marginBottom: 14, padding: 18 }}>
           <summary style={{ cursor: "pointer", fontWeight: 800 }}>
-            {TYPE_LABEL[q.type]} · {q.name} · {new Date(q.created_at).toLocaleDateString("de-DE")}{" "}
+            {INQUIRY_LABELS[q.type] ?? q.type} · {q.name} · {new Date(q.created_at).toLocaleDateString("de-DE")}{" "}
             <span className={`status ${STATUS_CLS[q.status]}`}>{STATUS_LABEL[q.status]}</span>
           </summary>
           <p>

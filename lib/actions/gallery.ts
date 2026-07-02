@@ -15,6 +15,7 @@ export async function addGalleryItem(formData: FormData) {
   const { error } = await supabase.from("gallery_items").insert({
     image_path: `gallery/${path}`,
     caption: String(formData.get("caption") ?? "").trim(),
+    category: String(formData.get("category") ?? "").trim(),
     sort_order: Number(formData.get("sort_order") ?? 0),
   });
   if (error) throw new Error(`Galerie-Eintrag fehlgeschlagen: ${error.message}`);
@@ -26,6 +27,7 @@ export async function updateGalleryItem(id: string, formData: FormData) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("gallery_items").update({
     caption: String(formData.get("caption") ?? "").trim(),
+    category: String(formData.get("category") ?? "").trim(),
     sort_order: Number(formData.get("sort_order") ?? 0),
   }).eq("id", id);
   if (error) throw new Error(`Speichern fehlgeschlagen: ${error.message}`);

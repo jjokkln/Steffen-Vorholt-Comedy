@@ -17,7 +17,7 @@ export default function NotFound() {
           <Link className="btn primary" href="/">
             🚀 Zurück zur Erde
           </Link>
-          <Link className="btn secondary" href="/termine">
+          <Link className="btn secondary" href="/shows#termine">
             Direkt zu den Tickets
           </Link>
         </div>

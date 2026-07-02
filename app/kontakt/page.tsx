@@ -6,9 +6,9 @@ import { getActiveShows } from "@/lib/data";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Kontakt & Bewerbung – Steffen Vorholt",
+  title: "Booking & Kontakt – Steffen Vorholt",
   description:
-    "Steffen Vorholt für Events buchen oder dich als Comedian für seine Shows bewerben – ein Formular, zwei Wege.",
+    "Eine Show buchen, Steffen selbst buchen oder einfach eine Frage stellen – drei Wege, ein Funkkontakt.",
 };
 
 export default async function KontaktPage() {
@@ -16,26 +16,86 @@ export default async function KontaktPage() {
   return (
     <>
       <header className="container section">
-        <div className="eyebrow">📡 Kontakt &amp; Bewerbung</div>
+        <div className="eyebrow">📡 Booking &amp; Kontakt</div>
         <h1>Funkkontakt aufnehmen.</h1>
         <p className="lead">
-          Du willst Steffen für dein Event buchen? Oder selbst auf eine seiner Bühnen? Beides startet
-          hier.
+          Du willst eine Show buchen, Steffen selbst auf deine Bühne holen oder hast einfach eine
+          Frage? Wähl deinen Kanal.
         </p>
       </header>
 
-      <section className="container section" id="buchen">
-        <div className="feature">
-          <div>
-            <div className="eyebrow">🎤 Für Veranstalter</div>
-            <h2>Steffen buchen.</h2>
-            <p className="lead">Comedy, Moderation oder beides – für Firmenfeiern, Galas und Events.</p>
-          </div>
+      <section className="container section contact-grid">
+        {/* 1) Eine Show buchen → Show-Postfach */}
+        <div id="booking-show">
           <ContactForm
-            type="booking"
-            title="Booking-Anfrage"
+            type="booking_show"
+            icon="🎟️"
+            accent="green"
+            title="Eine Show buchen."
+            description="Hol dir Comedy Eiskalt, Doppel Comedy oder Brain Loading auf deine Bühne. Video auf Anfrage."
             submitLabel="Anfrage senden"
-            successMessage="Deine Anfrage ist gelandet. Steffen meldet sich, sobald er das Mikro aus der Hand legt."
+            successMessage="Deine Show-Anfrage ist gelandet. Steffen meldet sich, sobald er das Mikro aus der Hand legt."
+            hint="→ Landet direkt im Show-Postfach"
+          >
+            <div className="form two">
+              <label>
+                Name
+                <input name="name" required />
+              </label>
+              <label>
+                E-Mail
+                <input name="email" type="email" required />
+              </label>
+            </div>
+            <div className="form two">
+              <label>
+                Telefon
+                <input name="phone" />
+              </label>
+              <label>
+                Show
+                <select name="show">
+                  {shows.map((s) => (
+                    <option key={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="form two">
+              <label>
+                Wunschdatum
+                <input name="event_date" />
+              </label>
+              <label>
+                Stadt / Location
+                <input name="city" />
+              </label>
+            </div>
+            <label>
+              Video auf Anfrage?
+              <select name="video_requested">
+                <option value="">Nein, danke</option>
+                <option value="ja">Ja, bitte ein Video schicken</option>
+              </select>
+            </label>
+            <label>
+              Nachricht
+              <textarea name="message" placeholder="Gästezahl, Ablauf, Budget, gewünschte Leistung..." />
+            </label>
+          </ContactForm>
+        </div>
+
+        {/* 2) Steffen selbst buchen → Booking-Postfach */}
+        <div id="booking-steffen">
+          <ContactForm
+            type="booking_steffen"
+            icon="🎤"
+            accent="gold"
+            title="Steffen buchen."
+            description="Comedy, Moderation oder beides – für Firmenfeiern, Galas und Events. Direkt an Steffens Booking."
+            submitLabel="Booking-Anfrage senden"
+            successMessage="Anfrage empfangen! Steffen meldet sich für die Details."
+            hint="→ Landet direkt im Booking-Postfach"
           >
             <div className="form two">
               <label>
@@ -79,15 +139,18 @@ export default async function KontaktPage() {
             </label>
           </ContactForm>
         </div>
-      </section>
 
-      <section className="container section" id="bewerben">
-        <div className="feature">
+        {/* 3) Frage / Feedback → Show-Postfach */}
+        <div id="frage">
           <ContactForm
-            type="comedian"
-            title="Comedian-Bewerbung"
-            submitLabel="Bewerbung absenden"
-            successMessage="Bewerbung empfangen! Steffen schaut sich deine Links persönlich an."
+            type="frage_feedback"
+            icon="💬"
+            accent="blue"
+            title="Frage oder Feedback."
+            description="Eine kurze Frage, ein Lob oder Verbesserungsvorschlag? Schreib einfach – Steffen liest mit."
+            submitLabel="Absenden"
+            successMessage="Danke! Deine Nachricht ist angekommen."
+            hint="→ Landet direkt im Show-Postfach"
           >
             <div className="form two">
               <label>
@@ -95,51 +158,15 @@ export default async function KontaktPage() {
                 <input name="name" required />
               </label>
               <label>
-                Künstlername
-                <input name="stage_name" />
-              </label>
-            </div>
-            <div className="form two">
-              <label>
                 E-Mail
                 <input name="email" type="email" required />
-              </label>
-              <label>
-                Telefon
-                <input name="phone" />
-              </label>
-            </div>
-            <label>
-              Instagram / TikTok / YouTube
-              <input name="social_link" placeholder="https://..." />
-            </label>
-            <div className="form two">
-              <label>
-                Bevorzugte Show
-                <select name="preferred_show">
-                  {shows.map((s) => (
-                    <option key={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Stadt
-                <input name="city" />
               </label>
             </div>
             <label>
               Nachricht
-              <textarea name="message" />
+              <textarea name="message" placeholder="Deine Frage oder dein Feedback..." />
             </label>
           </ContactForm>
-          <div>
-            <div className="eyebrow">🎭 Für Comedians</div>
-            <h2>Du willst selbst auf die Bühne?</h2>
-            <p className="lead">
-              Keine Uploads nötig – schick einfach Links zu Instagram, TikTok oder YouTube. Steffen
-              schaut alles persönlich an.
-            </p>
-          </div>
         </div>
       </section>
 

@@ -10,8 +10,9 @@ export interface InquiryFormState {
 }
 
 const PAYLOAD_KEYS: Record<InquiryType, string[]> = {
-  booking: ["company", "event_type", "event_date"],
-  comedian: ["stage_name", "social_link", "preferred_show", "city"],
+  booking_show: ["show", "event_date", "city", "video_requested"],
+  booking_steffen: ["company", "event_type", "event_date"],
+  frage_feedback: [],
 };
 
 export async function submitInquiry(

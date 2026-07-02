@@ -36,6 +36,10 @@ export default function ShowForm({
         <textarea name="description" rows={5} defaultValue={show?.description} />
       </label>
       <label>
+        Aktions-/Hinweistext (optional, z. B. „Mit Code GALAXIE5 zahlst du nur 5 €")
+        <input name="hint_text" defaultValue={show?.hint_text} placeholder="Kleiner Hinweis auf der Show-Seite" />
+      </label>
+      <label>
         Show-Prinzip — eine Zeile pro Punkt, Format: Titel :: Text
         <textarea name="principles" rows={4} defaultValue={principles} />
       </label>

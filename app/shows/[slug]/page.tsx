@@ -5,7 +5,17 @@ import Image from "next/image";
 import EventCard from "@/components/EventCard";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
-import { getActiveShows, getEventsForShowId, getImagesForShowId, getShowBySlug, getVideosForShowId } from "@/lib/data";
+import SocialLinks from "@/components/SocialLinks";
+import YoutubeGallery from "@/components/YoutubeGallery";
+import {
+  getActiveShows,
+  getComediansForShowId,
+  getEventsForShowId,
+  getImagesForShowId,
+  getShowBySlug,
+  getVideosForShowId,
+  getYoutubeVideosForShowId,
+} from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
 import { breadcrumbJsonLd, comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
@@ -29,10 +39,12 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const show = await getShowBySlug(slug);
   if (!show) notFound();
-  const [events, videos, images] = await Promise.all([
+  const [events, videos, images, participants, youtubeVideos] = await Promise.all([
     getEventsForShowId(show.id),
     getVideosForShowId(show.id),
     getImagesForShowId(show.id),
+    getComediansForShowId(show.id),
+    getYoutubeVideosForShowId(show.id),
   ]);
   const { upcoming } = partitionEvents(events);
   const backgroundUrl = show.background_image_path ? mediaUrl(show.background_image_path) : "";
@@ -60,13 +72,18 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           <h1>{show.tagline}</h1>
           <p className="lead">{show.description}</p>
           <div className="actions">
-            <Link className="btn primary" href="/termine">
+            <Link className="btn primary" href="/shows#termine">
               🎟 Termine &amp; Tickets
             </Link>
-            <Link className="btn secondary" href="/kontakt#bewerben">
-              Als Comedian bewerben
+            <Link className="btn secondary" href="/kontakt#booking-show">
+              Diese Show buchen
             </Link>
           </div>
+          {show.hint_text && (
+            <p className="show-hint" style={{ borderColor: show.color }}>
+              🎟️ {show.hint_text}
+            </p>
+          )}
         </div>
         <figure className={`show-hero-media${hasHeader ? " has-cover" : ""}`} style={hasHeader ? { color: show.color } : { color: show.color }}>
           {hasHeader ? (
@@ -148,6 +165,53 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
               </figure>
             ))}
           </div>
+        </section>
+      )}
+
+      {participants.length > 0 && (
+        <section className="container section">
+          <div className="section-head">
+            <h2>Mit dabei</h2>
+            <p>Comedians &amp; Teilnehmer dieser Show.</p>
+          </div>
+          <div className="grid-3 comedian-grid">
+            {participants.map((sc) => {
+              const c = sc.comedians!;
+              return (
+                <article className="card comedian-card" key={sc.id}>
+                  {c.photo_path && (
+                    <Image
+                      className="comedian-photo"
+                      src={mediaUrl(c.photo_path)}
+                      alt={c.name}
+                      width={320}
+                      height={320}
+                    />
+                  )}
+                  <div className="comedian-body">
+                    <h3>{c.name}</h3>
+                    {(sc.role || c.age) && (
+                      <p className="comedian-meta">
+                        {[sc.role, c.age ? `${c.age} Jahre` : ""].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                    {c.bio && <p>{c.bio}</p>}
+                    <SocialLinks comedian={c} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {youtubeVideos.length > 0 && (
+        <section className="container section">
+          <div className="section-head">
+            <h2>Videos</h2>
+            <p>Ausschnitte dieser Show auf YouTube.</p>
+          </div>
+          <YoutubeGallery videos={youtubeVideos} />
         </section>
       )}
 

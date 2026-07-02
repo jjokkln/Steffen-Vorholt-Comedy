@@ -4,14 +4,25 @@ import Link from "next/link";
 import Image from "next/image";
 import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
+import Ticker from "@/components/Ticker";
 import Planet from "@/components/Planet";
 import Buzzer from "@/components/Buzzer";
 import HeroScrollExperience from "@/components/home/HeroScrollExperience";
 import SectionTransition from "@/components/home/SectionTransition";
-import type { HeroPlanetRole } from "@/components/home/hero-types";
+import type { HeroPlanet, HeroPlanetRole } from "@/components/home/hero-types";
 import CaptainVideo from "@/components/CaptainVideo";
+import YoutubeGallery from "@/components/YoutubeGallery";
+import AppearancesSection from "@/components/AppearancesSection";
 import JsonLd from "@/components/JsonLd";
-import { getActiveShows, getActiveOneLiners, getGalleryItems, getSiteMedia } from "@/lib/data";
+import {
+  getActiveShows,
+  getActiveOneLiners,
+  getGalleryItems,
+  getPublishedAppearances,
+  getReferenceYoutubeVideos,
+  getSiteMedia,
+} from "@/lib/data";
+import { upcomingAppearances } from "@/lib/event-helpers";
 import { personJsonLd } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
 
@@ -26,79 +37,79 @@ export const metadata: Metadata = {
 const HERO_ROLES: HeroPlanetRole[] = ["primary", "secondary", "tertiary"];
 
 export default async function HomePage() {
-  const [shows, oneLiners, gallery, heroVideo] = await Promise.all([
+  const [shows, oneLiners, gallery, heroVideo, referenceVideos, appearances] = await Promise.all([
     getActiveShows(),
     getActiveOneLiners(),
     getGalleryItems(),
     getSiteMedia("hero_video"),
+    getReferenceYoutubeVideos(),
+    getPublishedAppearances(),
   ]);
 
-  const heroShows = [...shows]
-    .filter((show) => show.planet_image_path)
-    .sort((a, b) => {
-      if (a.slug === "brain-loading") return -1;
-      if (b.slug === "brain-loading") return 1;
-      return a.sort_order - b.sort_order;
-    })
-    .slice(0, 3);
+  const homeAppearances = upcomingAppearances(appearances, 6);
 
-  const heroPlanets = heroShows.map((show, index) => ({
-    id: show.id,
-    slug: show.slug,
-    name: show.name,
-    color: show.color,
-    imageUrl: mediaUrl(show.planet_image_path),
-    role: HERO_ROLES[index],
-  }));
+  // 2026-06-26 (Lenny): Planeten reaktiviert (Kundenwunsch). Die 3 aktivsten Shows
+  // mit Planeten-Bild werden zu Hero-Planeten – anklickbar (siehe HeroScrollExperience:
+  // Hotspot-Overlay → /shows/[slug], Astronaut → /steffen).
+  const heroPlanets: HeroPlanet[] = shows
+    .filter((s) => s.planet_image_path)
+    .slice(0, 3)
+    .map((s, index) => ({
+      id: s.id,
+      slug: s.slug,
+      name: s.name,
+      color: s.color,
+      imageUrl: mediaUrl(s.planet_image_path),
+      role: HERO_ROLES[index] ?? "tertiary",
+    }));
 
   return (
     <>
-      <HeroScrollExperience
-        planets={heroPlanets}
-        showCount={47}
-        cityCount={6}
-        formatCount={shows.length}
-      />
+      <Ticker />
+      <div className="hero-pin-block">
+        <HeroScrollExperience planets={heroPlanets} />
 
-      <SectionTransition variant="cards">
-        <section className="container section home-shows-section">
-          <div className="section-head">
-            <div>
-              <div className="eyebrow">Wähl deine Mission</div>
-              <h2>Jede Show ein eigener Planet.</h2>
+        <SectionTransition variant="cards" className="home-shows-pin">
+          <span className="drag-handle" aria-hidden="true" />
+          <section className="container section home-shows-section">
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">Wähl deine Mission</div>
+                <h2>Jede Show ein eigener Planet.</h2>
+              </div>
+              <p>Eigene Welt, eigene Farbe, eigener Humor – such dir aus, wo du landest.</p>
             </div>
-            <p>Eigene Welt, eigene Farbe, eigener Humor – such dir aus, wo du landest.</p>
-          </div>
-          <div className="grid-3">
-            {shows.map((show) => (
-              <article className="card show-card" key={show.id}>
-                <div>
-                  <div className="top">
-                    <span className="badge">{show.name}</span>
-                    <span className="badge">{show.format_label}</span>
+            <div className="grid-3">
+              {shows.map((show) => (
+                <article className="card show-card" key={show.id}>
+                  <div>
+                    <div className="top">
+                      <span className="badge">{show.name}</span>
+                      <span className="badge">{show.format_label}</span>
+                    </div>
+                    <div className="show-art">
+                      <Planet
+                        src={show.planet_image_path}
+                        alt={`Planet der Show ${show.name}`}
+                        size={280}
+                        color={show.color}
+                      />
+                    </div>
+                    <div className="show-card-copy">
+                      <h3>{show.tagline}</h3>
+                      <p>{show.description}</p>
+                    </div>
                   </div>
-                  <div className="show-art">
-                    <Planet
-                      src={show.planet_image_path}
-                      alt={`Planet der Show ${show.name}`}
-                      size={280}
-                      color={show.color}
-                    />
+                  <div className="actions">
+                    <Link className="btn primary" href={`/shows/${show.slug}`}>Show öffnen</Link>
+                    <Link className="btn secondary" href="/shows#termine">Tickets</Link>
                   </div>
-                  <div className="show-card-copy">
-                    <h3>{show.tagline}</h3>
-                    <p>{show.description}</p>
-                  </div>
-                </div>
-                <div className="actions">
-                  <Link className="btn primary" href={`/shows/${show.slug}`}>Show öffnen</Link>
-                  <Link className="btn secondary" href="/termine">Tickets</Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      </SectionTransition>
+                </article>
+              ))}
+            </div>
+          </section>
+        </SectionTransition>
+      </div>
 
       <SectionTransition variant="track">
         <section className="container section home-events-section">
@@ -111,10 +122,16 @@ export default async function HomePage() {
           </div>
           <EventGrid limit={3} />
           <div className="actions">
-            <Link className="btn primary" href="/termine">Alle Termine im Kalender</Link>
+            <Link className="btn primary" href="/shows#termine">Alle Termine im Kalender</Link>
           </div>
         </section>
       </SectionTransition>
+
+      {homeAppearances.length > 0 && (
+        <SectionTransition variant="track">
+          <AppearancesSection appearances={homeAppearances} />
+        </SectionTransition>
+      )}
 
       <SectionTransition variant="reveal">
         <section className="container section home-buzzer-section">
@@ -170,8 +187,8 @@ export default async function HomePage() {
                 und der Typ, der auf der Bühne auch dann weitermacht, wenn das Publikum Regie führt.
               </p>
               <div className="actions">
-                <Link className="btn primary" href="/kontakt">Steffen buchen</Link>
-                <Link className="btn secondary" href="/kontakt#bewerben">Als Comedian bewerben</Link>
+                <Link className="btn primary" href="/kontakt#booking-steffen">Steffen buchen</Link>
+                <Link className="btn secondary" href="/kontakt#frage">Frage stellen</Link>
               </div>
             </div>
             <div className="captain-media">
@@ -184,6 +201,21 @@ export default async function HomePage() {
           </div>
         </section>
       </SectionTransition>
+
+      {referenceVideos.length > 0 && (
+        <SectionTransition variant="reveal">
+          <section className="container section home-youtube-section">
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">Reingucken</div>
+                <h2>Videos &amp; Referenzen.</h2>
+              </div>
+              <p>Ausschnitte von der Bühne – für alle, die kein Social Media haben.</p>
+            </div>
+            <YoutubeGallery videos={referenceVideos.slice(0, 4)} />
+          </section>
+        </SectionTransition>
+      )}
 
       <JsonLd data={personJsonLd()} />
       <Footer />

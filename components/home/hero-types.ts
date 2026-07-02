@@ -8,9 +8,3 @@ export interface HeroPlanet {
   imageUrl: string;
   role: HeroPlanetRole;
 }
-
-export interface HeroMotionState {
-  progress: number;
-  pointerX: number;
-  pointerY: number;
-}

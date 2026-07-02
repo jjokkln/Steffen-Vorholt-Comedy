@@ -29,11 +29,17 @@ export default async function Footer() {
           </p>
         </div>
         <div>
-          <h4>Aktionen</h4>
+          <h4>Entdecken</h4>
           <p>
-            <Link href="/termine">Termine &amp; Tickets</Link>
+            <Link href="/shows">Shows &amp; Termine</Link>
             <br />
-            <Link href="/kontakt">Kontakt &amp; Bewerbung</Link>
+            <Link href="/angebote">Angebote</Link>
+            <br />
+            <Link href="/galerie">Galerie &amp; Gästebuch</Link>
+            <br />
+            <Link href="/steffen">Über Steffen</Link>
+            <br />
+            <Link href="/kontakt">Booking &amp; Kontakt</Link>
           </p>
         </div>
         <div>

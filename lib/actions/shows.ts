@@ -62,6 +62,7 @@ function showFields(formData: FormData) {
     tagline: String(formData.get("tagline") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     format_label: String(formData.get("format_label") ?? "").trim(),
+    hint_text: String(formData.get("hint_text") ?? "").trim(),
     color: String(formData.get("color") ?? "#7CFF6B"),
     principle_items: parsePrinciples(String(formData.get("principles") ?? "")),
     cities_text: String(formData.get("cities_text") ?? "").trim(),
