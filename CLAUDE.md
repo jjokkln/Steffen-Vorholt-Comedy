@@ -20,3 +20,18 @@ Next.js 16 (App Router, TypeScript, plain CSS — KEIN Tailwind) Marketing-Websi
 
 - Build: `npm run build` (muss nach jedem Task fehlerfrei sein)
 - Tests: `npm test` (`node --test "tests/**/*.test.*"` — Verzeichnis-Argument funktioniert auf Node 24 nicht)
+
+## AI-OS — nutzen & pflegen
+
+Lennys AI-OS (`/Users/lennardkuss/Code_Aktuell/AI-OS/`) ist das zentrale Operating System. Nutze es aktiv:
+
+- **Kontext:** `context/` (Business, Prioritäten) und `decisions/log.md` (getroffene Entscheidungen — erst lesen, nicht neu verhandeln).
+- **Bausteine:** `templates/` (z. B. growcore-nextjs-base) und Second Brain Vault → `20_Tech-Library` prüfen, bevor du etwas von Null baust.
+- **Tools:** `connections.md` listet verfügbare MCPs/Integrationen (Supabase, n8n, Gmail, Calendar, Notion).
+- **Voice:** Kundengerichtete Texte im Register von `references/voice.md`; Entwürfe immer erst zeigen, nie ungefragt senden.
+
+Pflege in jeder Session:
+- Bedeutende Entscheidung in diesem Projekt → Eintrag in `AI-OS/decisions/log.md` vorschlagen.
+- Neues Tool/API angebunden → `connections.md` ergänzen + `references/{tool}-api.md` anlegen.
+- Wiederverwendbares Pattern/Snippet entstanden → als Note in den Second Brain Vault (Pfad in der globalen CLAUDE.md).
+- Manuelle Aufgabe zum 3. Mal beobachtet → als `/level-up`-Kandidat ansprechen.
