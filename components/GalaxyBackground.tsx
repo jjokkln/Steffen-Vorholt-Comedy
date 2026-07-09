@@ -178,18 +178,33 @@ export default function GalaxyBackground() {
           });
         }
 
-        // ── Sternschnuppe: ein Streak-Sprite, taucht alle 6–15 s auf ──
+        // ── Sternschnuppe: heller Kopf mit Glow + fein zulaufender Schweif ──
         const streakCanvas = document.createElement("canvas");
-        streakCanvas.width = 256;
-        streakCanvas.height = 24;
+        streakCanvas.width = 512;
+        streakCanvas.height = 64;
         const sctx = streakCanvas.getContext("2d")!;
-        const streakGradient = sctx.createLinearGradient(0, 0, 256, 0);
-        streakGradient.addColorStop(0, "rgba(255,255,255,0)");
-        streakGradient.addColorStop(0.75, "rgba(210,235,255,0.55)");
-        streakGradient.addColorStop(0.97, "rgba(255,255,255,1)");
-        streakGradient.addColorStop(1, "rgba(255,255,255,0)");
-        sctx.fillStyle = streakGradient;
-        sctx.fillRect(0, 0, 256, 24);
+        const tailGradient = sctx.createLinearGradient(0, 0, 450, 0);
+        tailGradient.addColorStop(0, "rgba(174,225,255,0)");
+        tailGradient.addColorStop(0.55, "rgba(174,225,255,0.12)");
+        tailGradient.addColorStop(0.85, "rgba(210,238,255,0.4)");
+        tailGradient.addColorStop(1, "rgba(240,250,255,0.75)");
+        sctx.fillStyle = tailGradient;
+        sctx.beginPath();
+        sctx.moveTo(0, 32);
+        sctx.quadraticCurveTo(300, 26, 450, 29.5);
+        sctx.lineTo(450, 34.5);
+        sctx.quadraticCurveTo(300, 38, 0, 32);
+        sctx.closePath();
+        sctx.fill();
+        const headGradient = sctx.createRadialGradient(452, 32, 0, 452, 32, 28);
+        headGradient.addColorStop(0, "rgba(255,255,255,1)");
+        headGradient.addColorStop(0.3, "rgba(222,242,255,0.9)");
+        headGradient.addColorStop(0.6, "rgba(160,212,255,0.25)");
+        headGradient.addColorStop(1, "rgba(160,212,255,0)");
+        sctx.fillStyle = headGradient;
+        sctx.beginPath();
+        sctx.arc(452, 32, 28, 0, Math.PI * 2);
+        sctx.fill();
         const streakTexture = new THREE.CanvasTexture(streakCanvas);
         const streakMaterial = new THREE.SpriteMaterial({
           map: streakTexture,
@@ -199,7 +214,7 @@ export default function GalaxyBackground() {
           blending: THREE.AdditiveBlending,
         });
         const streak = new THREE.Sprite(streakMaterial);
-        streak.scale.set(4.2, 0.32, 1);
+        streak.scale.set(2.6, 0.325, 1);
         scene.add(streak);
         const shootingStar = {
           active: false,
@@ -270,7 +285,7 @@ export default function GalaxyBackground() {
           if (!shootingStar.active && now >= shootingStar.nextAt) {
             shootingStar.active = true;
             shootingStar.startAt = now;
-            shootingStar.duration = 1000 + Math.random() * 500;
+            shootingStar.duration = 1300 + Math.random() * 600;
             shootingStar.fromX = 4 + Math.random() * 10;
             shootingStar.fromY = 3 + Math.random() * 5;
             shootingStar.dirX = -(8 + Math.random() * 5);
@@ -287,9 +302,9 @@ export default function GalaxyBackground() {
               streak.position.set(
                 shootingStar.fromX + shootingStar.dirX * t,
                 shootingStar.fromY + shootingStar.dirY * t + camera.position.y,
-                -4,
+                -6.5,
               );
-              streakMaterial.opacity = Math.sin(t * Math.PI) * 0.85;
+              streakMaterial.opacity = Math.pow(Math.sin(t * Math.PI), 1.5) * 0.8;
             }
           }
 

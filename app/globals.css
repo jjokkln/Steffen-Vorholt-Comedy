@@ -483,22 +483,6 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 /* === Cosmic-Galaxie Bausteine === */
 .sticker{display:inline-block;background:#fff;color:#06070f;font-weight:900;font-size:13px;padding:6px 12px;border-radius:12px;transform:rotate(var(--rot,-3deg));box-shadow:4px 4px 0 var(--sticker-shadow,rgba(124,255,107,.55));transition:transform .2s ease}
 
-/* Ticker: reine transform-Animation, per will-change auf einen eigenen
-   Compositor-Layer promoted + contain, damit nichts außerhalb neu gerastert
-   wird (der Vorgänger fehlte genau das, siehe Commit 502c497). */
-.ticker{
-  position:relative;overflow:hidden;contain:layout style paint;
-  border-bottom:1px solid var(--line);background:rgba(255,255,255,.03);
-  padding-block:9px;
-}
-.ticker-track{
-  display:flex;gap:44px;white-space:nowrap;width:max-content;
-  font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--muted);
-  will-change:transform;
-  animation:ticker-scroll 32s linear infinite;
-}
-@keyframes ticker-scroll{to{transform:translateX(-50%)}}
-
 .planet-wrap{position:relative;display:inline-grid;place-items:center}
 .planet{border-radius:50%;animation:planet-float 7s ease-in-out infinite;filter:drop-shadow(0 0 38px var(--planet-glow,rgba(124,255,107,.35)));transition:transform .25s ease}
 .planet-wrap:hover .planet{animation-play-state:paused;transform:rotate(-8deg) scale(1.06)}
@@ -726,7 +710,6 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .sticker,
   .dot,
   .calendar-event,
-  .ticker-track,
   .nrw-marker-halo,
   .hero-carrier,
   .hero-planet,

@@ -3,7 +3,6 @@ import Link from "next/link";
 import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
 import HomeGallery from "@/components/HomeGallery";
-import Ticker from "@/components/Ticker";
 import Planet from "@/components/Planet";
 import Buzzer from "@/components/Buzzer";
 import HeroScrollExperience from "@/components/home/HeroScrollExperience";
@@ -64,7 +63,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <Ticker />
       <div className="hero-pin-block">
         <HeroScrollExperience planets={heroPlanets} />
 
