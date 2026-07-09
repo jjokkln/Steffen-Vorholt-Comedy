@@ -66,9 +66,15 @@ public/assets/media/...   Lokale Medien (unter /assets/media/… ausgeliefert)
 
 ## Motion & Performance
 
-Die Startseite lädt Three.js nur clientseitig für den Hero. Desktop nutzt eine angeheftete,
-scrollgebundene 2.5D-Sequenz; Mobile und `prefers-reduced-motion` erhalten eine reduzierte,
-nicht angeheftete bzw. statische Variante. Der WebGL-Renderer pausiert außerhalb des Hero-Bereichs.
+Alle öffentlichen Seiten haben einen site-weiten Three.js-Galaxy-Hintergrund
+(`components/GalaxyBackground.tsx`): Sternenfeld mit Twinkle-Shader, additive Nebel-Sprites in
+Markenfarben, Sternschnuppen sowie Scroll- und Pointer-Parallaxe. Der Canvas ist rein dekorativ
+(`aria-hidden`, `pointer-events:none`), lädt Three.js nur clientseitig, cappt die Pixel-Ratio
+(Desktop 1.6 / Mobile 1.25), pausiert bei verstecktem Tab und blendet erst nach dem ersten
+gerenderten Frame ein — ohne WebGL, bei `Save-Data` oder `prefers-reduced-motion` bleibt der
+statische CSS-Gradient-Fallback stehen. GSAP `ScrollTrigger` steuert Abschnittsübergänge
+(`components/home/SectionTransition.tsx`) auf Startseite und /steffen; der Admin-Bereich bleibt
+komplett ohne Galaxy/Motion.
 
 ## SEO
 

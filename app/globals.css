@@ -640,39 +640,19 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .hero-planet:focus-visible{outline:none}
 .hero-planet:hover .planet,.hero-planet:focus-visible .planet{transform:scale(1.07);filter:drop-shadow(0 0 60px var(--planet-color,rgba(124,255,107,.6)))}
 .hero-planet:hover .sticker,.hero-planet:focus-visible .sticker{transform:rotate(var(--rot,-3deg)) scale(1.12)}
-.hero-planet-sticker{position:absolute;top:-10px;right:-14px;z-index:1;white-space:nowrap}
 /* Annäherung pausiert das ganze System sanft – klickbare, stillstehende Ziele. */
 .hero-system:hover .hero-carrier,.hero-system:focus-within .hero-carrier,
 .hero-system:hover .hero-planet,.hero-system:focus-within .hero-planet,
 .hero-system:hover .hero-planet-float,.hero-system:focus-within .hero-planet-float{animation-play-state:paused}
-.hero-sun{
-  position:absolute;inset:0;margin:auto;width:max-content;height:max-content;
-  display:block;text-decoration:none;cursor:pointer;pointer-events:auto;
-}
-.hero-sun-orb{
-  display:grid;place-items:center;width:clamp(70px,11.5vh,112px);aspect-ratio:1;border-radius:50%;
-  background:radial-gradient(circle at 50% 32%,rgba(245,214,138,.42),rgba(8,11,26,.94) 74%);
-  border:1px solid rgba(245,214,138,.55);font-size:clamp(32px,5.4vh,54px);
-  box-shadow:0 0 34px rgba(232,163,61,.38);transition:transform .3s ease,box-shadow .3s ease;
-}
-.hero-sun-label{
-  position:absolute;top:calc(100% + 9px);left:50%;translate:-50% 0;
-  font-size:12px;font-weight:850;color:#fff;background:rgba(8,11,26,.85);
-  padding:4px 11px;border-radius:999px;border:1px solid rgba(245,214,138,.45);white-space:nowrap
-}
-.hero-sun:focus-visible{outline:none}
-.hero-sun:hover .hero-sun-orb,.hero-sun:focus-visible .hero-sun-orb{
-  transform:scale(1.07);box-shadow:0 0 52px rgba(232,163,61,.65)
-}
-/* Steffen bricht am unteren Hero-Rand durch – Unterarme/Hände liegen exakt auf
-   der Kante (Hero hat overflow:hidden, übernimmt den Schnitt). Rechts/mittig im
-   Planeten-System platziert: er ist der Captain, um den die Shows kreisen. */
+/* Steffen liegt HINTER dem Orbital-System (z-index:0), damit Planeten und
+   Text ihn bei Bedarf leicht überlappen können – bleibt aber voll sichtbar,
+   kein Fading/Blur. */
 .hero-captain{
-  position:absolute;z-index:5;bottom:0;right:clamp(220px,29vw,460px);
+  position:absolute;z-index:0;bottom:0;right:clamp(220px,29vw,460px);
   display:block;line-height:0;pointer-events:auto;
 }
 .hero-captain-photo{
-  display:block;width:clamp(190px,19vw,320px);height:auto;
+  display:block;width:clamp(380px,38vw,640px);height:auto;
   filter:drop-shadow(0 30px 54px rgba(0,0,0,.6));
   transition:filter .3s ease;
 }
@@ -683,9 +663,6 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 @media (max-width:900px){
   .hero-captain{display:none}
   .hero-system{position:relative;top:auto;right:auto;translate:none;width:min(88vw,420px);margin:10px auto 0}
-  .hero-sun-orb{width:clamp(64px,20vw,88px);font-size:clamp(28px,9vw,40px)}
-  /* Sticker mittig über dem Planeten, sonst ragen sie am Viewport-Rand raus */
-  .hero-planet-sticker{font-size:11px;padding:5px 9px;right:auto;left:50%;top:-20px;translate:-50% 0}
 }
 
 /* /steffen-Hero: Steffen kommt von rechts ins Bild, blickt herein. Das Foto
@@ -754,9 +731,12 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .hero-carrier,
   .hero-planet,
   .hero-planet-float,
-  .hero-comet{
+  .hero-comet,
+  .steffen-hero-copy>*,
+  .steffen-hero-photo{
     animation:none!important
   }
+  .galaxy-bg{display:none}
   .hero-scroll-shell,
   .section-transition,
   .section-transition *,
@@ -837,3 +817,18 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 /* ── Archiv unten auf der Shows-Seite ── */
 .archive-block{margin-top:28px}
 .archive-block h3{margin:0 0 16px}
+
+/* ── Galaxy-Hintergrund (Three.js, site-weit, fixed hinter .page) ── */
+.galaxy-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.6s ease}
+.galaxy-bg.is-live{opacity:1}
+.galaxy-bg canvas{display:block;width:100%;height:100%}
+/* Sobald der Canvas läuft, ersetzt er das statische CSS-Punktraster */
+html.galaxy-live body:before{opacity:0;transition:opacity 1.2s ease}
+
+/* ── /steffen-Hero: choreografierter Eintritt ── */
+.steffen-hero-copy>*{animation:rise-in .85s cubic-bezier(.22,1,.36,1) both}
+.steffen-hero-copy>*:nth-child(2){animation-delay:.14s}
+.steffen-hero-copy>*:nth-child(3){animation-delay:.26s}
+.steffen-hero-photo{animation:drift-in-right 1.05s cubic-bezier(.22,1,.36,1) both;animation-delay:.1s}
+@keyframes rise-in{from{opacity:0;transform:translateY(28px)}}
+@keyframes drift-in-right{from{opacity:0;transform:translateX(70px)}}

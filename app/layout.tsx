@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import GalaxyBackground from "@/components/GalaxyBackground";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de">
       <body className={`${inter.variable} ${grotesk.variable}`}>
+        <GalaxyBackground />
         <div className="page">
           <Nav />
           {children}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import CaptainVideo from "@/components/CaptainVideo";
+import SectionTransition from "@/components/home/SectionTransition";
 import YoutubeGallery from "@/components/YoutubeGallery";
 import AppearancesSection from "@/components/AppearancesSection";
 import {
@@ -54,6 +55,7 @@ export default async function SteffenPage() {
         />
       </header>
 
+      <SectionTransition variant="reveal">
       <section className="container section">
         <div className="feature">
           <div>
@@ -82,10 +84,14 @@ export default async function SteffenPage() {
           </div>
         </div>
       </section>
+      </SectionTransition>
 
-      <AppearancesSection appearances={steffenAppearances} />
+      <SectionTransition variant="cards">
+        <AppearancesSection appearances={steffenAppearances} />
+      </SectionTransition>
 
       {shows.length > 0 && (
+        <SectionTransition variant="cards">
         <section className="container section">
           <div className="section-head">
             <div>
@@ -109,9 +115,11 @@ export default async function SteffenPage() {
             ))}
           </div>
         </section>
+        </SectionTransition>
       )}
 
       {referenceVideos.length > 0 && (
+        <SectionTransition variant="archive">
         <section className="container section">
           <div className="section-head">
             <div>
@@ -122,9 +130,11 @@ export default async function SteffenPage() {
           </div>
           <YoutubeGallery videos={referenceVideos.slice(0, 4)} />
         </section>
+        </SectionTransition>
       )}
 
       {partners.length > 0 && (
+        <SectionTransition variant="cards">
         <section className="container section">
           <div className="section-head">
             <div>
@@ -155,6 +165,7 @@ export default async function SteffenPage() {
             })}
           </div>
         </section>
+        </SectionTransition>
       )}
 
       <Footer />

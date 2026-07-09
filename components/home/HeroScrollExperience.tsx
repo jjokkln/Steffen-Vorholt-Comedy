@@ -36,7 +36,7 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
 
           if (conditions.reduceMotion) {
             gsap.set(
-              [...lines, ...heroPlanets, ...orbits, "[data-hero-sun]", "[data-hero-lead]", "[data-hero-actions]"],
+              [...lines, ...heroPlanets, ...orbits, "[data-hero-lead]", "[data-hero-actions]"],
               { clearProps: "all" },
             );
             return;
@@ -52,11 +52,6 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
             gsap
               .timeline({ defaults: { ease: "power2.out" } })
               .from(orbits, { scale: 0.72, autoAlpha: 0, stagger: 0.1, duration: 1.1 }, 0.1)
-              .from(
-                "[data-hero-sun]",
-                { scale: 0.4, autoAlpha: 0, duration: 0.7, ease: "back.out(1.8)" },
-                0.35,
-              )
               .from(
                 heroPlanets,
                 { scale: 0.4, autoAlpha: 0, stagger: 0.14, duration: 0.9, ease: "back.out(1.6)" },
@@ -178,16 +173,6 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
               />
             ))}
 
-            <Link
-              href="/steffen"
-              className="hero-sun"
-              data-hero-sun
-              aria-label="Über Steffen – mehr erfahren"
-            >
-              <span className="hero-sun-orb" aria-hidden="true">🧑‍🚀</span>
-              <span className="hero-sun-label">Über Steffen</span>
-            </Link>
-
             {planets.map((planet) => (
               <div key={planet.id} className={`hero-carrier is-${planet.role}`}>
                 <Link
@@ -210,7 +195,6 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
                         fetchPriority={planet.role === "primary" ? "high" : "auto"}
                       />
                     </span>
-                    <span className="sticker hero-planet-sticker">{planet.name}</span>
                   </span>
                 </Link>
               </div>

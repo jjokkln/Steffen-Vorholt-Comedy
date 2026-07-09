@@ -10,10 +10,10 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 type TransitionVariant = "cards" | "track" | "archive" | "reveal";
 
 const SELECTORS: Record<TransitionVariant, string> = {
-  cards: ".section-head, .show-card",
-  track: ".section-head, .event-card, .actions",
-  archive: ".section-head, .gallery-grid figure",
-  reveal: ".section-head, .feature > *, .buzzer-zone",
+  cards: ".section-head, .card, .show-card, [data-st-item]",
+  track: ".section-head, .event-card, .actions, [data-st-item]",
+  archive: ".section-head, .gallery-grid figure, .youtube-item, [data-st-item]",
+  reveal: ".section-head, .feature > *, .buzzer-zone, [data-st-item]",
 };
 
 export default function SectionTransition({
