@@ -53,7 +53,7 @@ export default function OfferForm({
         Sortierung
         <input name="sort_order" type="number" defaultValue={offer?.sort_order ?? 0} />
       </label>
-      <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+      <label className="checkbox-row">
         <input name="is_active" type="checkbox" defaultChecked={offer?.is_active ?? true} /> Aktiv (öffentlich sichtbar)
       </label>
       <button className="btn primary" disabled={pending}>

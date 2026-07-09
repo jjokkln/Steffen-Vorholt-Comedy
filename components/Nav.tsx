@@ -16,6 +16,7 @@ const LINKS: { href: string; label: string; match?: (p: string) => boolean }[] =
 
 export default function Nav() {
   const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <nav className="nav">

@@ -39,10 +39,19 @@ export default async function SteffenPage() {
 
   return (
     <>
-      <header className="container section">
-        <div className="eyebrow">🧑‍🚀 Über mich</div>
-        <h1>Steffen Vorholt.</h1>
-        <p className="lead">Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+      <header className="steffen-hero">
+        <div className="container section steffen-hero-copy">
+          <div className="eyebrow">🧑‍🚀 Über mich</div>
+          <h1>Steffen Vorholt.</h1>
+          <p className="lead">Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+        </div>
+        <img
+          className="steffen-hero-photo"
+          src="/assets/media/steffen/steffen-hero-right.png"
+          alt="Steffen Vorholt"
+          loading="eager"
+          fetchPriority="high"
+        />
       </header>
 
       <section className="container section">

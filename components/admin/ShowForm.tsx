@@ -86,7 +86,7 @@ export default function ShowForm({
         )}
         <input name="background" type="file" accept="image/*" />
       </label>
-      <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+      <label className="checkbox-row">
         <input name="is_active" type="checkbox" defaultChecked={show?.is_active ?? true} /> Show ist aktiv (öffentlich sichtbar)
       </label>
       <button className="btn primary" disabled={pending}>

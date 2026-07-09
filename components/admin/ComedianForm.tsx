@@ -61,7 +61,7 @@ export default function ComedianForm({
         Sortierung
         <input name="sort_order" type="number" defaultValue={comedian?.sort_order ?? 0} />
       </label>
-      <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+      <label className="checkbox-row">
         <input name="is_active" type="checkbox" defaultChecked={comedian?.is_active ?? true} /> Aktiv (öffentlich sichtbar)
       </label>
       <button className="btn primary" disabled={pending}>

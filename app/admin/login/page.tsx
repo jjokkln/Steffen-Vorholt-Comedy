@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "Login – Mission Control", robots: 
 
 export default function AdminLoginPage() {
   return (
-    <section className="container section">
+    <section className="container section admin-login">
       <LoginForm />
     </section>
   );

@@ -55,7 +55,7 @@ export default function EventForm({
           <input name="provider" defaultValue={event?.provider} />
         </label>
       </div>
-      <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+      <label className="checkbox-row">
         <input name="is_published" type="checkbox" defaultChecked={event?.is_published ?? true} /> Veröffentlicht
       </label>
       <button className="btn primary">{event ? "Speichern" : "Termin anlegen"}</button>

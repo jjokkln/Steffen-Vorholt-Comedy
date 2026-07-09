@@ -56,7 +56,7 @@ export default function AppearanceForm({
         Sortierung
         <input name="sort_order" type="number" defaultValue={appearance?.sort_order ?? 0} />
       </label>
-      <label style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
+      <label className="checkbox-row">
         <input name="is_published" type="checkbox" defaultChecked={appearance?.is_published ?? true} /> Veröffentlicht
       </label>
       <button className="btn primary" disabled={pending}>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
 
+const LOGO = "/assets/media/brand/logo_steffen.png";
+
 const ADMIN_NAV = [
   { href: "/admin", label: "Übersicht" },
   { href: "/admin/shows", label: "Shows" },
@@ -20,10 +22,20 @@ const ADMIN_NAV = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <header className="container" style={{ paddingBlock: "48px 32px" }}>
-        <div className="eyebrow">🛠️ Mission Control</div>
+      <header className="admin-topbar">
+        <div className="container admin-topbar-inner">
+          <Link className="brand" href="/admin">
+            <span className="logo">
+              <img src={LOGO} alt="" />
+            </span>
+            <span>Mission Control</span>
+          </Link>
+          <form action={logout}>
+            <button className="btn secondary admin-logout-btn">Logout</button>
+          </form>
+        </div>
       </header>
-      <div className="container" style={{ paddingBottom: "clamp(48px, 6vw, 96px)" }}>
+      <div className="container" style={{ paddingBlock: "32px clamp(48px, 6vw, 96px)" }}>
         <div className="admin-layout">
           <aside className="sidebar" aria-label="Admin-Navigation">
             <nav aria-label="Bereich wählen">
@@ -33,11 +45,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </Link>
               ))}
             </nav>
-            <form action={logout} style={{ marginTop: 24 }}>
-              <button className="btn secondary" style={{ width: "100%" }}>
-                Logout
-              </button>
-            </form>
           </aside>
           <main id="main-content" tabIndex={-1}>
             {children}

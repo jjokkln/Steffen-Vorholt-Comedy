@@ -136,6 +136,16 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
       <span className="hero-comet" aria-hidden="true" />
       <span className="hero-comet is-second" aria-hidden="true" />
 
+      <Link href="/steffen" className="hero-captain" aria-label="Über Steffen – mehr erfahren">
+        <img
+          className="hero-captain-photo"
+          src="/assets/media/steffen/steffen-hero-cutout.png"
+          alt="Steffen Vorholt"
+          loading="eager"
+          fetchPriority="high"
+        />
+      </Link>
+
       <div className="container hero-scroll-grid">
         <div className="hero-scroll-copy" data-hero-copy>
           <div className="eyebrow">
