@@ -632,11 +632,16 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    Text ihn bei Bedarf leicht überlappen können – bleibt aber voll sichtbar,
    kein Fading/Blur. */
 .hero-captain{
-  position:absolute;z-index:0;bottom:0;right:clamp(220px,29vw,460px);
+  position:absolute;z-index:0;bottom:0;right:clamp(200px,27vw,440px);
   display:block;line-height:0;pointer-events:auto;
+  /* Foto ist unten schlecht freigestellt (Tisch-Rest sichtbar) – wir schieben
+     Steffen um 22% seiner eigenen Höhe nach unten. Der schlechte Rand
+     verschwindet dadurch unter der Bottom-Kante von .hero-scroll-shell
+     (overflow:hidden), sichtbar bleibt nur der saubere obere Teil. */
+  transform:translateY(22%);
 }
 .hero-captain-photo{
-  display:block;width:clamp(380px,38vw,640px);height:auto;
+  display:block;width:clamp(440px,44vw,760px);height:auto;
   filter:drop-shadow(0 30px 54px rgba(0,0,0,.6));
   transition:filter .3s ease;
 }

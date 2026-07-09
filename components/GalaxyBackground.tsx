@@ -259,9 +259,13 @@ export default function GalaxyBackground() {
         window.addEventListener("resize", resize);
         resize();
 
-        const clock = new THREE.Clock();
+        // Timer statt des seit r183 deprecated Clock: connect(document) nutzt die
+        // Page Visibility API, damit nach einem Tab-Wechsel kein Zeitsprung entsteht.
+        const timer = new THREE.Timer();
+        timer.connect(document);
         const render = () => {
-          const elapsed = clock.getElapsedTime();
+          timer.update();
+          const elapsed = timer.getElapsed();
           const now = performance.now();
           starMaterial.uniforms.uTime.value = elapsed;
 
@@ -340,6 +344,7 @@ export default function GalaxyBackground() {
           if (finePointer) window.removeEventListener("pointermove", onPointerMove);
           document.removeEventListener("visibilitychange", onVisibility);
           renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
+          timer.disconnect();
           document.documentElement.classList.remove("galaxy-live");
           starGeometry.dispose();
           starMaterial.dispose();
