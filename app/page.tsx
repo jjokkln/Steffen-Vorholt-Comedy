@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import EventGrid from "@/components/EventGrid";
 import Footer from "@/components/Footer";
+import HomeGallery from "@/components/HomeGallery";
 import Ticker from "@/components/Ticker";
 import Planet from "@/components/Planet";
 import Buzzer from "@/components/Buzzer";
@@ -155,23 +154,7 @@ export default async function HomePage() {
               </div>
               <p>Echte Bühnen, echtes Publikum, echte Lacher.</p>
             </div>
-            <div className="gallery-grid">
-              {gallery.map((item, index) => (
-                <figure
-                  key={item.id}
-                  style={{ "--rot": `${(index % 3) - 1}deg` } as CSSProperties}
-                >
-                  <Image
-                    src={mediaUrl(item.image_path)}
-                    alt={item.caption || "Showfoto"}
-                    width={800}
-                    height={600}
-                    style={{ width: "100%", height: 220, objectFit: "cover" }}
-                  />
-                  {item.caption && <figcaption>{item.caption}</figcaption>}
-                </figure>
-              ))}
-            </div>
+            <HomeGallery items={gallery} />
           </section>
         </SectionTransition>
       )}
@@ -183,7 +166,7 @@ export default async function HomePage() {
               <div className="eyebrow">Der Captain</div>
               <h2>Steffen Vorholt.</h2>
               <p>
-                Comedian, Moderator und Veranstalter aus Neuss. Host von drei eigenen Formaten –
+                Comedian, Moderator und Veranstalter aus Recklinghausen. Host von drei eigenen Formaten –
                 und der Typ, der auf der Bühne auch dann weitermacht, wenn das Publikum Regie führt.
               </p>
               <div className="actions">

@@ -7,7 +7,7 @@ export function personJsonLd(): Record<string, unknown> {
     name: "Steffen Vorholt",
     jobTitle: "Comedian",
     url: SITE,
-    description: "Comedian, Moderator und Veranstalter aus Neuss – Host von Brain Loading, Comedy Eiskalt und Comedy Check-In.",
+    description: "Comedian, Moderator und Veranstalter aus Recklinghausen – Host von Brain Loading, Comedy Eiskalt und Comedy Check-In.",
   };
 }
 

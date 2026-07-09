@@ -22,7 +22,7 @@ const LOCAL_HERO_VIDEO = "/assets/media/steffen/steffen-stage-loop-hero.mp4";
 export const metadata: Metadata = {
   title: "Steffen – Steffen Vorholt",
   description:
-    "Über Steffen Vorholt: Comedian, Moderator und Veranstalter aus Neuss – Host von drei eigenen Comedy-Formaten.",
+    "Über Steffen Vorholt: Comedian, Moderator und Veranstalter aus Recklinghausen – Host von drei eigenen Comedy-Formaten.",
 };
 
 export default async function SteffenPage() {
@@ -42,7 +42,7 @@ export default async function SteffenPage() {
       <header className="container section">
         <div className="eyebrow">🧑‍🚀 Über mich</div>
         <h1>Steffen Vorholt.</h1>
-        <p className="lead">Comedian, Moderator und Veranstalter aus Neuss.</p>
+        <p className="lead">Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
       </header>
 
       <section className="container section">
@@ -55,13 +55,13 @@ export default async function SteffenPage() {
               Bühne macht er auch dann weiter, wenn das Publikum die Regie übernimmt.
             </p>
             <p>
-              Aus Neuss kommend, hat er drei eigene Comedy-Formate aufgebaut und moderiert Events,
+              Aus Recklinghausen kommend, hat er drei eigene Comedy-Formate aufgebaut und moderiert Events,
               Galas und Firmenfeiern in ganz NRW.
             </p>
             <div className="proof-row">
               <span><b>{shows.length}</b> Eigene Formate</span>
               <span><b>NRW</b> Live unterwegs</span>
-              <span><b>Neuss</b> Homebase</span>
+              <span><b>Recklinghausen</b> Homebase</span>
             </div>
             <div className="actions">
               <Link className="btn primary" href="/kontakt">Steffen buchen</Link>

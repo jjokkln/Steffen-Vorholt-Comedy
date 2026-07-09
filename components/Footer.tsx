@@ -15,7 +15,7 @@ export default async function Footer() {
             </span>
             <span>Comedy-Universum</span>
           </Link>
-          <p>Steffen Vorholt · Comedian, Moderator und Veranstalter aus Neuss.</p>
+          <p>Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
         </div>
         <div>
           <h4>Shows</h4>
@@ -52,7 +52,7 @@ export default async function Footer() {
         </div>
       </div>
       <div className="container" style={{ paddingBlock: "18px", color: "var(--muted)", fontSize: 13 }}>
-        © {new Date().getFullYear()} Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Neuss und Andromeda gebaut.
+        © {new Date().getFullYear()} Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Recklinghausen und Andromeda gebaut.
       </div>
     </footer>
   );

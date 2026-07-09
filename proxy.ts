@@ -22,6 +22,13 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const isLogin = request.nextUrl.pathname === "/admin/login";
 
+  // Server Actions (z. B. Formular-Submits) laufen als POST auf dieselbe Route.
+  // Ein Redirect hier würde statt der erwarteten Flight-Response ein Redirect
+  // liefern -> Client wirft "An unexpected response was received from the server."
+  // Darum bei Server-Action-Requests nie redirecten; RLS + Session-Cookies schützen weiterhin.
+  const isServerAction = request.headers.has("next-action");
+  if (isServerAction) return response;
+
   if (!user && !isLogin) return NextResponse.redirect(new URL("/admin/login", request.url));
   if (user && isLogin) return NextResponse.redirect(new URL("/admin", request.url));
   return response;

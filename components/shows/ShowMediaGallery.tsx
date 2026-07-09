@@ -1,0 +1,76 @@
+"use client";
+
+import { useState } from "react";
+import Lightbox, { type LightboxItem } from "@/components/Lightbox";
+import { mediaUrl } from "@/lib/media";
+import type { ShowImage, ShowVideo } from "@/lib/types";
+
+export default function ShowMediaGallery({
+  images,
+  videos,
+  showName,
+}: {
+  images: ShowImage[];
+  videos: ShowVideo[];
+  showName: string;
+}) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  if (images.length + videos.length === 0) return null;
+
+  const lightboxItems: LightboxItem[] = [
+    ...images.map((img) => ({
+      type: "image" as const,
+      src: mediaUrl(img.image_path),
+      alt: img.alt_text || showName,
+      caption: img.alt_text,
+    })),
+    ...videos.map((v) => ({
+      type: "video" as const,
+      src: mediaUrl(v.video_path),
+      poster: v.poster_path ? mediaUrl(v.poster_path) : undefined,
+      caption: v.title,
+    })),
+  ];
+
+  return (
+    <>
+      <div className="show-media-grid">
+        {images.map((img, i) => (
+          <figure key={img.id} className="show-media-item" onClick={() => setOpenIndex(i)}>
+            <img src={mediaUrl(img.image_path)} alt={img.alt_text || showName} loading="lazy" />
+            {img.alt_text && <figcaption>{img.alt_text}</figcaption>}
+          </figure>
+        ))}
+        {videos.map((v, i) => (
+          <figure
+            key={v.id}
+            className="show-media-item"
+            onClick={() => setOpenIndex(images.length + i)}
+          >
+            <div className="media-thumb">
+              <video
+                src={mediaUrl(v.video_path)}
+                poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
+                preload="metadata"
+                muted
+                playsInline
+              />
+              <span className="media-play-badge" aria-hidden="true">
+                <span>▶</span>
+              </span>
+            </div>
+            {v.title && <figcaption>{v.title}</figcaption>}
+          </figure>
+        ))}
+      </div>
+      {openIndex !== null && (
+        <Lightbox
+          items={lightboxItems}
+          index={openIndex}
+          onClose={() => setOpenIndex(null)}
+          onIndexChange={setOpenIndex}
+        />
+      )}
+    </>
+  );
+}
