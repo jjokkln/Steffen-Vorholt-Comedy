@@ -14,6 +14,10 @@ export default function Calendar({
   initialMonth: number;
 }) {
   const [{ year, month }, setYm] = useState({ year: initialYear, month: initialMonth });
+  const goToToday = () => {
+    const today = new Date();
+    setYm({ year: today.getFullYear(), month: today.getMonth() + 1 });
+  };
   const byIso = new Map<string, EventRow[]>();
   for (const e of events) {
     byIso.set(e.date, [...(byIso.get(e.date) ?? []), e]);
@@ -24,12 +28,14 @@ export default function Calendar({
     <div>
       <div className="calendar-head">
         <div>
-          <span className="badge">Kalenderansicht</span>
           <h3>{monthTitle(year, month)}</h3>
         </div>
         <div className="actions" style={{ marginTop: 0 }}>
           <button className="btn secondary" type="button" onClick={() => setYm(shiftMonth(year, month, -1))}>
             ← Vorheriger
+          </button>
+          <button className="btn calendar-today" type="button" onClick={goToToday}>
+            Heute
           </button>
           <button className="btn secondary" type="button" onClick={() => setYm(shiftMonth(year, month, 1))}>
             Nächster →

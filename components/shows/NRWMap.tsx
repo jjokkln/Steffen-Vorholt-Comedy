@@ -15,7 +15,7 @@ interface CityMarker {
 // Kreis-Radius eines Markers (inkl. Halo) – Städte mit mehr Terminen bekommen
 // einen größeren Kreis, gedeckelt bei 5 Terminen.
 function markerRadius(eventCount: number): number {
-  return 1.8 + Math.min(eventCount, 5) * 0.45;
+  return 0.8 + Math.min(eventCount, 5) * 0.22;
 }
 
 // Manche NRW-Städte liegen geografisch so eng beieinander (z. B. Essen/
@@ -130,6 +130,10 @@ export default function NRWMap({ events }: { events: EventRow[] }) {
   return (
     <div className="nrw-map-layout">
       <div className="nrw-map-figure">
+        <div className="map-atlas-head" aria-hidden="true">
+          <span>Spielorte · NRW</span>
+          <span className="map-atlas-live">LIVE</span>
+        </div>
         <svg viewBox="0 0 100 100" className="nrw-map-svg" role="img" aria-label="Karte von NRW mit Spielorten">
           <defs>
             <radialGradient id="nrw-glow" cx="50%" cy="45%" r="70%">
@@ -172,8 +176,8 @@ export default function NRWMap({ events }: { events: EventRow[] }) {
                     }
                   }}
                 >
-                  <circle className="nrw-marker-halo" r={r + 1.6} fill="none" stroke={m.color} strokeWidth="0.5" />
-                  {active && <circle r={r + 2.4} fill="none" stroke={m.color} strokeWidth="0.5" opacity="0.6" />}
+                  <circle className="nrw-marker-halo" r={r + 0.8} fill="none" stroke={m.color} strokeWidth="0.5" />
+                  {active && <circle r={r + 1.25} fill="none" stroke={m.color} strokeWidth="0.5" opacity="0.6" />}
                   <circle r={r} fill={m.color} stroke="#050711" strokeWidth="0.4" />
                   <text x="0" y={r + 3.4} textAnchor="middle" className="nrw-marker-label">
                     {m.city}
@@ -185,7 +189,7 @@ export default function NRWMap({ events }: { events: EventRow[] }) {
       </div>
 
       <div className="nrw-map-panel">
-        <div className="filters" data-filters>
+        <div className="map-city-rail" data-filters aria-label="Stadt auswählen">
           {markers.map((m) => (
             <button
               key={m.city}
@@ -199,6 +203,13 @@ export default function NRWMap({ events }: { events: EventRow[] }) {
         </div>
         {selectedMarker ? (
           <>
+            <div className="map-results-head">
+              <div>
+                <span className="map-results-eyebrow">Ausgewählter Orbit</span>
+                <h3>{selectedMarker.city}</h3>
+              </div>
+              <span className="map-results-count">{selectedMarker.events.length} {selectedMarker.events.length === 1 ? "Termin" : "Termine"}</span>
+            </div>
             <div className="map-events-grid" data-events-grid style={{ marginTop: 18 }}>
               {(expanded ? selectedMarker.events : selectedMarker.events.slice(0, 2)).map((e) => (
                 <EventCard key={e.id} event={e} />

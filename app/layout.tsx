@@ -4,6 +4,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import GalaxyBackground from "@/components/GalaxyBackground";
+import ConstellationCursor from "@/components/ConstellationCursor";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
 const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-display", display: "swap" });
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="de">
       <body className={`${inter.variable} ${grotesk.variable}`}>
         <GalaxyBackground />
+        <ConstellationCursor />
         <div className="page">
           <Nav />
           {children}

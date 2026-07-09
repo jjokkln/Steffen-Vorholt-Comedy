@@ -1,5 +1,6 @@
 import { formatDay, formatMonth, todayIso } from "@/lib/event-helpers";
 import type { EventRow } from "@/lib/types";
+import Link from "next/link";
 
 export default function EventCard({ event }: { event: EventRow }) {
   const isPast = event.date < todayIso();
@@ -12,6 +13,7 @@ export default function EventCard({ event }: { event: EventRow }) {
 
   return (
     <article className="card event-card">
+      <Link className="event-card-link" href={`/shows/${event.shows?.slug ?? ""}`} aria-label={`${event.shows?.name ?? "Show"} in ${event.city} öffnen`} />
       <div>
         <div className="event-top">
           <div>
@@ -34,14 +36,10 @@ export default function EventCard({ event }: { event: EventRow }) {
           {event.provider ? <><br />{event.provider}</> : null}
         </p>
         {hasTicket && !isPast ? (
-          <a className="btn primary" href={event.ticket_url} target="_blank" rel="noreferrer">
+          <a className="btn primary event-ticket-link" href={event.ticket_url} target="_blank" rel="noreferrer">
             🎟 Tickets sichern
           </a>
-        ) : (
-          <a className="btn secondary" href={`/shows/${event.shows?.slug ?? ""}`}>
-            Zur Show
-          </a>
-        )}
+        ) : null}
       </div>
     </article>
   );
