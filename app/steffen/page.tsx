@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/Footer";
+import Planet from "@/components/Planet";
 import CaptainVideo from "@/components/CaptainVideo";
 import SectionTransition from "@/components/home/SectionTransition";
 import YoutubeGallery from "@/components/YoutubeGallery";
@@ -36,7 +37,10 @@ export default async function SteffenPage() {
   ]);
 
   const videoSrc = heroVideo ? mediaUrl(heroVideo) : LOCAL_HERO_VIDEO;
-  const steffenAppearances = upcomingAppearances(appearances, 3);
+  const steffenAppearances = upcomingAppearances(
+    appearances.filter((a) => a.kind !== "show"),
+    3,
+  );
 
   return (
     <>
@@ -53,6 +57,9 @@ export default async function SteffenPage() {
           loading="eager"
           fetchPriority="high"
         />
+        <div className="steffen-meteor-divider" aria-hidden="true">
+          <span /><span /><span /><span /><span /><span /><span />
+        </div>
       </header>
 
       <SectionTransition variant="reveal">
@@ -96,20 +103,33 @@ export default async function SteffenPage() {
           <div className="section-head">
             <div>
               <div className="eyebrow">Seine Formate</div>
-              <h2>Drei eigene Shows.</h2>
+              <h2>Eigene Shows.</h2>
             </div>
           </div>
           <div className="grid-3">
             {shows.map((show) => (
-              <article className="card" key={show.id}>
-                <div className="top">
-                  <span className="badge">{show.name}</span>
-                  <span className="badge">{show.format_label}</span>
+              <article className="card show-card" key={show.id}>
+                <div>
+                  <div className="top">
+                    <span className="badge">{show.name}</span>
+                    <span className="badge">{show.format_label}</span>
+                  </div>
+                  <div className="show-art">
+                    <Planet
+                      src={show.planet_image_path}
+                      alt={`Planet der Show ${show.name}`}
+                      size={280}
+                      color={show.color}
+                    />
+                  </div>
+                  <div className="show-card-copy">
+                    <h3>{show.tagline}</h3>
+                    <p>{show.description}</p>
+                  </div>
                 </div>
-                <h3 style={{ marginTop: 12 }}>{show.tagline}</h3>
-                <p>{show.description}</p>
-                <div className="actions" style={{ marginTop: 12 }}>
-                  <Link className="btn secondary" href={`/shows/${show.slug}`}>Show öffnen</Link>
+                <div className="actions">
+                  <Link className="btn primary" href={`/shows/${show.slug}`}>Show öffnen</Link>
+                  <Link className="btn secondary" href="/shows#termine">Tickets</Link>
                 </div>
               </article>
             ))}

@@ -16,11 +16,19 @@ export interface Show {
   is_active: boolean;
 }
 
+export type ShowImageCategory = "location" | "show";
+
+export const SHOW_IMAGE_CATEGORIES: { key: ShowImageCategory; label: string }[] = [
+  { key: "location", label: "Location" },
+  { key: "show", label: "Show" },
+];
+
 export interface ShowImage {
   id: string;
   show_id: string;
   image_path: string;
   alt_text: string;
+  category: ShowImageCategory;
   sort_order: number;
 }
 
@@ -130,6 +138,8 @@ export interface Appearance {
   date: string | null; // ISO yyyy-mm-dd oder null
   url: string;
   kind: AppearanceKind;
+  color: string;
+  flyer_path: string;
   sort_order: number;
   is_published: boolean;
 }

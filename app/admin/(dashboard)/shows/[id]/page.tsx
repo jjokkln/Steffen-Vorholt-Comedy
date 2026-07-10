@@ -56,6 +56,9 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
                 alt={img.alt_text || ""}
                 style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 12, marginBottom: 10 }}
               />
+              <span className="badge" style={{ marginBottom: 8, display: "inline-block" }}>
+                {img.category === "location" ? "Location" : "Show"}
+              </span>
               {img.alt_text && <p style={{ margin: "0 0 8px", fontWeight: 850, fontSize: 13 }}>{img.alt_text}</p>}
               <form action={deleteShowImage.bind(null, img.id, show.id)}>
                 <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>

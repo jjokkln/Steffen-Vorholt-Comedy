@@ -22,6 +22,8 @@ function appearanceFields(formData: FormData) {
     date: dateRaw || null,
     url: String(formData.get("url") ?? "").trim(),
     kind: (KINDS as readonly string[]).includes(kind) ? kind : "guest",
+    color: String(formData.get("color") ?? "#7CFF6B"),
+    flyer_path: String(formData.get("flyer_path") ?? "").trim(),
     sort_order: Number(formData.get("sort_order") ?? 0),
     is_published: formData.get("is_published") === "on",
   };

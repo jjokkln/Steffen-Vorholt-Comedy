@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 export default function CaptainVideo({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(false);
 
   function handlePlay() {
     const video = videoRef.current;
@@ -12,52 +13,40 @@ export default function CaptainVideo({ src }: { src: string }) {
     video.play().then(() => setPlaying(true)).catch(() => {});
   }
 
+  function togglePlayback() {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) void handlePlay();
+    else video.pause();
+  }
+
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+    <div className="captain-video">
       <video
         ref={videoRef}
         src={src}
         playsInline
         preload="metadata"
         loop
+        muted={muted}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
-        style={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }}
+        className="captain-video-media"
+        onClick={togglePlayback}
       />
       {!playing && (
         <button
           onClick={handlePlay}
           aria-label="Video abspielen"
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            background: "rgba(5,7,17,.42)",
-            border: 0,
-            cursor: "pointer",
-            borderRadius: "inherit",
-          }}
+          className="captain-video-start"
         >
-          <span style={{
-            width: 72,
-            height: 72,
-            borderRadius: "50%",
-            background: "rgba(255,255,255,.15)",
-            border: "2px solid rgba(255,255,255,.55)",
-            backdropFilter: "blur(8px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 28,
-            color: "#fff",
-            transition: "transform .18s ease, background .18s ease",
-          }}>
-            ▶
-          </span>
+          <span>▶</span>
         </button>
       )}
+      <div className="captain-video-controls">
+        <button type="button" onClick={togglePlayback} aria-label={playing ? "Video pausieren" : "Video abspielen"}>{playing ? "Ⅱ" : "▶"}</button>
+        <button type="button" onClick={() => setMuted((value) => !value)} aria-label={muted ? "Ton einschalten" : "Ton ausschalten"} aria-pressed={muted}>{muted ? "🔇" : "🔊"}</button>
+      </div>
     </div>
   );
 }

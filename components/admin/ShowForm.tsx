@@ -49,7 +49,7 @@ export default function ShowForm({
       </label>
       <div className="form two">
         <label>
-          Show-Farbe
+          Show-Farbe (Kalender, Legende &amp; Akzente)
           <input name="color" type="color" defaultValue={show?.color ?? "#7CFF6B"} />
         </label>
         <label>

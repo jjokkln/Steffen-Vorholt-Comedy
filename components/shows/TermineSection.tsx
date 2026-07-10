@@ -70,12 +70,15 @@ export default function TermineSection({
       {view === "kalender" ? (
         <>
           <div className="public-calendar">
-            <div className="eventbar" style={{ marginBottom: "16px" }}>
-              {shows.map((s) => (
-                <span key={s.id} className="status" style={{ background: s.color, color: "#050711" }}>
-                  {s.name}
-                </span>
-              ))}
+            <div className="calendar-legend">
+              <span className="calendar-legend-label">Legende</span>
+              <div className="eventbar" style={{ margin: 0 }}>
+                {shows.map((s) => (
+                  <span key={s.id} className="status" style={{ background: s.color, color: "#050711" }}>
+                    {s.name}
+                  </span>
+                ))}
+              </div>
             </div>
             <Calendar events={events} initialYear={initialYear} initialMonth={initialMonth} />
           </div>

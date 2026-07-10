@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const LOGO = "/assets/media/brand/logo_steffen.png";
 
@@ -16,26 +17,54 @@ const LINKS: { href: string; label: string; match?: (p: string) => boolean }[] =
 
 export default function Nav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+
+  // Menü bei Seitenwechsel schließen.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <nav className="nav">
-      <Link className="brand" href="/">
-        <span className="logo">
-          <img src={LOGO} alt="" />
-        </span>
-        <span>Steffen Vorholt</span>
-      </Link>
-      <div className="navlinks">
+    <nav className={`nav${open ? " is-open" : ""}`}>
+      <div className="nav-bar">
+        <Link className="brand" href="/" onClick={() => setOpen(false)}>
+          <span className="logo">
+            <img src={LOGO} alt="" />
+          </span>
+          <span>Steffen Vorholt</span>
+        </Link>
+        <button
+          type="button"
+          className="nav-burger"
+          aria-label="Menü öffnen"
+          aria-expanded={open}
+          aria-controls="nav-menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <span className="nav-burger-lines" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
+      </div>
+      <div className="navlinks" id="nav-menu">
         {LINKS.map((link) => {
           const active = link.match ? link.match(pathname) : pathname === link.href;
           return (
-            <Link key={link.href} className={active ? "active" : ""} href={link.href}>
+            <Link
+              key={link.href}
+              className={active ? "active" : ""}
+              href={link.href}
+              onClick={() => setOpen(false)}
+            >
               {link.label}
             </Link>
           );
         })}
-        <Link className="ticket" href="/shows#termine">
+        <Link className="ticket" href="/shows#termine" onClick={() => setOpen(false)}>
           🎟 Tickets
         </Link>
       </div>

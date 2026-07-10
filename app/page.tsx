@@ -44,7 +44,12 @@ export default async function HomePage() {
     getPublishedAppearances(),
   ]);
 
-  const homeAppearances = upcomingAppearances(appearances, 6);
+  // „Wo Steffen selbst auf der Bühne steht": nur die 3 nächsten Termine, die
+  // KEINE eigene Show sind (Gastauftritte, Open Mics, Gigs).
+  const homeAppearances = upcomingAppearances(
+    appearances.filter((a) => a.kind !== "show"),
+    3,
+  );
 
   // 2026-06-26 (Lenny): Planeten reaktiviert (Kundenwunsch). Die 3 aktivsten Shows
   // mit Planeten-Bild werden zu Hero-Planeten – anklickbar (siehe HeroScrollExperience:
@@ -117,7 +122,7 @@ export default async function HomePage() {
             </div>
             <p>Ticketlinks führen direkt zum externen Anbieter.</p>
           </div>
-          <EventGrid limit={3} />
+          <EventGrid limit={3} showFilters={false} />
           <div className="actions">
             <Link className="btn primary" href="/shows#termine">Alle Termine im Kalender</Link>
           </div>

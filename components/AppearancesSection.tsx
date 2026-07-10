@@ -1,9 +1,11 @@
+import type { CSSProperties } from "react";
 import { formatDateLong } from "@/lib/event-helpers";
+import { mediaUrl } from "@/lib/media";
 import type { Appearance } from "@/lib/types";
 
 const KIND_LABEL: Record<Appearance["kind"], string> = {
   open_mic: "Open Mic",
-  guest: "Gastauftritt",
+  guest: "Auftritt",
   gig: "Gig",
   show: "Eigene Show",
 };
@@ -19,28 +21,52 @@ export default function AppearancesSection({ appearances }: { appearances: Appea
           <h2>Wo Steffen selbst auf der Bühne steht.</h2>
         </div>
         <p>
-          Open Mics, Gastauftritte &amp; Gigs – unter anderem bei <strong>Komiker 11</strong>.
+          Open Mics, Auftritte &amp; Gigs – unter anderem bei <strong>Komiker 11</strong>.
           Ein Klick führt direkt zur Show.
         </p>
       </div>
-      <div className="grid-3 appearance-grid">
-        {appearances.map((a) => (
-          <article className="card appearance-card" key={a.id}>
-            <span className="badge">{KIND_LABEL[a.kind]}</span>
-            <h3>{a.title}</h3>
-            {a.date && <p className="appearance-date">{formatDateLong(a.date)}</p>}
-            {(a.venue || a.organizer || a.city) && (
-              <p className="appearance-sub">
-                {[a.venue || a.organizer, a.city].filter(Boolean).join(", ")}
-              </p>
-            )}
-            {a.url && (
-              <a className="btn secondary" href={a.url} target="_blank" rel="noopener noreferrer">
-                Mehr Infos
-              </a>
-            )}
-          </article>
-        ))}
+      <div className="appearance-grid">
+        {appearances.map((a) => {
+          const style = { "--accent": a.color || "#7CFF6B" } as CSSProperties;
+          const inner = (
+            <>
+              <div className="appearance-flyer">
+                {a.flyer_path ? (
+                  <img src={mediaUrl(a.flyer_path)} alt={a.title} loading="lazy" />
+                ) : (
+                  <span className="appearance-flyer-fallback" aria-hidden="true">🎤</span>
+                )}
+                <span className="appearance-kind badge">{KIND_LABEL[a.kind]}</span>
+              </div>
+              <div className="appearance-body">
+                <h3>{a.title}</h3>
+                {a.date && <p className="appearance-date">{formatDateLong(a.date)}</p>}
+                {(a.venue || a.organizer || a.city) && (
+                  <p className="appearance-sub">
+                    {[a.venue || a.organizer, a.city].filter(Boolean).join(", ")}
+                  </p>
+                )}
+                {a.url && <span className="appearance-cta">Mehr Infos →</span>}
+              </div>
+            </>
+          );
+          return a.url ? (
+            <a
+              className="card appearance-card is-link"
+              key={a.id}
+              href={a.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={style}
+            >
+              {inner}
+            </a>
+          ) : (
+            <article className="card appearance-card" key={a.id} style={style}>
+              {inner}
+            </article>
+          );
+        })}
       </div>
     </section>
   );

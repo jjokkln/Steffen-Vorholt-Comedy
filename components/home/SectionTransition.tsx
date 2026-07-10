@@ -33,12 +33,17 @@ export default function SectionTransition({
       if (!root) return;
       const media = gsap.matchMedia();
 
-      media.add("(prefers-reduced-motion: reduce)", () => {
+      // Statisch (kein Entrance-Transform) bei Reduced-Motion UND auf Mobile:
+      // Auf schmalen Viewports „hing" die from()-Tween teils in ihrem Start-
+      // zustand (translateY 86px), sodass die Karten sichtbar, aber um 86px nach
+      // unten versetzt standen → große Lücke zur Kopfzeile. Auf Mobile daher
+      // Karten direkt an ihrer Position rendern.
+      media.add("(prefers-reduced-motion: reduce), (max-width: 820px)", () => {
         gsap.set(SELECTORS[variant], { clearProps: "all" });
         gsap.set(".section-light-track", { scaleX: 1, opacity: 0.45 });
       });
 
-      media.add("(prefers-reduced-motion: no-preference)", () => {
+      media.add("(prefers-reduced-motion: no-preference) and (min-width: 821px)", () => {
         const items = gsap.utils.toArray<HTMLElement>(SELECTORS[variant], root);
         const base = {
           autoAlpha: 0,

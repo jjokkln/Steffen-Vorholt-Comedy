@@ -5,7 +5,15 @@ import EventCard from "@/components/EventCard";
 import type { EventRow } from "@/lib/types";
 
 /** Shared event-gallery filtering, used wherever appointments are shown as cards. */
-export default function EventGallery({ events, limit }: { events: EventRow[]; limit?: number }) {
+export default function EventGallery({
+  events,
+  limit,
+  showFilters = true,
+}: {
+  events: EventRow[];
+  limit?: number;
+  showFilters?: boolean;
+}) {
   const [selectedShows, setSelectedShows] = useState<string[]>([]);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const { shows, cities } = useMemo(() => {
@@ -25,6 +33,7 @@ export default function EventGallery({ events, limit }: { events: EventRow[]; li
 
   return (
     <>
+      {showFilters && (
       <div className="event-filter-groups" aria-label="Termine filtern">
         <button type="button" className={`chip event-filter-reset${selectedShows.length === 0 && selectedCities.length === 0 ? " active" : ""}`} onClick={() => { setSelectedShows([]); setSelectedCities([]); }}>
           Alle
@@ -42,9 +51,14 @@ export default function EventGallery({ events, limit }: { events: EventRow[]; li
           </div>
         </div>
       </div>
+      )}
       <div className="grid-3" data-events-grid>
         {items.length ? items.map((event) => <EventCard key={event.id} event={event} />) : (
-          <div className="booking-empty">Für diesen Filter ist nichts geplant — Steffen arbeitet dran.</div>
+          <div className="booking-empty">
+            {showFilters
+              ? "Für diesen Filter ist nichts geplant — Steffen arbeitet dran."
+              : "Aktuell keine Termine geplant — Steffen arbeitet dran."}
+          </div>
         )}
       </div>
     </>

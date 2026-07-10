@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import EventCard from "@/components/EventCard";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
-import ShowMediaGallery from "@/components/shows/ShowMediaGallery";
+import ShowGalleries from "@/components/shows/ShowGalleries";
+import ShowUpcomingEvents from "@/components/shows/ShowUpcomingEvents";
 import SocialLinks from "@/components/SocialLinks";
 import YoutubeGallery from "@/components/YoutubeGallery";
 import {
@@ -48,6 +49,8 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
     getYoutubeVideosForShowId(show.id),
   ]);
   const { upcoming } = partitionEvents(events);
+  const locationImages = images.filter((i) => i.category === "location");
+  const showImages = images.filter((i) => i.category !== "location");
   const backgroundUrl = show.background_image_path ? mediaUrl(show.background_image_path) : "";
   const headerUrl = show.header_image_path ? mediaUrl(show.header_image_path) : "";
   const hasHeader = !!headerUrl;
@@ -83,20 +86,9 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
             </p>
           )}
         </div>
-        <figure className={`show-hero-media${hasHeader ? " has-cover" : ""}`} style={hasHeader ? { color: show.color } : { color: show.color }}>
+        <figure className={`show-hero-media${hasHeader ? " has-cover" : ""}`} style={{ color: show.color }}>
           {hasHeader ? (
-            <>
-              <img className="hero-cover" src={headerUrl} alt={show.name} />
-              {show.planet_image_path && (
-                <Image
-                  className="hero-planet"
-                  src={mediaUrl(show.planet_image_path)}
-                  alt=""
-                  width={140}
-                  height={140}
-                />
-              )}
-            </>
+            <img className="hero-cover" src={headerUrl} alt={show.name} />
           ) : show.planet_image_path ? (
             <Image
               src={mediaUrl(show.planet_image_path)}
@@ -109,34 +101,46 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
       </header>
 
       {show.principle_items.length > 0 && (
-        <section className="container section">
-          <div className="grid-2">
-            <div className="card">
-              <h3>Show-Prinzip</h3>
-              <ul className="list">
-                {show.principle_items.map((item) => (
-                  <li key={item.title}>
-                    <b>{item.title}</b>
-                    <span>{item.text}</span>
-                  </li>
-                ))}
-              </ul>
+        <section className="container section show-principle">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow" style={{ color: show.color }}>So läuft die Show</div>
+              <h2>Das Show-Prinzip.</h2>
             </div>
-            <div className="card">
-              <h3>Städte &amp; Locations</h3>
-              <p>{show.cities_text}</p>
-            </div>
+            {show.cities_text && (
+              <p>
+                <strong>Städte &amp; Locations:</strong> {show.cities_text}
+              </p>
+            )}
+          </div>
+          <div className="principle-steps">
+            {show.principle_items.map((item, i) => (
+              <article
+                className="principle-step card"
+                key={item.title}
+                style={{ "--accent": show.color } as CSSProperties}
+              >
+                <span className="principle-step-num">{String(i + 1).padStart(2, "0")}</span>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+              </article>
+            ))}
           </div>
         </section>
       )}
 
-      {images.length + videos.length > 0 && (
+      {locationImages.length + showImages.length + videos.length > 0 && (
         <section className="container section">
           <div className="section-head">
-            <h2>Medien</h2>
-            <p>Fotos und Videos aus der Show.</p>
+            <h2>Galerie</h2>
+            <p>Location, Bühne und Videos aus der Show.</p>
           </div>
-          <ShowMediaGallery images={images} videos={videos} showName={show.name} />
+          <ShowGalleries
+            locationImages={locationImages}
+            showImages={showImages}
+            videos={videos}
+            showName={show.name}
+          />
         </section>
       )}
 
@@ -190,17 +194,17 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
       <section className="container section">
         <div className="section-head">
           <h2>Kommende {show.name}-Termine</h2>
-          <p>Alle Termine inkl. anderer Shows findest du im Kalender.</p>
+          <p>Nach Ort filtern – alle Termine inkl. anderer Shows findest du im Kalender.</p>
         </div>
-        <div className="grid-3">
-          {upcoming.length ? (
-            upcoming.map((e) => <EventCard key={e.id} event={e} />)
-          ) : (
+        {upcoming.length ? (
+          <ShowUpcomingEvents events={upcoming} />
+        ) : (
+          <div className="grid-3">
             <div className="booking-empty">
               Gerade kein Termin geplant – Steffen schreibt vermutlich neue Witze. Schau im Kalender vorbei!
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </section>
 
       <JsonLd

@@ -6,7 +6,7 @@ import type { Appearance } from "@/lib/types";
 
 const KIND_LABEL: Record<Appearance["kind"], string> = {
   open_mic: "Open Mic",
-  guest: "Gastauftritt",
+  guest: "Auftritt",
   gig: "Gig",
   show: "Eigene Show",
 };

@@ -24,6 +24,7 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
     const form = e.currentTarget;
     const imageInput = form.elements.namedItem("image") as HTMLInputElement;
     const altText = (form.elements.namedItem("alt_text") as HTMLInputElement).value;
+    const category = (form.elements.namedItem("category") as HTMLSelectElement).value;
     const sortOrder = Number((form.elements.namedItem("sort_order") as HTMLInputElement).value || 0);
 
     const imageFile = imageInput.files?.[0];
@@ -33,7 +34,7 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
     setError("");
     try {
       const imagePath = await uploadToStorage("media", "show-img", imageFile);
-      await addShowImage(showId, { imagePath, altText, sortOrder });
+      await addShowImage(showId, { imagePath, altText, category, sortOrder });
       setDone(Date.now());
       setPreview(null);
       form.reset();
@@ -61,14 +62,21 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
       )}
       <div className="form two">
         <label>
+          Galerie
+          <select name="category" defaultValue="show" disabled={busy}>
+            <option value="show">Show-Bilder</option>
+            <option value="location">Location-Bilder</option>
+          </select>
+        </label>
+        <label>
           Bildunterschrift
           <input name="alt_text" placeholder="z. B. Bühnenmoment 2025" disabled={busy} />
         </label>
-        <label>
-          Sortierung
-          <input name="sort_order" type="number" defaultValue={0} disabled={busy} />
-        </label>
       </div>
+      <label>
+        Sortierung
+        <input name="sort_order" type="number" defaultValue={0} disabled={busy} />
+      </label>
       <button className="btn primary" disabled={busy}>
         {busy ? "Lädt hoch…" : "Foto hochladen"}
       </button>

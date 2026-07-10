@@ -6,14 +6,16 @@ import { revalidatePath } from "next/cache";
 
 export async function addShowImage(
   showId: string,
-  input: { imagePath: string; altText?: string; sortOrder?: number },
+  input: { imagePath: string; altText?: string; category?: string; sortOrder?: number },
 ) {
   if (!input.imagePath) throw new Error("Bild-Pfad fehlt.");
   const supabase = await createServerSupabase();
+  const category = input.category === "location" ? "location" : "show";
   const { error } = await supabase.from("show_images").insert({
     show_id: showId,
     image_path: input.imagePath,
     alt_text: (input.altText ?? "").trim(),
+    category,
     sort_order: input.sortOrder ?? 0,
   });
   if (error) throw new Error(`Bild speichern fehlgeschlagen: ${error.message}`);
