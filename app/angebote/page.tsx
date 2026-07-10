@@ -7,7 +7,7 @@ import { mediaUrl } from "@/lib/media";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Angebote – Steffen Vorholt",
+  title: "Angebote",
   description:
     "Aktuelle Aktionen rund um Steffen Vorholts Comedy-Shows – z. B. Rettember und den Missions Pass.",
 };

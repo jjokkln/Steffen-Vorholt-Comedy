@@ -22,7 +22,7 @@ export const revalidate = 3600;
 const LOCAL_HERO_VIDEO = "/assets/media/steffen/steffen-stage-loop-hero.mp4";
 
 export const metadata: Metadata = {
-  title: "Steffen – Steffen Vorholt",
+  title: "Über Steffen",
   description:
     "Über Steffen Vorholt: Comedian, Moderator und Veranstalter aus Recklinghausen – Host von drei eigenen Comedy-Formaten.",
 };

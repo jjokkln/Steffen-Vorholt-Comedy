@@ -1,6 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
+
+export const metadata: Metadata = {
+  title: { absolute: "Mission Control" },
+  robots: { index: false, follow: false },
+};
 
 const LOGO = "/assets/media/brand/logo_steffen.png";
 

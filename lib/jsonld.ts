@@ -1,4 +1,6 @@
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://steffenvorholt.de";
+const INSTAGRAM = "https://www.instagram.com/steffen_vorholt";
+const LOGO = `${SITE}/assets/media/brand/logo_steffen.png`;
 
 export function personJsonLd(): Record<string, unknown> {
   return {
@@ -7,7 +9,34 @@ export function personJsonLd(): Record<string, unknown> {
     name: "Steffen Vorholt",
     jobTitle: "Comedian",
     url: SITE,
+    image: `${SITE}/assets/media/steffen/steffen-hero-cutout.png`,
     description: "Comedian, Moderator und Veranstalter aus Recklinghausen – Host von Brain Loading, Comedy Eiskalt und Comedy Check-In.",
+    sameAs: [INSTAGRAM],
+  };
+}
+
+/** Site-weite Marken-Entität (Logo → Google-Knowledge-Panel / Logo in der Suche). */
+export function organizationJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Steffen Vorholt",
+    alternateName: "Steffens Comedy Universum",
+    url: SITE,
+    logo: LOGO,
+    description: "Live-Comedy aus NRW: Impro, Open Mic & Boarding-Comedy mit Steffen Vorholt.",
+    sameAs: [INSTAGRAM],
+  };
+}
+
+/** WebSite-Entität – hilft Google, den offiziellen Seitennamen zu erkennen. */
+export function websiteJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Steffen Vorholt",
+    url: SITE,
+    inLanguage: "de-DE",
   };
 }
 

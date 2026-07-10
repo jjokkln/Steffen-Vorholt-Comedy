@@ -6,7 +6,7 @@ import { renderMarkdown } from "@/lib/markdown";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Impressum – Steffen Vorholt",
+  title: "Impressum",
   description: "Impressum und Anbieterkennzeichnung von Steffen Vorholt.",
   robots: { index: false },
 };

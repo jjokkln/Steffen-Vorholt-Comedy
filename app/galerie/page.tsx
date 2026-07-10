@@ -9,7 +9,7 @@ import { mediaUrl } from "@/lib/media";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Galerie & Gästebuch – Steffen Vorholt",
+  title: "Galerie & Gästebuch",
   description:
     "Fotos von Steffens Shows und Locations – und das Gästebuch der Comedians, die bei ihm auf der Bühne standen.",
 };

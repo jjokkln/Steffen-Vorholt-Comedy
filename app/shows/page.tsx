@@ -19,7 +19,7 @@ import { mediaUrl } from "@/lib/media";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Shows & Termine – Steffen Vorholt",
+  title: "Shows & Termine",
   description:
     "Alle Comedy-Formate von Steffen Vorholt mit Terminen als Kalender und Karte – Tickets direkt beim Anbieter.",
 };

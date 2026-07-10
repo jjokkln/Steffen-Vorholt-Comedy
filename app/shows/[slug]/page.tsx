@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const show = await getShowBySlug(slug);
   if (!show) return {};
-  return { title: `${show.name} – Steffen Vorholt`, description: show.tagline };
+  return { title: show.name, description: show.tagline };
 }
 
 export default async function ShowPage({ params }: { params: Promise<{ slug: string }> }) {

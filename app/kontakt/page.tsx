@@ -6,7 +6,7 @@ import { getActiveShows } from "@/lib/data";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Booking & Kontakt – Steffen Vorholt",
+  title: "Booking & Kontakt",
   description:
     "Eine Show buchen, Steffen selbst buchen oder einfach eine Frage stellen – drei Wege, ein Funkkontakt.",
 };

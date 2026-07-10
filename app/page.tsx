@@ -27,7 +27,7 @@ import { mediaUrl } from "@/lib/media";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Steffen Vorholt – Comedy aus einer anderen Galaxie",
+  title: { absolute: "Steffen Vorholt – Comedy aus einer anderen Galaxie" },
   description:
     "Drei Shows. Ein Host. Unendlich viele Lacher. Impro, Open Mic und Boarding-Comedy aus NRW – Termine, Tickets und Booking.",
 };

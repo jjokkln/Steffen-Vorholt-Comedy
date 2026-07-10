@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Datenschutzerklärung – Steffen Vorholt",
+  title: "Datenschutzerklärung",
   description: "Datenschutzerklärung gemäß DSGVO für die Website von Steffen Vorholt.",
   robots: { index: false },
 };
