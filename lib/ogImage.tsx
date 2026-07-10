@@ -9,7 +9,7 @@ export const ogSize = { width: 1200, height: 630 };
 export const ogContentType = "image/png";
 export const ogAlt = "Steffen Vorholt – Comedy aus einer anderen Galaxie";
 
-const steffen = readFileSync(join(process.cwd(), "public/assets/metadada/og-steffen.png"));
+const steffen = readFileSync(join(process.cwd(), "public/assets/media/metadata/og-steffen.png"));
 const steffenSrc = `data:image/png;base64,${steffen.toString("base64")}`;
 
 export function ogImage() {

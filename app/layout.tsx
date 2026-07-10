@@ -55,11 +55,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/assets/metadada/icon.svg", type: "image/svg+xml" },
-      { url: "/assets/metadada/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/assets/media/metadata/icon.svg", type: "image/svg+xml" },
+      { url: "/assets/media/metadata/icon.png", type: "image/png", sizes: "512x512" },
     ],
-    apple: [{ url: "/assets/metadada/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [{ rel: "mask-icon", url: "/assets/metadada/mask-icon.svg", color: "#7CFF6B" }],
+    apple: [{ url: "/assets/media/metadata/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [{ rel: "mask-icon", url: "/assets/media/metadata/mask-icon.svg", color: "#7CFF6B" }],
   },
   appleWebApp: {
     capable: true,

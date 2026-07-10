@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 // Web-App-Manifest → installierbar auf dem Home-Screen (Android/iOS), setzt
-// Farben für den PWA-Splash. Icons liegen unter /public/assets/metadada/.
+// Farben für den PWA-Splash. Icons liegen unter /public/assets/media/metadata/.
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Steffen Vorholt – Comedy",
@@ -14,9 +14,9 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#050711",
     theme_color: "#050711",
     icons: [
-      { src: "/assets/metadada/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/assets/metadada/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/assets/metadada/icon-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/assets/media/metadata/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/assets/media/metadata/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/assets/media/metadata/icon-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
 }
