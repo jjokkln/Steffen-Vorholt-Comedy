@@ -4,27 +4,41 @@ export default function EventForm({
   event,
   shows,
   action,
+  lockedShowId,
 }: {
   event?: EventRow;
-  shows: Show[];
+  shows?: Show[];
   action: (formData: FormData) => Promise<void>;
+  // Wenn gesetzt, ist die Show fix vorgegeben (z. B. in den Show-Einstellungen):
+  // kein Show-Select, sondern ein verstecktes Feld + einspaltiges Datumsfeld.
+  lockedShowId?: string;
 }) {
   return (
     <form className="card form" action={action}>
-      <div className="form two">
-        <label>
-          Show *
-          <select name="show_id" defaultValue={event?.show_id} required>
-            {shows.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Datum *
-          <input name="date" type="date" defaultValue={event?.date} required />
-        </label>
-      </div>
+      {lockedShowId ? (
+        <>
+          <input type="hidden" name="show_id" value={lockedShowId} />
+          <label>
+            Datum *
+            <input name="date" type="date" defaultValue={event?.date} required />
+          </label>
+        </>
+      ) : (
+        <div className="form two">
+          <label>
+            Show *
+            <select name="show_id" defaultValue={event?.show_id} required>
+              {(shows ?? []).map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Datum *
+            <input name="date" type="date" defaultValue={event?.date} required />
+          </label>
+        </div>
+      )}
       <div className="form two">
         <label>
           Showbeginn (z. B. 20:00)

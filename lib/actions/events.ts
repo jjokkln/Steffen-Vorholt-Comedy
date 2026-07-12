@@ -45,3 +45,21 @@ export async function deleteEvent(id: string) {
   revalidatePublic();
   redirect("/admin/termine");
 }
+
+// Show-scoped Varianten: Termine direkt aus den Show-Einstellungen anlegen/löschen
+// und dorthin zurückspringen (statt in die globale Termin-Übersicht).
+export async function createShowEvent(showId: string, formData: FormData) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.from("events").insert(eventFields(formData));
+  if (error) throw new Error(`Termin anlegen fehlgeschlagen: ${error.message}`);
+  revalidatePublic();
+  redirect(`/admin/shows/${showId}`);
+}
+
+export async function deleteShowEvent(id: string, showId: string) {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.from("events").delete().eq("id", id);
+  if (error) throw new Error(`Termin löschen fehlgeschlagen: ${error.message}`);
+  revalidatePublic();
+  redirect(`/admin/shows/${showId}`);
+}

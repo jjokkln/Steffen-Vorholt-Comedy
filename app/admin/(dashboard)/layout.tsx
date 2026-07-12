@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata: Metadata = {
   title: { absolute: "Mission Control" },
@@ -9,21 +10,6 @@ export const metadata: Metadata = {
 };
 
 const LOGO = "/assets/media/brand/logo_steffen.png";
-
-const ADMIN_NAV = [
-  { href: "/admin", label: "Übersicht" },
-  { href: "/admin/shows", label: "Shows" },
-  { href: "/admin/termine", label: "Termine" },
-  { href: "/admin/comedians", label: "Comedians" },
-  { href: "/admin/auftritte", label: "Auftritte" },
-  { href: "/admin/partner", label: "Partner" },
-  { href: "/admin/angebote", label: "Angebote" },
-  { href: "/admin/youtube", label: "YouTube" },
-  { href: "/admin/anfragen", label: "Anfragen" },
-  { href: "/admin/galerie", label: "Galerie & Medien" },
-  { href: "/admin/oneliner", label: "One-Liner" },
-  { href: "/admin/impressum", label: "Impressum" },
-];
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
@@ -43,15 +29,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       </header>
       <div className="container" style={{ paddingBlock: "32px clamp(48px, 6vw, 96px)" }}>
         <div className="admin-layout">
-          <aside className="sidebar" aria-label="Admin-Navigation">
-            <nav aria-label="Bereich wählen">
-              {ADMIN_NAV.map((n) => (
-                <Link key={n.href} href={n.href}>
-                  {n.label}
-                </Link>
-              ))}
-            </nav>
-          </aside>
+          <AdminSidebar />
           <main id="main-content" tabIndex={-1}>
             {children}
           </main>
