@@ -3,6 +3,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteEvent } from "@/lib/actions/events";
 import { partitionEvents, formatDateLong } from "@/lib/event-helpers";
 import type { EventRow } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 function EventTable({ items, emptyText }: { items: EventRow[]; emptyText: string }) {
   if (!items.length) return <p>{emptyText}</p>;
@@ -22,9 +23,10 @@ function EventTable({ items, emptyText }: { items: EventRow[]; emptyText: string
               <td><span className={`status ${e.is_published ? "live" : "draft"}`}>{e.is_published ? "Live" : "Entwurf"}</span></td>
               <td><Link className="btn secondary" href={`/admin/termine/${e.id}`}>Bearbeiten</Link></td>
               <td>
-                <form action={deleteEvent.bind(null, e.id)}>
-                  <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                </form>
+                <DeleteButton
+                  action={deleteEvent.bind(null, e.id)}
+                  confirm={`Termin am ${formatDateLong(e.date)} in ${e.city} wirklich löschen?`}
+                />
               </td>
             </tr>
           ))}

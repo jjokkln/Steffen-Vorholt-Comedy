@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { addOneLiner, toggleOneLiner, deleteOneLiner } from "@/lib/actions/content";
 import type { OneLiner } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminOneLinerPage() {
   const supabase = await createServerSupabase();
@@ -27,9 +28,7 @@ export default async function AdminOneLinerPage() {
                   </form>
                 </td>
                 <td>
-                  <form action={deleteOneLiner.bind(null, l.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton action={deleteOneLiner.bind(null, l.id)} confirm="One-Liner wirklich löschen?" />
                 </td>
               </tr>
             ))}

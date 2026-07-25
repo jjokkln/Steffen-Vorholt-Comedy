@@ -1,8 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+
+export type FormState = { ok: boolean; message: string; at: number } | null;
 
 function eventFields(formData: FormData) {
   const show_id = String(formData.get("show_id") ?? "");
@@ -22,20 +25,29 @@ function eventFields(formData: FormData) {
   };
 }
 
-export async function createEvent(formData: FormData) {
+export async function createEvent(_prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
-  const { error } = await supabase.from("events").insert(eventFields(formData));
-  if (error) throw new Error(`Termin anlegen fehlgeschlagen: ${error.message}`);
+  try {
+    const { error } = await supabase.from("events").insert(eventFields(formData));
+    if (error) throw new Error(error.message);
+  } catch (err) {
+    return { ok: false, message: `Termin anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
+  }
   revalidatePublic();
   redirect("/admin/termine");
 }
 
-export async function updateEvent(id: string, formData: FormData) {
+export async function updateEvent(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
-  const { error } = await supabase.from("events").update(eventFields(formData)).eq("id", id);
-  if (error) throw new Error(`Termin speichern fehlgeschlagen: ${error.message}`);
+  try {
+    const { error } = await supabase.from("events").update(eventFields(formData)).eq("id", id);
+    if (error) throw new Error(error.message);
+  } catch (err) {
+    return { ok: false, message: `Termin speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
+  }
   revalidatePublic();
-  redirect("/admin/termine");
+  revalidatePath(`/admin/termine/${id}`);
+  return { ok: true, message: "Gespeichert!", at: Date.now() };
 }
 
 export async function deleteEvent(id: string) {
@@ -48,10 +60,18 @@ export async function deleteEvent(id: string) {
 
 // Show-scoped Varianten: Termine direkt aus den Show-Einstellungen anlegen/löschen
 // und dorthin zurückspringen (statt in die globale Termin-Übersicht).
-export async function createShowEvent(showId: string, formData: FormData) {
+export async function createShowEvent(
+  showId: string,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
   const supabase = await createServerSupabase();
-  const { error } = await supabase.from("events").insert(eventFields(formData));
-  if (error) throw new Error(`Termin anlegen fehlgeschlagen: ${error.message}`);
+  try {
+    const { error } = await supabase.from("events").insert(eventFields(formData));
+    if (error) throw new Error(error.message);
+  } catch (err) {
+    return { ok: false, message: `Termin anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
+  }
   revalidatePublic();
   redirect(`/admin/shows/${showId}`);
 }

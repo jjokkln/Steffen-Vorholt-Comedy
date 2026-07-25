@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
 
 /**
  * Site-weiter Galaxy-Hintergrund (Three.js), fixed hinter `.page`.
@@ -9,15 +8,15 @@ import { usePathname } from "next/navigation";
  * der CSS-Gradient + Punktraster aus globals.css vollständig bestehen — der
  * Canvas blendet erst nach dem ersten gerenderten Frame ein (`.is-live`).
  * Rein dekorativ: aria-hidden, pointer-events:none, pausiert bei verstecktem Tab.
+ * Läuft auch unter /admin, damit das Dashboard denselben Look wie die
+ * öffentliche Seite hat statt eines generischen statischen Verlaufs.
  */
 export default function GalaxyBackground() {
-  const pathname = usePathname();
   const mountRef = useRef<HTMLDivElement>(null);
-  const isAdmin = pathname.startsWith("/admin");
 
   useEffect(() => {
     const mount = mountRef.current;
-    if (!mount || isAdmin) return;
+    if (!mount) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const saveData = (
@@ -379,8 +378,7 @@ export default function GalaxyBackground() {
       reduced.removeEventListener("change", onReducedChange);
       cleanup?.();
     };
-  }, [isAdmin]);
+  }, []);
 
-  if (isAdmin) return null;
   return <div className="galaxy-bg" ref={mountRef} aria-hidden="true" />;
 }

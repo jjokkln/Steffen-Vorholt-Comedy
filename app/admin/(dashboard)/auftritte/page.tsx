@@ -3,6 +3,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteAppearance } from "@/lib/actions/appearances";
 import { formatDateLong } from "@/lib/event-helpers";
 import type { Appearance } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 const KIND_LABEL: Record<Appearance["kind"], string> = {
   open_mic: "Open Mic",
@@ -37,9 +38,10 @@ export default async function AdminAppearancesPage() {
                 <td><span className={`status ${a.is_published ? "live" : "draft"}`}>{a.is_published ? "Live" : "Entwurf"}</span></td>
                 <td><Link className="btn secondary" href={`/admin/auftritte/${a.id}`}>Bearbeiten</Link></td>
                 <td>
-                  <form action={deleteAppearance.bind(null, a.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton
+                    action={deleteAppearance.bind(null, a.id)}
+                    confirm={`„${a.title}" wirklich löschen?`}
+                  />
                 </td>
               </tr>
             ))}

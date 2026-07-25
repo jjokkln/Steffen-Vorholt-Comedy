@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteShow } from "@/lib/actions/shows";
 import type { Show } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminShowsPage() {
   const supabase = await createServerSupabase();
@@ -29,9 +30,10 @@ export default async function AdminShowsPage() {
                 <td><span className={`status ${s.is_active ? "live" : "draft"}`}>{s.is_active ? "Aktiv" : "Inaktiv"}</span></td>
                 <td><Link className="btn secondary" href={`/admin/shows/${s.id}`}>Bearbeiten</Link></td>
                 <td>
-                  <form action={deleteShow.bind(null, s.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton
+                    action={deleteShow.bind(null, s.id)}
+                    confirm={`Show „${s.name}" und ALLE zugehörigen Termine unwiderruflich löschen?`}
+                  />
                 </td>
               </tr>
             ))}

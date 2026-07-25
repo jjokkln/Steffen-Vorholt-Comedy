@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteOffer } from "@/lib/actions/offers";
 import type { Offer } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminOffersPage() {
   const supabase = await createServerSupabase();
@@ -28,9 +29,10 @@ export default async function AdminOffersPage() {
                 <td><span className={`status ${o.is_active ? "live" : "draft"}`}>{o.is_active ? "Aktiv" : "Inaktiv"}</span></td>
                 <td><Link className="btn secondary" href={`/admin/angebote/${o.id}`}>Bearbeiten</Link></td>
                 <td>
-                  <form action={deleteOffer.bind(null, o.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton
+                    action={deleteOffer.bind(null, o.id)}
+                    confirm={`„${o.title}" wirklich löschen?`}
+                  />
                 </td>
               </tr>
             ))}

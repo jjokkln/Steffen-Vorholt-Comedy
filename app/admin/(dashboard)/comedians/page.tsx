@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteComedian } from "@/lib/actions/comedians";
 import type { Comedian } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminComediansPage() {
   const supabase = await createServerSupabase();
@@ -28,9 +29,10 @@ export default async function AdminComediansPage() {
                 <td><span className={`status ${c.is_active ? "live" : "draft"}`}>{c.is_active ? "Aktiv" : "Inaktiv"}</span></td>
                 <td><Link className="btn secondary" href={`/admin/comedians/${c.id}`}>Bearbeiten</Link></td>
                 <td>
-                  <form action={deleteComedian.bind(null, c.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton
+                    action={deleteComedian.bind(null, c.id)}
+                    confirm={`„${c.name}" wirklich löschen? Wird auch aus allen zugeordneten Shows entfernt.`}
+                  />
                 </td>
               </tr>
             ))}

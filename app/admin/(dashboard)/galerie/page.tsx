@@ -3,6 +3,7 @@ import { addGalleryItem, updateGalleryItem, deleteGalleryItem } from "@/lib/acti
 import { mediaUrl } from "@/lib/media";
 import HeroVideoUpload from "@/components/admin/HeroVideoUpload";
 import { GALLERY_CATEGORIES, type GalleryItem } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminGaleriePage() {
   const supabase = await createServerSupabase();
@@ -56,9 +57,11 @@ export default async function AdminGaleriePage() {
                 <button className="btn secondary">Speichern</button>
               </div>
             </form>
-            <form action={deleteGalleryItem.bind(null, g.id)}>
-              <button className="btn secondary" style={{ color: "var(--danger)", marginTop: 8 }}>Löschen</button>
-            </form>
+            <DeleteButton
+              action={deleteGalleryItem.bind(null, g.id)}
+              confirm="Foto wirklich aus der Galerie löschen?"
+              style={{ marginTop: 8 }}
+            />
           </div>
         ))}
       </div>

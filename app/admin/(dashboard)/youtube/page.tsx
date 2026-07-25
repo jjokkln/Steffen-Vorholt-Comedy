@@ -2,6 +2,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { addYoutubeVideo, deleteYoutubeVideo } from "@/lib/actions/youtube";
 import { youtubeThumbUrl } from "@/lib/youtube";
 import type { YoutubeVideo } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminYoutubePage() {
   const supabase = await createServerSupabase();
@@ -51,9 +52,10 @@ export default async function AdminYoutubePage() {
               />
               {v.title && <p style={{ margin: "0 0 8px", fontWeight: 850, fontSize: 13 }}>{v.title}</p>}
               <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--muted)" }}>ID: {v.youtube_id}</p>
-              <form action={deleteYoutubeVideo.bind(null, v.id, null)}>
-                <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-              </form>
+              <DeleteButton
+                action={deleteYoutubeVideo.bind(null, v.id, null)}
+                confirm={`Video „${v.title || v.youtube_id}" wirklich löschen?`}
+              />
             </div>
           ))}
         </div>

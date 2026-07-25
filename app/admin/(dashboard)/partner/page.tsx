@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { deletePartner } from "@/lib/actions/partners";
 import type { Partner } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminPartnersPage() {
   const supabase = await createServerSupabase();
@@ -27,9 +28,10 @@ export default async function AdminPartnersPage() {
                 <td><span className={`status ${p.is_active ? "live" : "draft"}`}>{p.is_active ? "Aktiv" : "Inaktiv"}</span></td>
                 <td><Link className="btn secondary" href={`/admin/partner/${p.id}`}>Bearbeiten</Link></td>
                 <td>
-                  <form action={deletePartner.bind(null, p.id)}>
-                    <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-                  </form>
+                  <DeleteButton
+                    action={deletePartner.bind(null, p.id)}
+                    confirm={`„${p.name}" wirklich löschen?`}
+                  />
                 </td>
               </tr>
             ))}

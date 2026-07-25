@@ -1,4 +1,9 @@
+"use client";
+
+import { useActionState } from "react";
 import type { EventRow, Show } from "@/lib/types";
+import type { FormState } from "@/lib/actions/events";
+import Toast from "@/components/admin/Toast";
 
 export default function EventForm({
   event,
@@ -8,13 +13,14 @@ export default function EventForm({
 }: {
   event?: EventRow;
   shows?: Show[];
-  action: (formData: FormData) => Promise<void>;
+  action: (prev: FormState, formData: FormData) => Promise<FormState>;
   // Wenn gesetzt, ist die Show fix vorgegeben (z. B. in den Show-Einstellungen):
   // kein Show-Select, sondern ein verstecktes Feld + einspaltiges Datumsfeld.
   lockedShowId?: string;
 }) {
+  const [state, formAction, pending] = useActionState(action, null);
   return (
-    <form className="card form" action={action}>
+    <form className="card form" action={formAction}>
       {lockedShowId ? (
         <>
           <input type="hidden" name="show_id" value={lockedShowId} />
@@ -72,7 +78,11 @@ export default function EventForm({
       <label className="checkbox-row">
         <input name="is_published" type="checkbox" defaultChecked={event?.is_published ?? true} /> Veröffentlicht
       </label>
-      <button className="btn primary">{event ? "Speichern" : "Termin anlegen"}</button>
+      <button className="btn primary" disabled={pending}>
+        {pending ? "Speichert…" : event ? "Speichern" : "Termin anlegen"}
+      </button>
+      {state && !state.ok && <p style={{ color: "var(--danger)", margin: 0 }}>{state.message}</p>}
+      {state?.ok && <Toast key={state.at} message={state.message} />}
     </form>
   );
 }

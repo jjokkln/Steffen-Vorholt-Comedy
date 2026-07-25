@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { setInquiryStatus, deleteInquiry } from "@/lib/actions/inquiries";
 import { INQUIRY_LABELS, type Inquiry } from "@/lib/types";
+import DeleteButton from "@/components/admin/DeleteButton";
 
 const STATUS_LABEL = { new: "Neu", read: "Gelesen", answered: "Beantwortet" } as const;
 const STATUS_CLS = { new: "missing", read: "draft", answered: "live" } as const;
@@ -35,9 +36,10 @@ export default async function AdminAnfragenPage() {
             <form action={setInquiryStatus.bind(null, q.id, "answered")}>
               <button className="btn secondary">Beantwortet</button>
             </form>
-            <form action={deleteInquiry.bind(null, q.id)}>
-              <button className="btn secondary" style={{ color: "var(--danger)" }}>Löschen</button>
-            </form>
+            <DeleteButton
+              action={deleteInquiry.bind(null, q.id)}
+              confirm={`Anfrage von „${q.name}" wirklich löschen?`}
+            />
           </div>
         </details>
       ))}
