@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "*.supabase.co" }],
   },
+  // HTML-E-Mail-Vorlagen werden zur Laufzeit per fs.readFileSync gelesen (Server Action
+  // submitInquiry) — ohne diesen Hinweis kann Vercels Datei-Tracing sie aus dem
+  // Serverless-Bundle ausschließen.
+  outputFileTracingIncludes: {
+    "/*": ["lib/email-templates/**/*"],
+  },
   experimental: {
     // Bilder/Poster laufen über Server-Actions; Videos gehen per Direkt-Upload an Supabase Storage.
     // Hinweis: Auf Vercel gilt zusätzlich ein hartes Plattform-Limit von ~4,5 MB pro Server-Action.

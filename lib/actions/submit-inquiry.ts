@@ -1,7 +1,7 @@
 "use server";
 
 import { createPublicClient } from "@/lib/supabase/public";
-import { sendInquiryNotification } from "@/lib/email";
+import { sendInquiryConfirmation, sendInquiryNotification } from "@/lib/email";
 import type { InquiryType } from "@/lib/types";
 
 export interface InquiryFormState {
@@ -37,6 +37,6 @@ export async function submitInquiry(
     console.error("[inquiry] Insert fehlgeschlagen:", error);
     return { ok: false, error: "Houston, wir haben ein Problem. Bitte später nochmal versuchen." };
   }
-  await sendInquiryNotification(inquiry);
+  await Promise.all([sendInquiryNotification(inquiry), sendInquiryConfirmation(inquiry)]);
   return { ok: true };
 }

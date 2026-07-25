@@ -313,6 +313,10 @@ textarea{min-height:130px;resize:vertical}
 .admin-layout h3{font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.01em}
 .admin-login h3{font-size:clamp(22px,2.6vw,28px);line-height:1.2;letter-spacing:-.02em}
 .admin-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;border:1px solid var(--line);border-radius:34px;background:rgba(255,255,255,.07);padding:28px;box-shadow:var(--shadow);min-height:calc(100vh - 220px)}
+/* Gleichmäßiger Abstand zwischen Überschrift/Button-Zeile und dem ersten Inhaltsblock
+   (Tabelle/Formular/Karten) auf jeder Admin-Seite — vorher berührten sich die Elemente
+   fast, weil einzelne Margins nicht zuverlässig kollabierten. */
+.admin-layout main{display:flex;flex-direction:column;gap:36px;min-width:0}
 .sidebar{min-width:0;border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(0,0,0,.22);padding:24px;display:flex;flex-direction:column}
 .sidebar nav{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
 .sidebar a{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;transition:background .15s,color .15s}
