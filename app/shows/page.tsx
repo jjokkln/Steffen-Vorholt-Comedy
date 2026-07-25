@@ -39,8 +39,8 @@ export default async function ShowsPage() {
     <>
       <header className="container section">
         <div className="eyebrow">🪐 Wähle deine Mission</div>
-        <h1>Jede Show ein eigener Planet.</h1>
-        <p className="lead">Impro, Open Mic oder Boarding – such dir aus, wo du landen willst.</p>
+        <h1>Finde die Show, die zu deinem Humor passt.</h1>
+        <p className="lead">Doppel-Comedy, Brain Loading, Comedy Eiskalt – drei Formate, ein Abend zum Lachen.</p>
       </header>
 
       <section className="container section">

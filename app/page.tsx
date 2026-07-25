@@ -77,9 +77,9 @@ export default async function HomePage() {
             <div className="section-head">
               <div>
                 <div className="eyebrow">Wähl deine Mission</div>
-                <h2>Jede Show ein eigener Planet.</h2>
+                <h2>Finde die Show, die zu deinem Humor passt.</h2>
               </div>
-              <p>Eigene Welt, eigene Farbe, eigener Humor – such dir aus, wo du landest.</p>
+              <p>Doppel-Comedy, Brain Loading, Comedy Eiskalt – drei Formate, ein Abend zum Lachen.</p>
             </div>
             <div className="grid-3">
               {shows.map((show) => (
