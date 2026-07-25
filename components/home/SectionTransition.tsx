@@ -45,15 +45,27 @@ export default function SectionTransition({
 
       media.add("(prefers-reduced-motion: no-preference) and (min-width: 821px)", () => {
         const items = gsap.utils.toArray<HTMLElement>(SELECTORS[variant], root);
+
+        // Manche Item-Klassen haben eine eigene CSS-`transition` auf `transform`
+        // fürs Hover-Tilt (z. B. .show-card, .gallery-grid figure). Die kollidiert
+        // mit GSAPs Frame-für-Frame-Inline-Writes hier: der Browser versucht,
+        // jeden GSAP-Tick zusätzlich per CSS zu glätten, wodurch die Karte nie
+        // ihre Zielposition erreicht und dauerhaft im Start-Zustand (z. B.
+        // translateY 86px) hängen bleibt. Für die Dauer des Reveals deaktivieren,
+        // danach wieder freigeben, damit die Hover-Effekte normal weiterlaufen.
+        gsap.set(items, { transition: "none" });
+        const restoreTransition = () => gsap.set(items, { clearProps: "transition" });
+
         const base = {
           autoAlpha: 0,
           duration: 0.95,
           ease: "power3.out",
           stagger: 0.1,
+          onComplete: restoreTransition,
           scrollTrigger: {
             trigger: root,
             start: "top 80%",
-            toggleActions: "play none none reverse",
+            toggleActions: "play none none none",
           },
         };
 
