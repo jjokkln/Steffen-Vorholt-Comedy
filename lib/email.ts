@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import { INQUIRY_LABELS, type Inquiry } from "@/lib/types";
 
 // Zwei Empfänger-Adressen je nach Formular (per Env überschreibbar):
@@ -13,12 +13,23 @@ function recipientFor(type: Inquiry["type"]): string {
   return target || (process.env.NOTIFICATION_EMAIL ?? "");
 }
 
+function transporter() {
+  const { SMTP_HOST, SMTP_PORT, SMTP_SECURE, SMTP_USER, SMTP_PASS } = process.env;
+  if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) return null;
+  return nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT ?? 587),
+    secure: SMTP_SECURE === "true",
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  });
+}
+
 /** Versand best-effort: Fehler werden geloggt, niemals geworfen. */
 export async function sendInquiryNotification(inquiry: Pick<Inquiry, "type" | "name" | "email" | "phone" | "message" | "payload">) {
-  const apiKey = process.env.RESEND_API_KEY;
   const to = recipientFor(inquiry.type);
-  if (!apiKey || !to) {
-    console.warn("[email] RESEND_API_KEY/Empfänger fehlt – Benachrichtigung übersprungen.");
+  const mailer = transporter();
+  if (!mailer || !to) {
+    console.warn("[email] SMTP-Zugangsdaten/Empfänger fehlen – Benachrichtigung übersprungen.");
     return;
   }
   const label = INQUIRY_LABELS[inquiry.type] ?? inquiry.type;
@@ -27,8 +38,8 @@ export async function sendInquiryNotification(inquiry: Pick<Inquiry, "type" | "n
     .map(([k, v]) => `${k}: ${v}`)
     .join("\n");
   try {
-    await new Resend(apiKey).emails.send({
-      from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
+    await mailer.sendMail({
+      from: process.env.EMAIL_FROM,
       to,
       replyTo: inquiry.email,
       subject: `🛸 Neue Anfrage (${label}) von ${inquiry.name}`,
