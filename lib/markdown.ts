@@ -9,6 +9,7 @@ function linkify(s: string): string {
 /** Minimal-Markdown: ## Überschrift, Leerzeile = neuer Absatz, einfacher Zeilenumbruch = <br />, URLs werden Links. */
 export function renderMarkdown(md: string): string {
   return md
+    .replace(/\r\n/g, "\n")
     .split(/\n{2,}/)
     .map((block) => {
       const t = block.trim();

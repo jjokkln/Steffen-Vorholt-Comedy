@@ -29,7 +29,7 @@ export default function PartnerForm({
         <input name="url" defaultValue={partner?.url} placeholder="https://…" />
       </label>
       <label>
-        Logo{" "}
+        Logo — wird nicht zugeschnitten. Empfehlung: transparenter Hintergrund (PNG), mind. 400 px hoch.{" "}
         {partner?.logo_path && (
           <img src={mediaUrl(partner.logo_path)} alt="" style={{ height: 48, objectFit: "contain" }} />
         )}

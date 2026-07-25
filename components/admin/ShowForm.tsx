@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import type { Show } from "@/lib/types";
 import type { FormState } from "@/lib/actions/shows";
 import { mediaUrl } from "@/lib/media";
+import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
 export default function ShowForm({
@@ -58,34 +59,29 @@ export default function ShowForm({
         </label>
       </div>
       <label>
-        Planet-Bild (rund, transparenter Hintergrund){" "}
+        Planet-Bild (rund, transparenter Hintergrund) — wird nicht zugeschnitten. Empfehlung: quadratisch (1:1),
+        mind. 800&times;800 px, PNG mit transparentem Hintergrund.{" "}
         {show?.planet_image_path && (
           <img src={mediaUrl(show.planet_image_path)} alt="" style={{ width: 64, height: 64 }} />
         )}
         <input name="planet" type="file" accept="image/*" />
       </label>
-      <label>
-        Titelbild — erscheint groß in der Hero-Section der Show-Subpage{" "}
-        {show?.header_image_path && (
-          <img
-            src={mediaUrl(show.header_image_path)}
-            alt=""
-            style={{ width: 128, height: 72, objectFit: "cover", borderRadius: 10 }}
-          />
-        )}
-        <input name="header_image" type="file" accept="image/*" />
-      </label>
-      <label>
-        Hintergrundbild (liegt hinter der ganzen Show-Seite, am besten ruhiges Motiv, &ge; 1920&times;1080){" "}
-        {show?.background_image_path && (
-          <img
-            src={mediaUrl(show.background_image_path)}
-            alt=""
-            style={{ width: 128, height: 72, objectFit: "cover", borderRadius: 10 }}
-          />
-        )}
-        <input name="background" type="file" accept="image/*" />
-      </label>
+      <ImageCropUpload
+        label="Titelbild — erscheint groß in der Hero-Section der Show-Subpage"
+        name="header_image_path"
+        aspect={4 / 5}
+        frameLabel="Hochformat 4:5, z. B. 1536 × 1920 px"
+        currentPath={show?.header_image_path}
+        uploadPrefix="header"
+      />
+      <ImageCropUpload
+        label="Hintergrundbild — liegt hinter der ganzen Show-Seite, am besten ruhiges Motiv"
+        name="background_image_path"
+        aspect={16 / 9}
+        frameLabel="Querformat 16:9, z. B. 1920 × 1080 px"
+        currentPath={show?.background_image_path}
+        uploadPrefix="bg"
+      />
       <label className="checkbox-row">
         <input name="is_active" type="checkbox" defaultChecked={show?.is_active ?? true} /> Show ist aktiv (öffentlich sichtbar)
       </label>

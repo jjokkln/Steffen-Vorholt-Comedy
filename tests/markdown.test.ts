@@ -9,3 +9,11 @@ test("überschriften, absätze, links, escaping", () => {
   assert.ok(html.includes("Zeile1<br />Zeile2"));
   assert.ok(!html.includes("<script>"));
 });
+
+test("CRLF-Zeilenumbrüche (Browser-Textarea) werden wie LF behandelt", () => {
+  const html = renderMarkdown("## Kontakt\r\n\r\nZeile1\r\nZeile2\r\n\r\n## Zweiter Abschnitt\r\n\r\nText");
+  assert.ok(html.includes("<h2>Kontakt</h2>"));
+  assert.ok(html.includes("Zeile1<br />Zeile2"));
+  assert.ok(html.includes("<h2>Zweiter Abschnitt</h2>"));
+  assert.ok(html.includes("<p>Text</p>"));
+});

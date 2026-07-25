@@ -102,7 +102,7 @@ h1{font-size:clamp(54px,9vw,132px)}
 h2{font-size:clamp(38px,6vw,84px)}
 h3{font-size:clamp(27px,3.6vw,52px)}
 h4{font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em}
-p{color:var(--muted);font-size:17px;line-height:1.66}
+p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .lead{font-size:clamp(18px,2vw,24px);max-width:770px}
 .gradient{background:linear-gradient(100deg,var(--green),var(--blue),var(--orange),var(--pink));-webkit-background-clip:text;color:transparent}
 .actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
@@ -315,9 +315,15 @@ textarea{min-height:130px;resize:vertical}
 .admin-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;border:1px solid var(--line);border-radius:34px;background:rgba(255,255,255,.07);padding:28px;box-shadow:var(--shadow);min-height:calc(100vh - 220px)}
 .sidebar{min-width:0;border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(0,0,0,.22);padding:24px;display:flex;flex-direction:column}
 .sidebar nav{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
-.sidebar a{display:block;color:var(--muted);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;transition:background .15s,color .15s}
+.sidebar a{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;transition:background .15s,color .15s}
 .sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.1);color:var(--text)}
 .sidebar a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* Gruppierte Nav-Bereiche (Programm/Vertrieb/Website) statt 12 flacher Links —
+   Label rein visuell, kein eigenes Nav-Landmark. */
+.sidebar-group{display:flex;flex-direction:column;gap:4px;margin-top:16px}
+.sidebar-group:first-of-type{margin-top:20px}
+.sidebar-group-label{padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)}
+.sidebar-badge{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:950;flex:0 0 auto}
 /* Checkbox-Zeile: label ist global display:grid (Stack aus Text/Input für normale
    Felder) – für Checkboxen brauchen wir stattdessen eine Reihe, Checkbox + Text nebeneinander. */
 .checkbox-row{display:flex;flex-direction:row;gap:10px;align-items:center}
@@ -329,6 +335,32 @@ input[type="file"]::file-selector-button{
   font-weight:850;font-size:13px;background:rgba(255,255,255,.12);color:var(--text);transition:background .15s ease
 }
 input[type="file"]::file-selector-button:hover{background:rgba(255,255,255,.22)}
+/* Einklappbare Abschnitte in den Show-Einstellungen (Termine/Fotos/Videos/Teilnehmer/
+   YouTube) — Standard-<details>, damit lange Listen (z. B. 150 Termine) nicht die
+   ganze Seite sprengen; kein JS nötig. */
+.admin-collapsible{margin-top:34px;border:1px solid var(--line);border-radius:24px;background:rgba(255,255,255,.05);overflow:hidden}
+.admin-collapsible > summary{
+  cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:20px 24px;transition:background .15s ease;
+}
+.admin-collapsible > summary::-webkit-details-marker{display:none}
+.admin-collapsible > summary:hover{background:rgba(255,255,255,.04)}
+.admin-collapsible-title{font-family:var(--font-display),Inter,sans-serif;font-weight:900;font-size:clamp(18px,1.7vw,22px);letter-spacing:-.02em;color:var(--text)}
+.admin-collapsible-chevron{flex:0 0 auto;color:var(--muted);font-size:13px;transition:transform .18s ease}
+.admin-collapsible[open] > summary .admin-collapsible-chevron{transform:rotate(180deg)}
+.admin-collapsible-body{padding:0 24px 28px}
+/* Image-Crop-Tool (Admin): fester Ziel-Rahmen je Bildfeld, Bild wird per Drag/Zoom
+   ausgerichtet, bevor der fertige Ausschnitt hochgeladen wird. */
+.image-crop-field{display:grid;gap:10px}
+.image-crop-frame-label{display:block;color:var(--ice);font-size:12px;font-weight:700;letter-spacing:0;text-transform:none;margin-top:3px}
+.image-crop-current{max-width:220px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.image-crop-current img{width:100%;height:100%;object-fit:cover;display:block}
+.image-crop-editor{display:grid;gap:12px;justify-items:center}
+.image-crop-stage{position:relative;overflow:hidden;border-radius:16px;border:2px solid var(--accent,#7CFF6B);background:#000;touch-action:none;cursor:grab}
+.image-crop-stage:active{cursor:grabbing}
+.image-crop-stage img{position:absolute;top:0;left:0;max-width:none;user-select:none;pointer-events:none}
+.image-crop-editor input[type="range"]{width:100%;max-width:320px;accent-color:var(--accent,#7CFF6B)}
+.image-crop-actions{display:flex;gap:10px}
 .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin:32px 0}
 .kpi{padding:32px 24px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.08)}
 .kpi strong{display:block;font-size:52px;line-height:1;margin-bottom:12px}
@@ -359,6 +391,10 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
     -webkit-overflow-scrolling:touch;scrollbar-width:thin;
   }
   .sidebar a{flex:0 0 auto;white-space:nowrap;padding:10px 16px;font-size:14px}
+  /* Gruppen-Wrapper in der horizontalen Scroll-Leiste auflösen, damit Label +
+     Links als flache Kette in einer Zeile scrollen statt umzubrechen. */
+  .sidebar-group{display:contents}
+  .sidebar-group-label{flex:0 0 auto;display:flex;align-items:center;padding:0 4px;margin:0}
 }
 /* Mobile-Navigation: Burger blendet die Links als aufklappbares Panel ein. */
 @media(max-width:820px){

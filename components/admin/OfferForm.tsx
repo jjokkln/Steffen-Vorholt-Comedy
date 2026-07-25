@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import type { Offer } from "@/lib/types";
 import type { FormState } from "@/lib/actions/offers";
-import { mediaUrl } from "@/lib/media";
+import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
 export default function OfferForm({
@@ -42,13 +42,14 @@ export default function OfferForm({
         Link (optional, z. B. Ticketanbieter)
         <input name="url" defaultValue={offer?.url} placeholder="https://…" />
       </label>
-      <label>
-        Bild / Poster{" "}
-        {offer?.image_path && (
-          <img src={mediaUrl(offer.image_path)} alt="" style={{ height: 60, objectFit: "contain" }} />
-        )}
-        <input name="image" type="file" accept="image/*" />
-      </label>
+      <ImageCropUpload
+        label="Bild / Poster"
+        name="image_path"
+        aspect={16 / 9}
+        frameLabel="Querformat 16:9, z. B. 1920 × 1080 px"
+        currentPath={offer?.image_path}
+        uploadPrefix="offer"
+      />
       <label>
         Sortierung
         <input name="sort_order" type="number" defaultValue={offer?.sort_order ?? 0} />

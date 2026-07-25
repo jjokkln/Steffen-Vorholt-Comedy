@@ -36,24 +36,6 @@ async function uploadPlanet(supabase: Awaited<ReturnType<typeof createServerSupa
   return `planets/${path}`;
 }
 
-async function uploadBackground(supabase: Awaited<ReturnType<typeof createServerSupabase>>, slug: string, file: File | null): Promise<string | null> {
-  if (!file || file.size === 0) return null;
-  const ext = file.name.split(".").pop() || "webp";
-  const path = `bg-${slug}-${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
-  if (error) throw new Error(`Hintergrund-Upload fehlgeschlagen: ${error.message}`);
-  return `media/${path}`;
-}
-
-async function uploadHeader(supabase: Awaited<ReturnType<typeof createServerSupabase>>, slug: string, file: File | null): Promise<string | null> {
-  if (!file || file.size === 0) return null;
-  const ext = file.name.split(".").pop() || "webp";
-  const path = `header-${slug}-${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
-  if (error) throw new Error(`Titelbild-Upload fehlgeschlagen: ${error.message}`);
-  return `media/${path}`;
-}
-
 function showFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name ist Pflicht.");
@@ -66,6 +48,8 @@ function showFields(formData: FormData) {
     color: String(formData.get("color") ?? "#7CFF6B"),
     principle_items: parsePrinciples(String(formData.get("principles") ?? "")),
     cities_text: String(formData.get("cities_text") ?? "").trim(),
+    header_image_path: String(formData.get("header_image_path") ?? "").trim(),
+    background_image_path: String(formData.get("background_image_path") ?? "").trim(),
     sort_order: Number(formData.get("sort_order") ?? 0),
     is_active: formData.get("is_active") === "on",
   };
@@ -78,14 +62,10 @@ export async function createShow(_prev: FormState, formData: FormData): Promise<
     const fields = showFields(formData);
     const slug = slugify(fields.name);
     const planetPath = await uploadPlanet(supabase, slug, formData.get("planet") as File | null);
-    const backgroundPath = await uploadBackground(supabase, slug, formData.get("background") as File | null);
-    const headerPath = await uploadHeader(supabase, slug, formData.get("header_image") as File | null);
     const { data, error } = await supabase.from("shows").insert({
       ...fields,
       slug,
       planet_image_path: planetPath ?? "",
-      background_image_path: backgroundPath ?? "",
-      header_image_path: headerPath ?? "",
     }).select("id").single();
     if (error) throw new Error(error.message);
     newId = data.id as string;
@@ -105,10 +85,6 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
     const { data: existing } = await supabase.from("shows").select("slug").eq("id", id).single();
     const planetPath = await uploadPlanet(supabase, existing?.slug ?? "show", formData.get("planet") as File | null);
     if (planetPath) update.planet_image_path = planetPath;
-    const backgroundPath = await uploadBackground(supabase, existing?.slug ?? "show", formData.get("background") as File | null);
-    if (backgroundPath) update.background_image_path = backgroundPath;
-    const headerPath = await uploadHeader(supabase, existing?.slug ?? "show", formData.get("header_image") as File | null);
-    if (headerPath) update.header_image_path = headerPath;
     const { error } = await supabase.from("shows").update(update).eq("id", id);
     if (error) throw new Error(error.message);
   } catch (err) {

@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import Calendar from "@/components/Calendar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShowGalleries from "@/components/shows/ShowGalleries";
@@ -49,6 +50,7 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
     getYoutubeVideosForShowId(show.id),
   ]);
   const { upcoming } = partitionEvents(events);
+  const now = new Date();
   const locationImages = images.filter((i) => i.category === "location");
   const showImages = images.filter((i) => i.category !== "location");
   const backgroundUrl = show.background_image_path ? mediaUrl(show.background_image_path) : "";
@@ -73,7 +75,7 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           <h1>{show.tagline}</h1>
           <p className="lead">{show.description}</p>
           <div className="actions">
-            <Link className="btn primary" href="/shows#termine">
+            <Link className="btn primary" href="#termine">
               🎟 Termine &amp; Tickets
             </Link>
             <Link className="btn secondary" href="/kontakt#booking-show">
@@ -128,6 +130,29 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           </div>
         </section>
       )}
+
+      <section className="container section" id="termine">
+        <div className="section-head">
+          <div>
+            <div className="eyebrow" style={{ color: show.color }}>🎟️ Termine</div>
+            <h2>Wann läuft {show.name}?</h2>
+          </div>
+        </div>
+        <div className="public-calendar">
+          <Calendar events={events} initialYear={now.getFullYear()} initialMonth={now.getMonth() + 1} />
+        </div>
+        <div style={{ marginTop: 28 }}>
+          {upcoming.length ? (
+            <ShowUpcomingEvents events={upcoming} />
+          ) : (
+            <div className="grid-3">
+              <div className="booking-empty">
+                Gerade kein Termin geplant – Steffen schreibt vermutlich neue Witze. Schau im Kalender vorbei!
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {locationImages.length + showImages.length + videos.length > 0 && (
         <section className="container section">
@@ -190,22 +215,6 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           <YoutubeGallery videos={youtubeVideos} />
         </section>
       )}
-
-      <section className="container section">
-        <div className="section-head">
-          <h2>Kommende {show.name}-Termine</h2>
-          <p>Nach Ort filtern – alle Termine inkl. anderer Shows findest du im Kalender.</p>
-        </div>
-        {upcoming.length ? (
-          <ShowUpcomingEvents events={upcoming} />
-        ) : (
-          <div className="grid-3">
-            <div className="booking-empty">
-              Gerade kein Termin geplant – Steffen schreibt vermutlich neue Witze. Schau im Kalender vorbei!
-            </div>
-          </div>
-        )}
-      </section>
 
       <JsonLd
         data={[

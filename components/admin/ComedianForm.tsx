@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import type { Comedian } from "@/lib/types";
 import type { FormState } from "@/lib/actions/comedians";
-import { mediaUrl } from "@/lib/media";
+import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
 export default function ComedianForm({
@@ -50,13 +50,14 @@ export default function ComedianForm({
           <input name="website_url" defaultValue={comedian?.website_url} placeholder="https://…" />
         </label>
       </div>
-      <label>
-        Foto{" "}
-        {comedian?.photo_path && (
-          <img src={mediaUrl(comedian.photo_path)} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 10 }} />
-        )}
-        <input name="photo" type="file" accept="image/*" />
-      </label>
+      <ImageCropUpload
+        label="Foto"
+        name="photo_path"
+        aspect={3 / 2}
+        frameLabel="Querformat 3:2, z. B. 1200 × 800 px"
+        currentPath={comedian?.photo_path}
+        uploadPrefix="comedian"
+      />
       <label>
         Sortierung
         <input name="sort_order" type="number" defaultValue={comedian?.sort_order ?? 0} />

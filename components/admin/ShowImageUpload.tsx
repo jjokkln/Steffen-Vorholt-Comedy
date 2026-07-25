@@ -50,7 +50,8 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
     <form className="card form" onSubmit={onSubmit}>
       <h3>Neues Foto</h3>
       <label>
-        Bild * (JPG, PNG, WebP)
+        Bild * (JPG, PNG, WebP) — wird nicht zugeschnitten (vollständig sichtbar), jedes Seitenverhältnis
+        möglich. Empfehlung: mind. 1600 px auf der langen Seite.
         <input name="image" type="file" accept="image/*" required disabled={busy} onChange={onFileChange} />
       </label>
       {preview && (
