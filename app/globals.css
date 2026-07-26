@@ -237,8 +237,10 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .toast-ok{background:rgba(119,255,183,.16);border-color:rgba(119,255,183,.42);color:#caffe3}
 .toast-err{background:rgba(255,85,119,.16);border-color:rgba(255,85,119,.42);color:#ffd0da}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-/* Hero-Titelbild pro Show */
-.show-hero-media.has-cover{aspect-ratio:4/5;overflow:hidden;position:relative}
+/* Hero-Titelbild pro Show — A4 hoch (210:297), damit Plakate & A4-Dokumente unbeschnitten passen */
+.show-hero-media.has-cover{
+  aspect-ratio:210/297;width:min(100%,470px);overflow:hidden;position:relative
+}
 .show-hero-media.has-cover .hero-cover{width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
 .show-hero-media.has-cover .hero-planet{
   position:absolute;bottom:18px;right:18px;z-index:2;
@@ -357,7 +359,10 @@ input[type="file"]::file-selector-button:hover{background:rgba(255,255,255,.22)}
    ausgerichtet, bevor der fertige Ausschnitt hochgeladen wird. */
 .image-crop-field{display:grid;gap:10px}
 .image-crop-frame-label{display:block;color:var(--ice);font-size:12px;font-weight:700;letter-spacing:0;text-transform:none;margin-top:3px}
-.image-crop-current{max-width:220px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+/* Ziel-Format als Auswahl (Upload-Bereiche ohne festes Seitenverhältnis) */
+.image-crop-format{max-width:340px}
+.image-crop-hint{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.image-crop-current{max-width:220px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.24)}
 .image-crop-current img{width:100%;height:100%;object-fit:cover;display:block}
 .image-crop-editor{display:grid;gap:12px;justify-items:center}
 .image-crop-stage{position:relative;overflow:hidden;border-radius:16px;border:2px solid var(--accent,#7CFF6B);background:#000;touch-action:none;cursor:grab}
@@ -855,16 +860,99 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   position:absolute;z-index:1;top:50%;right:clamp(-24px,-1vw,0px);translate:0 -50%;
   height:min(92%,680px);width:auto;display:block;
   filter:drop-shadow(-24px 24px 50px rgba(0,0,0,.55));
+  /* Der Freisteller ist unten hart abgeschnitten (gerade Kante mitten in der
+     Jacke). Früher hat das opake Meteoritenband die Kante verdeckt; die
+     Kometenbahn ist transparent, also löst der Freisteller sich jetzt selbst
+     nach unten auf und geht in die Lichtbahn über. */
+  mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.4) 95%,transparent);
+  -webkit-mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.4) 95%,transparent);
 }
-.steffen-meteor-divider{position:absolute;z-index:3;right:0;bottom:0;left:0;height:96px;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 18% 0%,rgba(103,69,184,.18),transparent 23%),radial-gradient(ellipse at 78% 2%,rgba(66,217,255,.13),transparent 25%),linear-gradient(180deg,rgba(5,7,17,0) 0 20%,rgba(5,7,17,.42) 35%,#050711 78%);clip-path:polygon(0 31%,8% 38%,17% 26%,28% 42%,39% 30%,50% 44%,62% 28%,73% 41%,85% 25%,100% 36%,100% 100%,0 100%)}
-.steffen-meteor-divider::before{content:"";position:absolute;inset:18px 0 0;background:radial-gradient(circle at 7% 20%,rgba(255,255,255,.65) 0 1px,transparent 2px),radial-gradient(circle at 24% 70%,rgba(174,235,255,.56) 0 1px,transparent 2px),radial-gradient(circle at 48% 28%,rgba(255,209,102,.65) 0 1px,transparent 2px),radial-gradient(circle at 71% 62%,rgba(174,235,255,.52) 0 1px,transparent 2px),radial-gradient(circle at 92% 30%,rgba(255,255,255,.55) 0 1px,transparent 2px);opacity:.8}
-.steffen-meteor-divider span{position:absolute;width:var(--rock);aspect-ratio:1;border-radius:45% 55% 52% 48% / 46% 42% 58% 54%;background:radial-gradient(circle at 31% 24%,rgba(255,255,255,.44) 0 5%,transparent 6%),radial-gradient(circle at 68% 68%,rgba(0,0,0,.56) 0 10%,transparent 11%),linear-gradient(135deg,#738294 0%,#283141 48%,#111722 100%);box-shadow:inset -7px -8px 10px rgba(0,0,0,.54),inset 4px 4px 7px rgba(255,255,255,.14),0 0 18px rgba(174,235,255,.12);transform:rotate(var(--spin))}
-.steffen-meteor-divider span::after{content:"";position:absolute;inset:-7px;border-radius:inherit;border:1px solid rgba(174,235,255,.13);filter:blur(2px)}
-.steffen-meteor-divider span:nth-child(1){--rock:26px;--spin:22deg;left:7%;top:21px}.steffen-meteor-divider span:nth-child(2){--rock:17px;--spin:-31deg;left:19%;top:47px;opacity:.75}.steffen-meteor-divider span:nth-child(3){--rock:38px;--spin:14deg;left:36%;top:14px}.steffen-meteor-divider span:nth-child(4){--rock:20px;--spin:-16deg;left:53%;top:54px;opacity:.72}.steffen-meteor-divider span:nth-child(5){--rock:32px;--spin:37deg;left:68%;top:18px}.steffen-meteor-divider span:nth-child(6){--rock:16px;--spin:-44deg;left:82%;top:49px;opacity:.74}.steffen-meteor-divider span:nth-child(7){--rock:28px;--spin:9deg;left:93%;top:17px}
+/* ── Kometenbahn: Abschluss des /steffen-Heros ─────────────────────────────
+   Vorgänger war ein opakes Felsband (clip-path-Bergkette + graue „Meteoriten"),
+   das als schwarzer Balken über dem Nebel-Gradient lag und Steffens Arm
+   abschnitt. Ersetzt durch ein reines Lichtphänomen in der Bildsprache, die die
+   Seite schon hat (`.section-light-track`, `.hero-comet`, Sternschnuppe im
+   GalaxyBackground): eine Horizont-Haarlinie + Lichtdunst, entlang derer
+   Kometen streifen — Kopf mit Koma, keilförmig zulaufender Schweif.
+   Keine Masse, keine harten Kanten. z-index:0 → HINTER dem Foto, Steffen steht
+   vor der Bahn statt von ihr zerschnitten zu werden.
+   Geometrie in % der Container-Höhe, damit dieselben Werte auf Mobile tragen.
+   Animiert wird ausschließlich transform/opacity; nach dem Durchflug (16 %)
+   hält der Keyframe die Endposition, der Rest des Zyklus ist Pause. */
+.steffen-comet-divider{
+  --comet-scale:1;
+  position:absolute;z-index:0;right:0;bottom:0;left:0;height:200px;
+  overflow:hidden;pointer-events:none;
+  /* Weiche Seitenkanten: Kometen und Linie lösen sich auf, statt am
+     overflow-Rand hart abgeschnitten zu werden. */
+  mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+}
+/* Lichtdunst statt Balken: drei flache Pools in Markenfarben, oben vollständig
+   transparent — der Hero-Hintergrund läuft ungestört durch. */
+.steffen-comet-divider::before{
+  content:"";position:absolute;z-index:0;inset:0 -6%;
+  background:
+    radial-gradient(56% 84% at 50% 78%,rgba(66,217,255,.17),transparent 70%),
+    radial-gradient(40% 76% at 16% 80%,rgba(155,92,255,.19),transparent 72%),
+    radial-gradient(36% 72% at 84% 80%,rgba(245,214,138,.13),transparent 74%);
+  /* Nach oben UND unten auslaufend — sonst bricht der Dunst an der Container-
+     kante als sichtbares Rechteck ab. */
+  mask-image:linear-gradient(180deg,transparent,#000 34%,#000 72%,transparent);
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 34%,#000 72%,transparent);
+}
+/* Horizont-Haarlinie mit goldenem Kern, echoes .section-light-track */
+.steffen-comet-divider::after{
+  content:"";position:absolute;z-index:1;right:0;bottom:23%;left:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(174,235,255,.16) 10%,rgba(245,214,138,.6) 41%,rgba(255,255,255,.52) 52%,rgba(66,217,255,.54) 64%,rgba(174,235,255,.14) 90%,transparent);
+  box-shadow:0 0 16px rgba(174,235,255,.3),0 0 44px rgba(66,217,255,.24),0 0 92px rgba(155,92,255,.16);
+}
+.steffen-comet-divider span{
+  position:absolute;z-index:2;left:0;top:var(--y);
+  width:calc(var(--len)*var(--comet-scale));height:calc(var(--thick)*var(--comet-scale));
+  opacity:0;animation:steffen-comet var(--dur) linear var(--delay) infinite;
+}
+/* Schweif: Keil (clip-path) statt Balken — voll dick am Kopf, auf einen Punkt
+   zulaufend. Farbreise weiß → eis → violett wie ein echter Ionenschweif. */
+.steffen-comet-divider span::before{
+  content:"";position:absolute;inset:0;clip-path:polygon(0 0,100% 50%,0 100%);
+  background:linear-gradient(90deg,rgba(255,255,255,.95),rgba(203,236,255,.6) 15%,rgba(140,196,255,.28) 42%,rgba(151,110,255,.12) 72%,rgba(151,110,255,0));
+}
+/* Kopf mit Koma: harter Kern, weicher Hof */
+.steffen-comet-divider span::after{
+  content:"";position:absolute;left:calc(var(--head)*-.32);top:50%;translate:0 -50%;
+  width:var(--head);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,#fff 0 26%,rgba(219,242,255,.8) 44%,rgba(120,200,255,.22) 68%,transparent 76%);
+  box-shadow:0 0 10px rgba(174,235,255,.8),0 0 30px rgba(66,217,255,.42);
+}
+/* Tiefenstaffelung: nah = lang, dick, schnell, hell · fern = kurz, dünn, träge */
+/* Zyklen bewusst „unrund" zueinander (9/13/11/16/19 s), damit sich das Muster
+   nicht sichtbar wiederholt. Sichtbares Fenster ist 22 % des Zyklus → im Schnitt
+   ist ~1 Komet unterwegs, manchmal zwei, gelegentlich keiner. */
+.steffen-comet-divider span:nth-child(1){--len:26vw;--thick:4px;--head:9px;--y:52%;--drop:14px;--tilt:-1.4deg;--dur:9s;--delay:.8s;--peak:1}
+.steffen-comet-divider span:nth-child(2){--len:19vw;--thick:3px;--head:7px;--y:66%;--drop:10px;--tilt:-1.1deg;--dur:13s;--delay:5s;--peak:.85}
+.steffen-comet-divider span:nth-child(3){--len:21vw;--thick:3px;--head:7px;--y:75%;--drop:11px;--tilt:-1.6deg;--dur:11s;--delay:2.4s;--peak:.9}
+.steffen-comet-divider span:nth-child(4){--len:13vw;--thick:2px;--head:5px;--y:86%;--drop:7px;--tilt:-1deg;--dur:16s;--delay:8s;--peak:.6}
+.steffen-comet-divider span:nth-child(5){--len:15vw;--thick:2px;--head:5px;--y:60%;--drop:8px;--tilt:-1.2deg;--dur:19s;--delay:12s;--peak:.55}
+/* Komet 2 in Gold — die Palette der Seite ist Eisblau + Gold, nicht nur Blau. */
+.steffen-comet-divider span:nth-child(2)::before{background:linear-gradient(90deg,rgba(255,252,240,.95),rgba(245,214,138,.58) 15%,rgba(232,163,61,.24) 44%,rgba(232,163,61,0))}
+.steffen-comet-divider span:nth-child(2)::after{background:radial-gradient(circle,#fff 0 26%,rgba(250,231,182,.82) 44%,rgba(232,163,61,.22) 68%,transparent 76%);box-shadow:0 0 10px rgba(245,214,138,.8),0 0 30px rgba(232,163,61,.38)}
+@keyframes steffen-comet{
+  0%{transform:translate3d(104vw,0,0) rotate(var(--tilt));opacity:0}
+  3%{opacity:var(--peak)}
+  17%{opacity:var(--peak)}
+  22%,100%{transform:translate3d(-32vw,var(--drop),0) rotate(var(--tilt));opacity:0}
+}
 @media (max-width:900px){
-  .steffen-hero{min-height:auto;padding-bottom:0}
+  /* Hero kollabiert (kein min-height, Foto aus) → Platz für die Bahn muss als
+     padding kommen, sonst liegt sie über dem Text. */
+  .steffen-hero{min-height:auto;padding-bottom:104px}
   .steffen-hero-photo{display:none}
-  .steffen-meteor-divider{display:none}
+  .steffen-comet-divider{--comet-scale:.66;height:124px}
+  /* Die zwei schwächsten Kometen fallen weg: auf schmalem Viewport wird aus
+     Tiefenstaffelung Gedränge. */
+  .steffen-comet-divider span:nth-child(4),
+  .steffen-comet-divider span:nth-child(5){display:none}
 }
 
 .section-transition{position:relative;isolation:isolate}
@@ -938,6 +1026,14 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .hero-pin-block .hero-scroll-shell{
     position:relative!important;top:auto!important;transform:none!important;filter:none!important
   }
+  /* Kometenbahn friert als Langzeitbelichtung ein: Kometen stehen sichtbar
+     verteilt auf der Bahn, statt unsichtbar zu verschwinden. */
+  .steffen-comet-divider span{animation:none!important;opacity:var(--peak)}
+  .steffen-comet-divider span:nth-child(1){transform:translate3d(18vw,0,0) rotate(var(--tilt))}
+  .steffen-comet-divider span:nth-child(2){transform:translate3d(58vw,0,0) rotate(var(--tilt))}
+  .steffen-comet-divider span:nth-child(3){transform:translate3d(38vw,0,0) rotate(var(--tilt))}
+  .steffen-comet-divider span:nth-child(4){transform:translate3d(74vw,0,0) rotate(var(--tilt))}
+  .steffen-comet-divider span:nth-child(5){transform:translate3d(6vw,0,0) rotate(var(--tilt))}
 }
 
 /* ── YouTube-Galerie (Homepage, Comedian-Seite, Show-Seiten, Archiv) ── */
@@ -1062,3 +1158,106 @@ html.galaxy-live body:before{opacity:0;transition:opacity 1.2s ease}
 .steffen-hero-photo{animation:drift-in-right 1.05s cubic-bezier(.22,1,.36,1) both;animation-delay:.1s}
 @keyframes rise-in{from{opacity:0;transform:translateY(28px)}}
 @keyframes drift-in-right{from{opacity:0;transform:translateX(70px)}}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Consent / Cookie-Banner
+   Vollflächiger Blocker vor der Seite. Beide Entscheidungs-Buttons sind
+   bewusst gleich groß und gleich auffällig (DSGVO Art. 7 — kein Dark Pattern).
+   ══════════════════════════════════════════════════════════════════════ */
+.consent-overlay{
+  position:fixed;inset:0;z-index:200;
+  display:grid;place-items:center;
+  padding:clamp(16px,4vw,48px);
+  background:radial-gradient(circle at 50% 40%,rgba(11,16,38,.86),rgba(5,7,17,.95));
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  animation:consent-fade .4s ease both;
+  overflow-y:auto;
+}
+@keyframes consent-fade{from{opacity:0}}
+.consent-dialog{
+  position:relative;isolation:isolate;
+  width:min(620px,100%);
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04)),rgba(5,7,17,.72);
+  box-shadow:var(--shadow);
+  padding:clamp(24px,4vw,40px);
+  overflow:hidden;
+  animation:consent-rise .55s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes consent-rise{from{opacity:0;transform:translateY(26px) scale(.97)}}
+/* Planeten-Glow wie bei den Show-Karten */
+.consent-orb{
+  position:absolute;z-index:-1;top:-120px;left:50%;translate:-50% 0;
+  width:320px;height:320px;border-radius:50%;
+  background:conic-gradient(from 40deg,var(--green),var(--blue),var(--purple),var(--pink),var(--green));
+  filter:blur(52px);opacity:.34;pointer-events:none;
+}
+.consent-title{margin:10px 0 14px;font-size:clamp(26px,4vw,38px);line-height:1.08}
+.consent-text{margin:0;font-size:16px;white-space:normal}
+.consent-details{margin-top:20px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.05)}
+.consent-details summary{
+  cursor:pointer;padding:13px 17px;font-weight:900;font-size:15px;
+  list-style:none;display:flex;align-items:center;gap:9px;border-radius:16px;
+}
+.consent-details summary::-webkit-details-marker{display:none}
+.consent-details summary:before{content:"＋";color:var(--blue);font-weight:900}
+.consent-details[open] summary:before{content:"－"}
+.consent-details summary:hover{color:var(--blue)}
+.consent-list{margin:0;padding:0 17px 4px 34px;display:grid;gap:12px}
+.consent-list li{color:var(--muted);font-size:14.5px;line-height:1.6}
+.consent-list strong{color:var(--text)}
+.consent-note{margin:0;padding:0 17px 15px;font-size:13.5px;color:var(--muted);white-space:normal}
+.consent-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px}
+/* Gleiche Geometrie, gleiche Schriftstärke, gleiche Sichtbarkeit für beide Optionen. */
+.consent-btn{
+  border:0;cursor:pointer;border-radius:999px;
+  padding:16px 20px;font-weight:950;font-size:16px;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:.18s ease;color:#050711;
+}
+.consent-btn:hover{transform:translateY(-3px);filter:brightness(1.08)}
+.consent-btn-reject{background:linear-gradient(135deg,var(--ice),var(--turq));box-shadow:0 18px 44px rgba(95,245,232,.24)}
+.consent-btn-accept{background:linear-gradient(135deg,var(--gold1),var(--gold2));box-shadow:0 18px 44px rgba(232,163,61,.26)}
+.consent-cancel{
+  margin-top:14px;width:100%;background:none;border:1px solid var(--line);border-radius:999px;
+  padding:12px 18px;color:var(--muted);font-weight:850;cursor:pointer;transition:.18s ease;
+}
+.consent-cancel:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.consent-links{margin:20px 0 0;text-align:center;font-size:14px;color:var(--muted);white-space:normal}
+.consent-links a{text-decoration:underline;text-underline-offset:3px}
+.consent-links a:hover{color:var(--text)}
+@media (max-width:520px){
+  .consent-actions{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .consent-overlay,.consent-dialog{animation:none}
+  .consent-btn:hover{transform:none}
+}
+
+/* Widerrufs-Link im Footer — sieht aus wie die anderen Footer-Links */
+.consent-settings-link{
+  background:none;border:0;padding:0;margin:0;cursor:pointer;
+  font:inherit;color:inherit;text-align:left;
+}
+.consent-settings-link:hover{color:var(--text);text-decoration:underline}
+
+/* Platzhalter statt YouTube-Iframe, solange keine Einwilligung vorliegt */
+.yt-placeholder{
+  position:absolute;inset:0;display:grid;place-items:center;
+  padding:18px;text-align:center;
+  background:linear-gradient(180deg,rgba(155,92,255,.16),rgba(5,7,17,.9));
+}
+.yt-placeholder-inner{display:grid;gap:12px;justify-items:center;max-width:340px}
+.yt-placeholder-icon{
+  display:grid;place-items:center;width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(255,255,255,.1);
+  font-size:19px;padding-left:4px;
+}
+.yt-placeholder-text{margin:0;font-size:13.5px;line-height:1.55;color:var(--muted);white-space:normal}
+.yt-placeholder-actions{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.yt-placeholder-btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.12);color:var(--text);
+  border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;cursor:pointer;transition:.18s ease;
+}
+.yt-placeholder-btn:hover{background:rgba(255,255,255,.22);transform:translateY(-2px)}
+@media (prefers-reduced-motion:reduce){.yt-placeholder-btn:hover{transform:none}}

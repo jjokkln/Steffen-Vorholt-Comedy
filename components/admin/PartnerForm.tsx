@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import type { Partner } from "@/lib/types";
 import type { FormState } from "@/lib/actions/partners";
-import { mediaUrl } from "@/lib/media";
+import { TRANSPARENT_ASPECT_OPTIONS } from "@/lib/aspect";
+import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
 export default function PartnerForm({
@@ -28,13 +29,15 @@ export default function PartnerForm({
         Website-URL
         <input name="url" defaultValue={partner?.url} placeholder="https://…" />
       </label>
-      <label>
-        Logo — wird nicht zugeschnitten. Empfehlung: transparenter Hintergrund (PNG), mind. 400 px hoch.{" "}
-        {partner?.logo_path && (
-          <img src={mediaUrl(partner.logo_path)} alt="" style={{ height: 48, objectFit: "contain" }} />
-        )}
-        <input name="logo" type="file" accept="image/*" />
-      </label>
+      <ImageCropUpload
+        label="Logo"
+        name="logo_path"
+        aspectOptions={TRANSPARENT_ASPECT_OPTIONS}
+        hint="Empfehlung: transparenter Hintergrund (PNG), mind. 400 px hoch. „Original“ lädt die Datei unverändert hoch."
+        currentPath={partner?.logo_path}
+        uploadPrefix="partner"
+        transparent
+      />
       <label>
         Sortierung
         <input name="sort_order" type="number" defaultValue={partner?.sort_order ?? 0} />

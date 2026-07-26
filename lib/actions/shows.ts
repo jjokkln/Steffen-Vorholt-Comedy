@@ -27,15 +27,6 @@ function parsePrinciples(raw: string): { title: string; text: string }[] {
     });
 }
 
-async function uploadPlanet(supabase: Awaited<ReturnType<typeof createServerSupabase>>, slug: string, file: File | null): Promise<string | null> {
-  if (!file || file.size === 0) return null;
-  const ext = file.name.split(".").pop() || "webp";
-  const path = `${slug}-${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from("planets").upload(path, file, { contentType: file.type });
-  if (error) throw new Error(`Planet-Upload fehlgeschlagen: ${error.message}`);
-  return `planets/${path}`;
-}
-
 function showFields(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name ist Pflicht.");
@@ -48,6 +39,7 @@ function showFields(formData: FormData) {
     color: String(formData.get("color") ?? "#7CFF6B"),
     principle_items: parsePrinciples(String(formData.get("principles") ?? "")),
     cities_text: String(formData.get("cities_text") ?? "").trim(),
+    planet_image_path: String(formData.get("planet_image_path") ?? "").trim(),
     header_image_path: String(formData.get("header_image_path") ?? "").trim(),
     background_image_path: String(formData.get("background_image_path") ?? "").trim(),
     sort_order: Number(formData.get("sort_order") ?? 0),
@@ -61,12 +53,7 @@ export async function createShow(_prev: FormState, formData: FormData): Promise<
   try {
     const fields = showFields(formData);
     const slug = slugify(fields.name);
-    const planetPath = await uploadPlanet(supabase, slug, formData.get("planet") as File | null);
-    const { data, error } = await supabase.from("shows").insert({
-      ...fields,
-      slug,
-      planet_image_path: planetPath ?? "",
-    }).select("id").single();
+    const { data, error } = await supabase.from("shows").insert({ ...fields, slug }).select("id").single();
     if (error) throw new Error(error.message);
     newId = data.id as string;
   } catch (err) {
@@ -81,11 +68,7 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
   const supabase = await createServerSupabase();
   try {
     const fields = showFields(formData);
-    const update: Record<string, unknown> = { ...fields };
-    const { data: existing } = await supabase.from("shows").select("slug").eq("id", id).single();
-    const planetPath = await uploadPlanet(supabase, existing?.slug ?? "show", formData.get("planet") as File | null);
-    if (planetPath) update.planet_image_path = planetPath;
-    const { error } = await supabase.from("shows").update(update).eq("id", id);
+    const { error } = await supabase.from("shows").update(fields).eq("id", id);
     if (error) throw new Error(error.message);
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };

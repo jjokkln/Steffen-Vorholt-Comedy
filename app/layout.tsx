@@ -6,6 +6,8 @@ import Nav from "@/components/Nav";
 import GalaxyBackground from "@/components/GalaxyBackground";
 import ConstellationCursor from "@/components/ConstellationCursor";
 import JsonLd from "@/components/JsonLd";
+import { CookieConsentProvider } from "@/components/consent/CookieConsentProvider";
+import CookieBanner from "@/components/consent/CookieBanner";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/jsonld";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-body", display: "swap" });
@@ -92,12 +94,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="de">
       <body className={`${inter.variable} ${grotesk.variable}`}>
-        <GalaxyBackground />
-        <ConstellationCursor />
-        <div className="page">
-          <Nav />
-          {children}
-        </div>
+        <CookieConsentProvider>
+          <GalaxyBackground />
+          <ConstellationCursor />
+          <div className="page">
+            <Nav />
+            {children}
+          </div>
+          <CookieBanner />
+        </CookieConsentProvider>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       </body>
     </html>

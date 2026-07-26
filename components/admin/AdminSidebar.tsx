@@ -33,6 +33,10 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/impressum", label: "Impressum" },
     ],
   },
+  {
+    label: "System",
+    items: [{ href: "/admin/einstellungen", label: "Benachrichtigungen" }],
+  },
 ];
 
 function isActive(pathname: string, href: string): boolean {

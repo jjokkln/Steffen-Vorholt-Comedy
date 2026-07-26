@@ -70,6 +70,16 @@ export const INQUIRY_LABELS: Record<string, string> = {
   comedian: "Comedian (alt)",
 };
 
+// Beschriftungen der typ-spezifischen payload-Felder (Admin-Mail + Anfragen-Liste).
+export const INQUIRY_FIELD_LABELS: Record<string, string> = {
+  show: "Show",
+  event_date: "Wunschdatum",
+  city: "Stadt / Location",
+  video_requested: "Video gewünscht",
+  company: "Firma / Veranstalter",
+  event_type: "Art der Veranstaltung",
+};
+
 export interface Inquiry {
   id: string;
   type: InquiryType;

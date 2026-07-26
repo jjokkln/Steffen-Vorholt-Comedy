@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
-import { addGalleryItem, updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
+import { updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
 import { mediaUrl } from "@/lib/media";
+import GalleryImageUpload from "@/components/admin/GalleryImageUpload";
 import HeroVideoUpload from "@/components/admin/HeroVideoUpload";
 import { GALLERY_CATEGORIES, type GalleryItem } from "@/lib/types";
 import DeleteButton from "@/components/admin/DeleteButton";
@@ -15,30 +16,7 @@ export default async function AdminGaleriePage() {
   return (
     <>
       <h2>Galerie „Vergangene Missionen"</h2>
-      <form className="card form" action={addGalleryItem}>
-        <h3>Neues Foto</h3>
-        <label>
-          Bild * <input name="image" type="file" accept="image/*" required />
-        </label>
-        <div className="form two">
-          <label>
-            Bildunterschrift <input name="caption" placeholder="z. B. Brain Loading, Köln 2025" />
-          </label>
-          <label>
-            Kategorie
-            <select name="category" defaultValue="">
-              <option value="">— Weitere —</option>
-              {GALLERY_CATEGORIES.map((c) => (
-                <option key={c.key} value={c.key}>{c.label}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <label>
-          Sortierung <input name="sort_order" type="number" defaultValue={0} />
-        </label>
-        <button className="btn primary">Hochladen</button>
-      </form>
+      <GalleryImageUpload />
 
       <div className="grid-3" style={{ marginTop: 24 }}>
         {((items ?? []) as GalleryItem[]).map((g) => (

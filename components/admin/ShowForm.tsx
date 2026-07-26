@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import type { Show } from "@/lib/types";
 import type { FormState } from "@/lib/actions/shows";
-import { mediaUrl } from "@/lib/media";
+import { A4_PORTRAIT, TRANSPARENT_ASPECT_OPTIONS } from "@/lib/aspect";
 import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
@@ -58,19 +58,21 @@ export default function ShowForm({
           <input name="sort_order" type="number" defaultValue={show?.sort_order ?? 0} />
         </label>
       </div>
-      <label>
-        Planet-Bild (rund, transparenter Hintergrund) — wird nicht zugeschnitten. Empfehlung: quadratisch (1:1),
-        mind. 800&times;800 px, PNG mit transparentem Hintergrund.{" "}
-        {show?.planet_image_path && (
-          <img src={mediaUrl(show.planet_image_path)} alt="" style={{ width: 64, height: 64 }} />
-        )}
-        <input name="planet" type="file" accept="image/*" />
-      </label>
+      <ImageCropUpload
+        label="Planet-Bild (rund, transparenter Hintergrund)"
+        name="planet_image_path"
+        aspectOptions={TRANSPARENT_ASPECT_OPTIONS}
+        hint="Empfehlung: quadratisch (1:1), mind. 800 × 800 px, PNG mit transparentem Hintergrund. „Original“ lädt die Datei unverändert hoch."
+        currentPath={show?.planet_image_path}
+        bucket="planets"
+        uploadPrefix="planet"
+        transparent
+      />
       <ImageCropUpload
         label="Titelbild — erscheint groß in der Hero-Section der Show-Subpage"
         name="header_image_path"
-        aspect={4 / 5}
-        frameLabel="Hochformat 4:5, z. B. 1536 × 1920 px"
+        aspect={A4_PORTRAIT}
+        frameLabel="A4 hoch (210 : 297), z. B. 1240 × 1754 px — Plakate & A4-Dokumente passen ohne Beschnitt"
         currentPath={show?.header_image_path}
         uploadPrefix="header"
       />

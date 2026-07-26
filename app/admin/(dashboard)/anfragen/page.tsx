@@ -1,6 +1,6 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { setInquiryStatus, deleteInquiry } from "@/lib/actions/inquiries";
-import { INQUIRY_LABELS, type Inquiry } from "@/lib/types";
+import { INQUIRY_FIELD_LABELS, INQUIRY_LABELS, type Inquiry } from "@/lib/types";
 import DeleteButton from "@/components/admin/DeleteButton";
 
 const STATUS_LABEL = { new: "Neu", read: "Gelesen", answered: "Beantwortet" } as const;
@@ -26,7 +26,7 @@ export default async function AdminAnfragenPage() {
             {q.phone && <> · <b>Telefon:</b> {q.phone}</>}
           </p>
           {Object.entries(q.payload).map(([k, v]) => v && (
-            <p key={k}><b>{k}:</b> {v}</p>
+            <p key={k}><b>{INQUIRY_FIELD_LABELS[k] ?? k}:</b> {v}</p>
           ))}
           <p style={{ whiteSpace: "pre-wrap" }}>{q.message}</p>
           <div className="actions">

@@ -12,10 +12,12 @@ const TEMPLATE_FILES: Record<InquiryType, string> = {
   frage_feedback: "frage-feedback.html",
 };
 
+// Bewusst ohne Emoji: Emoji im Betreff ist bei einem Freemail-Absender ein zusätzliches
+// Spam-Signal. Der Markenname im Betreff hilft stattdessen beim Wiedererkennen.
 const SUBJECTS: Record<InquiryType, string> = {
-  booking_show: "🎟️ Deine Show-Anfrage ist angekommen",
-  booking_steffen: "🎤 Ihre Booking-Anfrage ist eingegangen",
-  frage_feedback: "💬 Danke für deine Nachricht",
+  booking_show: "Deine Show-Anfrage bei Steffen Vorholt ist angekommen",
+  booking_steffen: "Ihre Booking-Anfrage bei Steffen Vorholt ist eingegangen",
+  frage_feedback: "Danke für deine Nachricht an Steffen Vorholt",
 };
 
 type ConfirmationInput = Pick<Inquiry, "type" | "name" | "message" | "payload">;

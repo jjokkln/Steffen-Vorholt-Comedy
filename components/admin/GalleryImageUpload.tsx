@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { addShowImage } from "@/lib/actions/show-images";
+import { addGalleryItem } from "@/lib/actions/gallery";
 import { FLEXIBLE_ASPECT_OPTIONS } from "@/lib/aspect";
+import { GALLERY_CATEGORIES } from "@/lib/types";
 import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
 
-export default function ShowImageUpload({ showId }: { showId: string }) {
+/** Upload für die Startseiten-Galerie „Vergangene Missionen" — mit derselben Zuschneidefunktion wie überall. */
+export default function GalleryImageUpload() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -21,14 +23,14 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
       setError("Bitte zuerst ein Bild hochladen (Zuschnitt übernehmen).");
       return;
     }
-    const altText = (form.elements.namedItem("alt_text") as HTMLInputElement).value;
+    const caption = (form.elements.namedItem("caption") as HTMLInputElement).value;
     const category = (form.elements.namedItem("category") as HTMLSelectElement).value;
     const sortOrder = Number((form.elements.namedItem("sort_order") as HTMLInputElement).value || 0);
 
     setBusy(true);
     setError("");
     try {
-      await addShowImage(showId, { imagePath, altText, category, sortOrder });
+      await addGalleryItem({ imagePath, caption, category, sortOrder });
       setDone(Date.now());
       setImagePath("");
       form.reset();
@@ -47,23 +49,26 @@ export default function ShowImageUpload({ showId }: { showId: string }) {
         label="Bild * (JPG, PNG, WebP)"
         name="image_path"
         aspectOptions={FLEXIBLE_ASPECT_OPTIONS}
-        hint="Die Galerie zeigt jedes Seitenverhältnis vollständig an. Wähle ein Format, wenn du das Bild darauf ausrichten willst — sonst „Original“. Empfehlung: mind. 1600 px auf der langen Seite."
-        uploadPrefix="show-img"
+        hint="Die Galerie zeigt jedes Seitenverhältnis vollständig an. Wähle ein Format, wenn du das Bild darauf ausrichten willst — sonst „Original“."
+        bucket="gallery"
+        uploadPrefix="mission"
         disabled={busy}
         onUploaded={setImagePath}
         resetSignal={done}
       />
       <div className="form two">
         <label>
-          Galerie
-          <select name="category" defaultValue="show" disabled={busy}>
-            <option value="show">Show-Bilder</option>
-            <option value="location">Location-Bilder</option>
-          </select>
+          Bildunterschrift
+          <input name="caption" placeholder="z. B. Brain Loading, Köln 2025" disabled={busy} />
         </label>
         <label>
-          Bildunterschrift
-          <input name="alt_text" placeholder="z. B. Bühnenmoment 2025" disabled={busy} />
+          Kategorie
+          <select name="category" defaultValue="" disabled={busy}>
+            <option value="">— Weitere —</option>
+            {GALLERY_CATEGORIES.map((c) => (
+              <option key={c.key} value={c.key}>{c.label}</option>
+            ))}
+          </select>
         </label>
       </div>
       <label>

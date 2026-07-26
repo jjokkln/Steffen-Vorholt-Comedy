@@ -2,6 +2,7 @@
 
 import { createPublicClient } from "@/lib/supabase/public";
 import { sendInquiryConfirmation, sendInquiryNotification } from "@/lib/email";
+import { getNotificationSettings } from "@/lib/settings";
 import type { InquiryType } from "@/lib/types";
 
 export interface InquiryFormState {
@@ -37,6 +38,11 @@ export async function submitInquiry(
     console.error("[inquiry] Insert fehlgeschlagen:", error);
     return { ok: false, error: "Houston, wir haben ein Problem. Bitte später nochmal versuchen." };
   }
-  await Promise.all([sendInquiryNotification(inquiry), sendInquiryConfirmation(inquiry)]);
+  // Empfänger-Einstellungen einmal laden und an beide Mails geben (statt zweimal die DB fragen).
+  const settings = await getNotificationSettings();
+  await Promise.all([
+    sendInquiryNotification(inquiry, settings),
+    sendInquiryConfirmation(inquiry, settings),
+  ]);
   return { ok: true };
 }

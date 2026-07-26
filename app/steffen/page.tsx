@@ -57,8 +57,10 @@ export default async function SteffenPage() {
           loading="eager"
           fetchPriority="high"
         />
-        <div className="steffen-meteor-divider" aria-hidden="true">
-          <span /><span /><span /><span /><span /><span /><span />
+        {/* Kometenbahn als Hero-Abschluss: Horizontlinie + streifende Kometen
+            (Tiefenstaffelung über nth-child in globals.css). */}
+        <div className="steffen-comet-divider" aria-hidden="true">
+          <span /><span /><span /><span /><span />
         </div>
       </header>
 

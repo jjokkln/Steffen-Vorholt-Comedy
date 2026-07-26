@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getActiveShows } from "@/lib/data";
+import ConsentSettingsButton from "@/components/consent/ConsentSettingsButton";
 
 const LOGO = "/assets/media/brand/logo_steffen.png";
 
@@ -48,6 +49,9 @@ export default async function Footer() {
             <Link href="/impressum">Impressum</Link>
             <br />
             <Link href="/datenschutz">Datenschutz</Link>
+            <br />
+            {/* Widerruf muss so einfach sein wie die Einwilligung (Art. 7 Abs. 3 DSGVO) */}
+            <ConsentSettingsButton />
           </p>
         </div>
       </div>
