@@ -60,11 +60,12 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
   return (
     <>
       {backgroundUrl && (
-        <div
-          className="show-page-bg"
-          aria-hidden="true"
-          style={{ backgroundImage: `url(${backgroundUrl})` }}
-        />
+        // Früher als CSS-background-image gesetzt — damit lief bei jedem Aufruf das
+        // Original (bis zu 6 MB PNG) direkt aus dem Storage. Über next/image kommt
+        // stattdessen eine gecachte WebP-Variante in Viewport-Breite.
+        <div className="show-page-bg" aria-hidden="true">
+          <Image src={backgroundUrl} alt="" fill sizes="100vw" style={{ objectFit: "cover" }} />
+        </div>
       )}
       <header className="container section hero">
         <div>
@@ -90,13 +91,24 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
         </div>
         <figure className={`show-hero-media${hasHeader ? " has-cover" : ""}`} style={{ color: show.color }}>
           {hasHeader ? (
-            <img className="hero-cover" src={headerUrl} alt={show.name} />
+            // .show-hero-media.has-cover ist ein A4-Rahmen (210:297) mit position:relative.
+            <Image
+              className="hero-cover"
+              src={headerUrl}
+              alt={show.name}
+              fill
+              sizes="(max-width: 640px) 92vw, 470px"
+              style={{ objectFit: "cover" }}
+              priority
+            />
           ) : show.planet_image_path ? (
             <Image
               src={mediaUrl(show.planet_image_path)}
               alt={`Planet der Show ${show.name}`}
               width={560}
               height={560}
+              sizes="(max-width: 640px) 92vw, 560px"
+              priority
             />
           ) : null}
         </figure>

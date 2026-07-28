@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import Lightbox, { type LightboxItem } from "@/components/Lightbox";
+import StorageImage from "@/components/media/StorageImage";
 import { mediaUrl } from "@/lib/media";
 import type { ShowImage, ShowVideo } from "@/lib/types";
+
+/** Kacheln sind rund 340 px hoch, in der Breite selten über 520 px. */
+const TILE_SIZES = "(max-width: 720px) 90vw, 520px";
 
 /**
  * Drei getrennte Galerie-Ansichten auf der Show-Subpage: Location-Bilder,
@@ -27,13 +31,13 @@ export default function ShowGalleries({
   const lightboxItems: LightboxItem[] = [
     ...locationImages.map((img) => ({
       type: "image" as const,
-      src: mediaUrl(img.image_path),
+      path: img.image_path,
       alt: img.alt_text || showName,
       caption: img.alt_text,
     })),
     ...showImages.map((img) => ({
       type: "image" as const,
-      src: mediaUrl(img.image_path),
+      path: img.image_path,
       alt: img.alt_text || showName,
       caption: img.alt_text,
     })),
@@ -57,7 +61,7 @@ export default function ShowGalleries({
           <div className="show-media-grid">
             {locationImages.map((img, i) => (
               <figure key={img.id} className="show-media-item" onClick={() => setOpenIndex(locOffset + i)}>
-                <img src={mediaUrl(img.image_path)} alt={img.alt_text || showName} loading="lazy" />
+                <StorageImage path={img.image_path} alt={img.alt_text || showName} sizes={TILE_SIZES} />
                 {img.alt_text && <figcaption>{img.alt_text}</figcaption>}
               </figure>
             ))}
@@ -71,7 +75,7 @@ export default function ShowGalleries({
           <div className="show-media-grid">
             {showImages.map((img, i) => (
               <figure key={img.id} className="show-media-item" onClick={() => setOpenIndex(showOffset + i)}>
-                <img src={mediaUrl(img.image_path)} alt={img.alt_text || showName} loading="lazy" />
+                <StorageImage path={img.image_path} alt={img.alt_text || showName} sizes={TILE_SIZES} />
                 {img.alt_text && <figcaption>{img.alt_text}</figcaption>}
               </figure>
             ))}
@@ -86,10 +90,13 @@ export default function ShowGalleries({
             {videos.map((v, i) => (
               <figure key={v.id} className="show-media-item" onClick={() => setOpenIndex(videoOffset + i)}>
                 <div className="media-thumb">
+                  {/* Mit Poster braucht der Browser die Videodatei erst beim Klick
+                      (16 MB pro Video sonst allein für das Vorschaubild). Ohne Poster
+                      bleibt „metadata", sonst wäre die Kachel schwarz. */}
                   <video
                     src={mediaUrl(v.video_path)}
                     poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
-                    preload="metadata"
+                    preload={v.poster_path ? "none" : "metadata"}
                     muted
                     playsInline
                   />

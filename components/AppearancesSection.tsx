@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import { formatDateLong } from "@/lib/event-helpers";
 import { mediaUrl } from "@/lib/media";
@@ -18,11 +19,11 @@ export default function AppearancesSection({ appearances }: { appearances: Appea
       <div className="section-head">
         <div>
           <div className="eyebrow">Steffen als Comedian</div>
-          <h2>Wo Steffen selbst auf der Bühne steht.</h2>
+          <h2>Hier siehst du mich als Nächstes.</h2>
         </div>
         <p>
-          Open Mics, Auftritte &amp; Gigs – unter anderem bei <strong>Komiker 11</strong>.
-          Ein Klick führt direkt zur Show.
+          Open Mics, Mix Shows, Veranstaltungen oder auf dem Platz mit der{" "}
+          <strong>Komiker 11</strong>. Ein Klick führt dich direkt dort hin.
         </p>
       </div>
       <div className="appearance-grid">
@@ -32,7 +33,15 @@ export default function AppearancesSection({ appearances }: { appearances: Appea
             <>
               <div className="appearance-flyer">
                 {a.flyer_path ? (
-                  <img src={mediaUrl(a.flyer_path)} alt={a.title} loading="lazy" />
+                  // .appearance-flyer ist ein 4:3-Rahmen mit position:relative — genau das,
+                  // was `fill` braucht. Karten sind im 3er-Grid rund 380 px breit.
+                  <Image
+                    src={mediaUrl(a.flyer_path)}
+                    alt={a.title}
+                    fill
+                    sizes="(max-width: 900px) 92vw, 380px"
+                    style={{ objectFit: "cover" }}
+                  />
                 ) : (
                   <span className="appearance-flyer-fallback" aria-hidden="true">🎤</span>
                 )}

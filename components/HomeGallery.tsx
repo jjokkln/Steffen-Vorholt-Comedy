@@ -14,7 +14,7 @@ export default function HomeGallery({ items }: { items: GalleryItem[] }) {
 
   const lightboxItems: LightboxItem[] = items.map((item) => ({
     type: "image",
-    src: mediaUrl(item.image_path),
+    path: item.image_path,
     alt: item.caption || "Showfoto",
     caption: item.caption,
   }));
@@ -60,11 +60,15 @@ export default function HomeGallery({ items }: { items: GalleryItem[] }) {
               style={{ "--rot": `${(index % 3) - 1}deg` } as CSSProperties}
               onClick={() => setOpenIndex(index)}
             >
+              {/* Kachel ist 260 px hoch, also ~350 px breit; mobil ein Slide über die
+                  volle Breite. Ohne `sizes` würde next/image 100vw annehmen und die
+                  1920-px-Variante ausliefern. */}
               <Image
                 src={mediaUrl(item.image_path)}
                 alt={item.caption || "Showfoto"}
                 width={800}
                 height={600}
+                sizes="(max-width: 720px) 100vw, 350px"
               />
               {item.caption && <figcaption>{item.caption}</figcaption>}
             </figure>

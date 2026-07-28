@@ -41,6 +41,50 @@ und kein neuer Fehler. Nur getestete Module dürfen keine Wert-Imports über den
 **Verzeichnis-Argument bei node:test.** `node --test tests/` funktioniert auf Node 24 nicht,
 darum steht im `test`-Skript das Glob `"tests/**/*.test.*"`.
 
+## Layout
+
+**Headline klebt am rechten Rand.** `.section-head` ist `display:flex; justify-content:space-between`
+und erwartet **zwei** Kinder: einen `<div>` mit Eyebrow + `<h2>` und daneben die Begleit-Copy.
+Stehen Eyebrow und `<h2>` als direkte Kinder darin, wird die Headline nach rechts geschoben
+(war so im Archiv-Block auf `/shows`). Immer beide in einen `<div>` wickeln — auch wenn es
+rechts keinen Text gibt. Für zwei Absätze rechts: `<div className="section-head-copy">`, zweite
+Zeile mit `className="kicker"` (eisblau, fett — dieselbe Behandlung wie `.hero-welcome-kicker`).
+
+**`p` hat `white-space:pre-line`.** In JSX geschriebene Mehrzeiler sind unkritisch (JSX faltet
+Zeilenumbrüche zu Leerzeichen), aber in Template-Literals und aus der DB gelesenen Texten wird
+jeder `\n` zu einem echten Umbruch.
+
+## Supabase-Egress
+
+**„You have exceeded your Free Plan quota" / Cached Egress über 5 GB (28.07.2026).** Cached Egress
+ist alles, was die Supabase-Smart-CDN aus dem Storage ausliefert — bei 142 MB Bestand kamen 5,5 GB
+zustande. Vier Ursachen, alle behoben:
+
+1. **Rohe `<img>`-Tags auf Storage-Originale.** Der schwerste Fall waren die drei Hero-Planeten
+   in `HeroScrollExperience.tsx`: 2,4–4,7 MB PNG, `loading="eager"`, auf der Startseite. Das sind
+   ~9 MB pro Besuch und erklärt die 5,5 GB fast allein. Dazu Show-Hintergrund als
+   CSS-`background-image` (6 MB PNG pro Show-Aufruf), Hero-Cover, Auftritts-Flyer,
+   Galerie-Kacheln, Lightbox-Originale und die Admin-Thumbnails.
+2. **`<Image>` ohne `sizes`.** Ohne Angabe nimmt next/image 100vw an und liefert die
+   1920-px-Variante — auch für eine 190-px-Kachel.
+3. **`cacheControl` beim Upload nicht gesetzt.** Supabase-Standard ist `max-age=3600`, Besucher
+   haben also stündlich alles neu geladen.
+4. **`preload="metadata"` auf Video-Kacheln mit Poster** — unnötiger Zugriff auf 16-MB-Dateien.
+
+**Falle: SQL-Schreibzugriff invalidiert die CDN nicht.** `storage.objects.metadata` per SQL auf
+`max-age=31536000` zu ziehen (Migration 0014) ändert nur die Origin-Antwort. Bereits im Edge-Cache
+liegende Antworten liefern den alten Header weiter (`curl -D -` zeigt `cf-cache-status: HIT` mit
+`age:` von mehreren Wochen), und ein Cache-Buster als Query-Parameter hilft **nicht** — die
+Smart CDN ignoriert die Query-String im Cache-Schlüssel. Nur ein Schreibvorgang über die
+Storage-API invalidiert. Für Bilder ist das ohne Belang (die laufen jetzt über die
+Next/Vercel-Optimierung mit eigenem 31-Tage-Cache); offen bleibt es allein für die direkt
+ausgelieferten Videodateien, die beim nächsten Neu-Upload sofort korrekt sind.
+
+**Diagnose-Werkzeuge:** `get_logs` (service `storage`) zeigt am User-Agent, ob ein Objekt vom
+Browser direkt (`Mozilla/…` = ungünstig) oder vom Optimizer (`vercel-image-optimization/1.0` = gut)
+geholt wird. Größte Objekte:
+`select bucket_id, name, pg_size_pretty((metadata->>'size')::bigint) from storage.objects order by (metadata->>'size')::bigint desc limit 20;`
+
 ## UI-Verifikation
 
 Kein Playwright im Repo. Browser liegen unter `~/Library/Caches/ms-playwright`, das CLI in

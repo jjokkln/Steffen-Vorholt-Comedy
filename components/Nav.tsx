@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 
-const LOGO = "/assets/media/brand/logo_steffen.png";
 
 const LINKS: { href: string; label: string; match?: (p: string) => boolean }[] = [
   { href: "/", label: "Startseite", match: (p) => p === "/" },
@@ -30,9 +30,7 @@ export default function Nav() {
     <nav className={`nav${open ? " is-open" : ""}`}>
       <div className="nav-bar">
         <Link className="brand" href="/" onClick={() => setOpen(false)}>
-          <span className="logo">
-            <img src={LOGO} alt="" />
-          </span>
+          <BrandLogo />
           <span>Steffen Vorholt</span>
         </Link>
         <button

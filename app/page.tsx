@@ -79,7 +79,13 @@ export default async function HomePage() {
                 <div className="eyebrow">Wähl deine Mission</div>
                 <h2>Finde die Show, die zu deinem Humor passt.</h2>
               </div>
-              <p>Doppel-Comedy, Brain Loading, Comedy Eiskalt – drei Formate, ein Abend zum Lachen.</p>
+              <div className="section-head-copy">
+                <p>
+                  Mit Doppel-Comedy, Brain Loading &amp; Comedy Eiskalt ist für jeden Humor
+                  etwas dabei 😉
+                </p>
+                <p className="kicker">Schau dir die Shows einfach in Ruhe mal an.</p>
+              </div>
             </div>
             <div className="grid-3">
               {shows.map((show) => (
@@ -118,7 +124,7 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <div className="eyebrow">Nicht verpassen</div>
-              <h2>Nächste Termine.</h2>
+              <h2>Das sind die nächsten Shows.</h2>
             </div>
             <p>Ticketlinks führen direkt zum externen Anbieter.</p>
           </div>
@@ -166,15 +172,20 @@ export default async function HomePage() {
         <section className="container section home-captain-section">
           <div className="feature">
             <div>
-              <div className="eyebrow">Der Captain</div>
               <h2>Steffen Vorholt.</h2>
+              {/* Kein Eyebrow mehr: die „Captain“-Metapher ist raus (Steffen, 28.07.2026).
+                  Copy jetzt in der Ich-Form wie im Hero – Langfassung steht auf /steffen. */}
+              <p className="lead">
+                🎤 Comedian &amp; Moderator – ehrlich, schlagfertig und (fast) immer charmant!
+              </p>
               <p>
-                Comedian, Moderator und Veranstalter aus Recklinghausen. Host von drei eigenen Formaten –
-                und der Typ, der auf der Bühne auch dann weitermacht, wenn das Publikum Regie führt.
+                Seit 2019 erzähle ich auf den Bühnen Deutschlands von meinem chaotischen Leben:
+                Ausbildung zum Kfz-Mechatroniker, Einsätze im Rettungsdienst, das Leben als ewiger
+                Single – und natürlich von meinen legendären Feiereskapaden in der Jugend.
               </p>
               <div className="actions">
                 <Link className="btn primary" href="/kontakt#booking-steffen">Steffen buchen</Link>
-                <Link className="btn secondary" href="/kontakt#frage">Frage stellen</Link>
+                <Link className="btn secondary" href="/steffen">Mehr über mich</Link>
               </div>
             </div>
             <div className="captain-media">

@@ -48,14 +48,20 @@ export default async function SteffenPage() {
         <div className="container section steffen-hero-copy">
           <div className="eyebrow">🧑‍🚀 Über mich</div>
           <h1>Steffen Vorholt.</h1>
-          <p className="lead">Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+          <p className="lead">
+            🎤 Comedian &amp; Moderator – ehrlich, schlagfertig und (fast) immer charmant!
+          </p>
         </div>
-        <img
+        {/* CSS gibt hier die Höhe vor (min(92%,680px)), die Breite folgt aus dem
+            echten Seitenverhältnis 1122×1402. */}
+        <Image
           className="steffen-hero-photo"
           src="/assets/media/steffen/steffen-hero-right.png"
           alt="Steffen Vorholt"
-          loading="eager"
-          fetchPriority="high"
+          width={1122}
+          height={1402}
+          sizes="(max-width: 1024px) 60vw, 560px"
+          priority
         />
         {/* Kometenbahn als Hero-Abschluss: Horizontlinie + streifende Kometen
             (Tiefenstaffelung über nth-child in globals.css). */}
@@ -69,28 +75,86 @@ export default async function SteffenPage() {
         <div className="feature">
           <div>
             <h2>Der Typ hinter dem Mikro.</h2>
+            {/* Bio in der Ich-Form (Text von Steffen, 28.07.2026). Aufteilung:
+                Einstieg + Haltung hier neben dem Video, die beiden Aufzählungen
+                (Lebenslauf / Buchbar für) darunter in .bio-lists – am Stück
+                gesetzt würde die linke Spalte doppelt so hoch wie das Video. */}
             <p>
-              Steffen ist nicht nur Veranstalter eigener Formate, sondern vor allem selbst Comedian –
-              unterwegs auf Open Mics, bei Gastauftritten und gemeinsam mit Comedy-Kollegen. Auf der
-              Bühne macht er auch dann weiter, wenn das Publikum die Regie übernimmt.
+              Hey! Ich bin 31 Jahre jung, humorvoll, sympathisch, ein bisschen tollpatschig –
+              und genau das lieben die Leute an mir 😄
             </p>
             <p>
-              Aus Recklinghausen kommend, hat er drei eigene Comedy-Formate aufgebaut und moderiert Events,
-              Galas und Firmenfeiern in ganz NRW.
+              Ob Stand-Up, Moderation, Hochzeit oder Firmenevent: Ich bringe gute Laune,
+              ehrliche Lacher und einen Rucksack voll Geschichten mit. Immer mit einem
+              Augenzwinkern, immer authentisch, nie drüber.
             </p>
             <div className="proof-row">
+              <span><b>Seit 2019</b> Auf der Bühne</span>
               <span><b>{shows.length}</b> Eigene Formate</span>
-              <span><b>NRW</b> Live unterwegs</span>
               <span><b>Recklinghausen</b> Homebase</span>
             </div>
             <div className="actions">
               <Link className="btn primary" href="/kontakt">Steffen buchen</Link>
-              <Link className="btn secondary" href="/shows">Seine Shows</Link>
+              <Link className="btn secondary" href="/shows">Meine Shows</Link>
             </div>
           </div>
           <div className="captain-media is-wide">
             {videoSrc ? <CaptainVideo src={videoSrc} /> : <div className="media-placeholder">Bühnen-Video folgt</div>}
           </div>
+        </div>
+
+        <div className="grid-2 bio-lists">
+          <article className="card">
+            <h3>Seit 2019 auf den Bühnen Deutschlands.</h3>
+            <p>Da erzähle ich von meinem chaotischen Leben:</p>
+            <ul className="list">
+              <li>
+                <span className="emoji" aria-hidden="true">🚗</span>
+                <span>Ausbildung zum <b>Kfz-Mechatroniker</b></span>
+              </li>
+              <li>
+                <span className="emoji" aria-hidden="true">🚑</span>
+                <span>Einsätze im <b>Rettungsdienst</b></span>
+              </li>
+              <li>
+                <span className="emoji" aria-hidden="true">💔</span>
+                <span>
+                  Das Leben als <b>ewiger Single</b> – bis ich eine Freundin fand,
+                  die meine Gags über sie duldet
+                </span>
+              </li>
+              <li>
+                <span className="emoji" aria-hidden="true">🍻</span>
+                <span>Und natürlich meine <b>legendären Feiereskapaden</b> in der Jugend!</span>
+              </li>
+            </ul>
+          </article>
+
+          <article className="card">
+            <h3>Buchbar für deinen Anlass.</h3>
+            <p>📌 Hier bin ich richtig:</p>
+            <ul className="list">
+              <li>
+                <span className="emoji" aria-hidden="true">✅</span>
+                <span><b>Comedyshows</b></span>
+              </li>
+              <li>
+                <span className="emoji" aria-hidden="true">✅</span>
+                <span><b>Hochzeiten &amp; Geburtstage</b></span>
+              </li>
+              <li>
+                <span className="emoji" aria-hidden="true">✅</span>
+                <span><b>Firmenfeiern &amp; besondere Events</b></span>
+              </li>
+            </ul>
+            <p className="bio-card-foot">
+              💬 Lass uns zusammen eine Show auf die Beine stellen, bei der die Bauchmuskeln
+              mehr zu tun haben als das Catering-Team! 😄
+            </p>
+            <div className="actions">
+              <Link className="btn primary" href="/kontakt">Anfrage schicken</Link>
+            </div>
+          </article>
         </div>
       </section>
       </SectionTransition>
@@ -104,7 +168,7 @@ export default async function SteffenPage() {
         <section className="container section">
           <div className="section-head">
             <div>
-              <div className="eyebrow">Seine Formate</div>
+              <div className="eyebrow">Meine Formate</div>
               <h2>Eigene Shows.</h2>
             </div>
           </div>
@@ -163,14 +227,20 @@ export default async function SteffenPage() {
               <div className="eyebrow">Zusammenarbeit</div>
               <h2>Partner.</h2>
             </div>
-            <p>Veranstalter und Bühnen, mit denen Steffen zusammenarbeitet.</p>
+            <p>Veranstalter und Bühnen, mit denen ich zusammenarbeite.</p>
           </div>
           <div className="partner-grid">
             {partners.map((p) => {
               const inner = (
                 <>
                   {p.logo_path ? (
-                    <Image src={mediaUrl(p.logo_path)} alt={p.name} width={200} height={120} />
+                    <Image
+                      src={mediaUrl(p.logo_path)}
+                      alt={p.name}
+                      width={200}
+                      height={120}
+                      sizes="200px"
+                    />
                   ) : (
                     <span className="partner-name">{p.name}</span>
                   )}

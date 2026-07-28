@@ -44,6 +44,7 @@ export default async function AngebotePage() {
                       alt={o.title}
                       width={600}
                       height={400}
+                      sizes="(max-width: 900px) 92vw, 600px"
                     />
                   </div>
                 )}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
 import { mediaUrl } from "@/lib/media";
@@ -21,7 +22,24 @@ export default async function AdminGaleriePage() {
       <div className="grid-3" style={{ marginTop: 24 }}>
         {((items ?? []) as GalleryItem[]).map((g) => (
           <div className="card" key={g.id} style={{ padding: 14 }}>
-            <img src={mediaUrl(g.image_path)} alt={g.caption} style={{ borderRadius: 12, marginBottom: 10 }} />
+            {/* Vorschau über die Bild-Optimierung: vorher lud diese Seite alle
+                Galerie-Originale in Vollgröße (mehrere MB pro Foto) — auch das zählt
+                auf das Egress-Kontingent. `contain` zeigt das Foto vollständig. */}
+            <Image
+              src={mediaUrl(g.image_path)}
+              alt={g.caption}
+              width={480}
+              height={360}
+              sizes="(max-width: 900px) 92vw, 320px"
+              style={{
+                width: "100%",
+                aspectRatio: "4/3",
+                objectFit: "contain",
+                background: "rgba(0,0,0,.24)",
+                borderRadius: 12,
+                marginBottom: 10,
+              }}
+            />
             <form className="form" action={updateGalleryItem.bind(null, g.id)}>
               <input name="caption" defaultValue={g.caption} />
               <select name="category" defaultValue={g.category ?? ""}>

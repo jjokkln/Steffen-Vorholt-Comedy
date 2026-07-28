@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import Lightbox, { type LightboxItem } from "@/components/Lightbox";
+import StorageImage from "@/components/media/StorageImage";
 import { mediaUrl } from "@/lib/media";
 import type { ShowImage, ShowVideo } from "@/lib/types";
+
+/** Kacheln sind rund 340 px hoch, in der Breite selten über 520 px. */
+const TILE_SIZES = "(max-width: 720px) 90vw, 520px";
 
 export default function ShowMediaGallery({
   images,
@@ -20,7 +24,7 @@ export default function ShowMediaGallery({
   const lightboxItems: LightboxItem[] = [
     ...images.map((img) => ({
       type: "image" as const,
-      src: mediaUrl(img.image_path),
+      path: img.image_path,
       alt: img.alt_text || showName,
       caption: img.alt_text,
     })),
@@ -37,7 +41,7 @@ export default function ShowMediaGallery({
       <div className="show-media-grid">
         {images.map((img, i) => (
           <figure key={img.id} className="show-media-item" onClick={() => setOpenIndex(i)}>
-            <img src={mediaUrl(img.image_path)} alt={img.alt_text || showName} loading="lazy" />
+            <StorageImage path={img.image_path} alt={img.alt_text || showName} sizes={TILE_SIZES} />
             {img.alt_text && <figcaption>{img.alt_text}</figcaption>}
           </figure>
         ))}
@@ -48,10 +52,11 @@ export default function ShowMediaGallery({
             onClick={() => setOpenIndex(images.length + i)}
           >
             <div className="media-thumb">
+              {/* Siehe ShowGalleries: mit Poster kein Vorab-Download der Videodatei. */}
               <video
                 src={mediaUrl(v.video_path)}
                 poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
-                preload="metadata"
+                preload={v.poster_path ? "none" : "metadata"}
                 muted
                 playsInline
               />

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRef, type CSSProperties } from "react";
 import { gsap } from "gsap";
@@ -8,6 +9,18 @@ import { useGSAP } from "@gsap/react";
 import type { HeroPlanet } from "@/components/home/hero-types";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+
+/**
+ * Tatsächliche Anzeigebreiten der Planeten, damit der Optimizer nicht das
+ * Original ausliefert: `.hero-system` ist max. 620 px breit (mobil min(88vw,420px)),
+ * die Planeten belegen davon 30 % / 22 % / 18 % (siehe .hero-carrier in globals.css).
+ * Ohne diese Angabe nimmt next/image 100vw an und holt die größte Variante.
+ */
+const PLANET_SIZES: Record<string, string> = {
+  primary: "(max-width: 900px) 27vw, 190px",
+  secondary: "(max-width: 900px) 20vw, 140px",
+  tertiary: "(max-width: 900px) 16vw, 115px",
+};
 
 interface HeroScrollExperienceProps {
   planets: HeroPlanet[];
@@ -132,30 +145,54 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
       <span className="hero-comet is-second" aria-hidden="true" />
 
       <Link href="/steffen" className="hero-captain" aria-label="Über Steffen – mehr erfahren">
-        <img
+        {/* 1122×1402 = das echte Seitenverhältnis des Freistellers; CSS gibt die
+            Breite vor (clamp(280px,29vw,500px)), die Höhe folgt daraus. */}
+        <Image
           className="hero-captain-photo"
           src="/assets/media/steffen/steffen-hero-cutout.png"
           alt="Steffen Vorholt"
-          loading="eager"
-          fetchPriority="high"
+          width={1122}
+          height={1402}
+          sizes="(max-width: 900px) 320px, 500px"
+          priority
         />
       </Link>
 
       <div className="container hero-scroll-grid">
-        <div className="hero-scroll-copy" data-hero-copy>
+        <div className="hero-scroll-copy is-welcome" data-hero-copy>
           <div className="eyebrow">
-            <span className="dot" /> LIVE-COMEDY AUS NRW
+            <span className="dot" /> WILLKOMMEN – LIVE-COMEDY AUS NRW
           </div>
-          <h1 className="hero-scroll-title">
-            <span className="hero-line-mask"><span data-hero-line>Comedy aus einer</span></span>
+          {/* Begrüßungstext von Steffen (Freigabe 28.07.2026): der Hook trägt die
+              Headline, der Rest steht vollständig im Lead. Headline bewusst
+              kleiner als .hero-scroll-title, weil sie dreizeilig läuft – sonst
+              wächst der Hero über den Viewport und die CTAs rutschen raus. */}
+          <h1 className="hero-scroll-title is-welcome">
             <span className="hero-line-mask">
-              <span data-hero-line>anderen <em className="gradient">Galaxie.</em></span>
+              <span data-hero-line>Wenn du auf der Suche nach</span>
+            </span>
+            <span className="hero-line-mask">
+              <span data-hero-line>schlechter Laune bist,</span>
+            </span>
+            <span className="hero-line-mask">
+              <span data-hero-line>bist du hier <em className="gradient">leider falsch.</em> 😉</span>
             </span>
           </h1>
-          <p className="lead" data-hero-lead>
-            Drei eigene Shows, ein Host: Steffen Vorholt bringt Impro, Open Mic und
-            Boarding-Comedy auf die Bühnen von NRW.
-          </p>
+          <div className="lead hero-welcome-lead" data-hero-lead>
+            <p>
+              Ich bin Steffen Vorholt – Comedian, Veranstalter und hauptberuflicher
+              Lieferant für gute Laune. Ob du mich schon kennst oder gerade erst auf mich
+              aufmerksam geworden bist – ich freue mich, dass du hier bist.
+            </p>
+            <p>
+              Mit meinen Comedy-Shows möchte ich Menschen für ein paar Stunden den Alltag
+              vergessen lassen. Schau dich gerne um, entdecke meine nächsten Termine und
+              erfahre mehr über meine Shows. Vielleicht sehen wir uns schon bald live!
+            </p>
+            <p className="hero-welcome-kicker">
+              Bis dahin gilt: Nicht alles im Leben zu ernst nehmen – lachen hilft. 😉
+            </p>
+          </div>
           <div className="actions" data-hero-actions>
             <Link className="btn primary" href="/shows#termine">Tickets sichern</Link>
             <Link className="btn secondary" href="/shows">Welche Show passt zu mir?</Link>
@@ -187,12 +224,15 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
                 >
                   <span className="hero-planet-inner" data-hero-planet>
                     <span className="hero-planet-float">
-                      <img
+                      <Image
                         className="planet"
                         src={planet.imageUrl}
                         alt=""
+                        width={384}
+                        height={384}
+                        sizes={PLANET_SIZES[planet.role]}
+                        priority={planet.role === "primary"}
                         loading={planet.role === "primary" ? "eager" : "lazy"}
-                        fetchPriority={planet.role === "primary" ? "high" : "auto"}
                       />
                     </span>
                   </span>

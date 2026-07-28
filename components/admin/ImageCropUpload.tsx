@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { uploadToStorage } from "@/lib/upload";
 import { mediaUrl } from "@/lib/media";
@@ -12,6 +13,24 @@ const EXPORT_LONG_EDGE_TRANSPARENT = 1024;
 function frameSize(aspect: number) {
   if (aspect >= 1) return { w: FRAME_MAX, h: Math.round(FRAME_MAX / aspect) };
   return { w: Math.round(FRAME_MAX * aspect), h: FRAME_MAX };
+}
+
+/**
+ * Kodiert das Canvas möglichst klein: WebP kann Transparenz und ist bei gleicher Qualität
+ * rund 30 % kleiner als JPEG und ein Vielfaches kleiner als PNG. `toBlob` liefert bei einem
+ * nicht unterstützten Format still PNG zurück — daran erkennen wir den Fehlschlag und
+ * nehmen dann das alte Format.
+ */
+async function encodeCanvas(canvas: HTMLCanvasElement, keepAlpha: boolean): Promise<Blob> {
+  const attempts: [string, number][] = [
+    ["image/webp", keepAlpha ? 0.95 : 0.86],
+    [keepAlpha ? "image/png" : "image/jpeg", 0.9],
+  ];
+  for (const [mime, quality] of attempts) {
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mime, quality));
+    if (blob && blob.type === mime) return blob;
+  }
+  throw new Error("Bild konnte nicht kodiert werden.");
 }
 
 /**
@@ -150,30 +169,50 @@ export default function ImageCropUpload({
     setOffset((o) => clamp(o.x, o.y, dw, dh));
   }
 
-  /** Erzeugt aus dem gewählten Ausschnitt die Upload-Datei (oder nimmt das Original unverändert). */
+  /**
+   * Erzeugt die Upload-Datei — mit Zuschnitt aus dem gewählten Ausschnitt, ohne Zuschnitt
+   * aus dem ganzen Bild.
+   *
+   * Ohne Ziel-Format ging früher die Originaldatei unverändert in den Storage. So sind dort
+   * PNGs mit 6–7 MB gelandet, die bei jedem Seitenaufruf über die Leitung mussten. Jetzt wird
+   * auch dieser Fall auf {@link EXPORT_LONG_EDGE} verkleinert und neu kodiert.
+   */
   async function buildFile(): Promise<File> {
-    if (!cropping || !imgEl) return rawFile!;
-    const a = activeAspect!;
-    const cropX = -offset.x / (baseScale * scale);
-    const cropY = -offset.y / (baseScale * scale);
-    const cropW = frameW / (baseScale * scale);
-    const cropH = frameH / (baseScale * scale);
-    // PNG (Transparenz) wird deutlich größer als JPEG — Logos/Planeten brauchen keine 1920 px.
+    if (!imgEl || !rawFile) throw new Error("Kein Bild gewählt.");
+    // Animierte und vektorbasierte Bilder würde das Canvas auf ein Einzelbild plattmachen.
+    if (!cropping && (rawFile.type === "image/gif" || rawFile.type === "image/svg+xml")) {
+      return rawFile;
+    }
+
+    const source = cropping
+      ? {
+          x: -offset.x / (baseScale * scale),
+          y: -offset.y / (baseScale * scale),
+          w: frameW / (baseScale * scale),
+          h: frameH / (baseScale * scale),
+        }
+      : { x: 0, y: 0, w: imgEl.naturalWidth, h: imgEl.naturalHeight };
+
+    const ratio = cropping ? activeAspect! : source.w / source.h;
+    // Transparente Bilder (Logos/Planeten) brauchen keine 1920 px.
     const longEdge = transparent ? EXPORT_LONG_EDGE_TRANSPARENT : EXPORT_LONG_EDGE;
-    const targetW = a >= 1 ? longEdge : Math.round(longEdge * a);
-    const targetH = a >= 1 ? Math.round(longEdge / a) : longEdge;
+    let targetW = ratio >= 1 ? longEdge : Math.round(longEdge * ratio);
+    let targetH = ratio >= 1 ? Math.round(longEdge / ratio) : longEdge;
+    // Nie über die vorhandene Auflösung hinausrechnen — das macht die Datei nur größer.
+    const shrink = Math.min(1, source.w / targetW, source.h / targetH);
+    targetW = Math.max(1, Math.round(targetW * shrink));
+    targetH = Math.max(1, Math.round(targetH * shrink));
+
     const canvas = document.createElement("canvas");
     canvas.width = targetW;
     canvas.height = targetH;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Zuschnitt: Canvas nicht verfügbar.");
-    ctx.drawImage(imgEl, cropX, cropY, cropW, cropH, 0, 0, targetW, targetH);
-    const mime = transparent ? "image/png" : "image/jpeg";
-    const ext = transparent ? "png" : "jpg";
-    const blob: Blob = await new Promise((resolve, reject) =>
-      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Zuschnitt fehlgeschlagen."))), mime, 0.9),
-    );
-    return new File([blob], `${uploadPrefix}.${ext}`, { type: mime });
+    ctx.drawImage(imgEl, source.x, source.y, source.w, source.h, 0, 0, targetW, targetH);
+
+    const blob = await encodeCanvas(canvas, !!transparent);
+    const ext = blob.type === "image/webp" ? "webp" : transparent ? "png" : "jpg";
+    return new File([blob], `${uploadPrefix}.${ext}`, { type: blob.type });
   }
 
   async function applyCrop() {
@@ -231,9 +270,18 @@ export default function ImageCropUpload({
 
       {!rawUrl && (
         <>
+          {/* Vorschau über die Bild-Optimierung (220 px statt Original). Ohne Ziel-Format
+              braucht `fill` trotzdem ein Seitenverhältnis — 4:3 plus `contain` zeigt das
+              Bild vollständig, ohne etwas abzuschneiden. */}
           {path && (
-            <div className="image-crop-current" style={{ aspectRatio: activeAspect ?? undefined }}>
-              <img src={mediaUrl(path)} alt="" style={{ objectFit: cropping ? "cover" : "contain" }} />
+            <div className="image-crop-current" style={{ aspectRatio: activeAspect ?? 4 / 3 }}>
+              <Image
+                src={mediaUrl(path)}
+                alt=""
+                fill
+                sizes="220px"
+                style={{ objectFit: cropping ? "cover" : "contain" }}
+              />
             </div>
           )}
           <input
@@ -279,7 +327,8 @@ export default function ImageCropUpload({
             />
           ) : (
             <p className="image-crop-hint">
-              Wird unverändert hochgeladen — Format oben wählen, um zuzuschneiden.
+              Wird im Original-Seitenverhältnis hochgeladen (fürs Web verkleinert) — Format
+              oben wählen, um zuzuschneiden.
             </p>
           )}
           <div className="image-crop-actions">

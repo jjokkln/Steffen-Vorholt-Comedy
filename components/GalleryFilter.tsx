@@ -17,7 +17,7 @@ export default function GalleryFilter({ items }: { items: GalleryItem[] }) {
 
   const lightboxItems: LightboxItem[] = visible.map((item) => ({
     type: "image",
-    src: mediaUrl(item.image_path),
+    path: item.image_path,
     alt: item.caption || "Showfoto",
     caption: item.caption,
   }));
@@ -60,11 +60,13 @@ export default function GalleryFilter({ items }: { items: GalleryItem[] }) {
             style={{ "--rot": `${(index % 3) - 1}deg` } as CSSProperties}
             onClick={() => setOpenIndex(index)}
           >
+            {/* Siehe HomeGallery: Kachel ist ~350 px breit, mobil ein voller Slide. */}
             <Image
               src={mediaUrl(item.image_path)}
               alt={item.caption || "Showfoto"}
               width={800}
               height={600}
+              sizes="(max-width: 720px) 100vw, 350px"
             />
             {item.caption && <figcaption>{item.caption}</figcaption>}
           </figure>

@@ -30,7 +30,14 @@ export default function Planet({
   return (
     <span className="planet-wrap" style={style}>
       {withOrbit && <span className="orbit" />}
-      <Image className="planet" src={mediaUrl(src)} alt={alt} width={size} height={size} />
+      <Image
+        className="planet"
+        src={mediaUrl(src)}
+        alt={alt}
+        width={size}
+        height={size}
+        sizes={`${size}px`}
+      />
       {sticker && (
         <span className="sticker" style={{ position: "absolute", top: -10, right: -18 }}>
           {sticker}

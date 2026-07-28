@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ShowForm from "@/components/admin/ShowForm";
@@ -124,9 +125,12 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
             <div className="grid-3" style={{ marginTop: 24 }}>
               {images.map((img) => (
                 <div className="card" key={img.id} style={{ padding: 14 }}>
-                  <img
+                  <Image
                     src={mediaUrl(img.image_path)}
                     alt={img.alt_text || ""}
+                    width={640}
+                    height={360}
+                    sizes="(max-width: 900px) 92vw, 320px"
                     style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 12, marginBottom: 10 }}
                   />
                   <span className="badge" style={{ marginBottom: 8, display: "inline-block" }}>
@@ -160,7 +164,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
                       src={mediaUrl(v.video_path)}
                       poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
                       controls
-                      preload="metadata"
+                      preload={v.poster_path ? "none" : "metadata"}
                       style={{
                         borderRadius: 12,
                         marginBottom: 10,
@@ -234,9 +238,12 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
               {participants.map((sc) => (
                 <div className="card" key={sc.id} style={{ padding: 14 }}>
                   {sc.comedians?.photo_path && (
-                    <img
+                    <Image
                       src={mediaUrl(sc.comedians.photo_path)}
                       alt={sc.comedians?.name || ""}
+                      width={400}
+                      height={400}
+                      sizes="(max-width: 900px) 92vw, 320px"
                       style={{ width: "100%", aspectRatio: "1/1", objectFit: "cover", borderRadius: 12, marginBottom: 10 }}
                     />
                   )}

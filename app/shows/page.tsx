@@ -40,7 +40,10 @@ export default async function ShowsPage() {
       <header className="container section">
         <div className="eyebrow">🪐 Wähle deine Mission</div>
         <h1>Finde die Show, die zu deinem Humor passt.</h1>
-        <p className="lead">Doppel-Comedy, Brain Loading, Comedy Eiskalt – drei Formate, ein Abend zum Lachen.</p>
+        <p className="lead">
+          Mit Doppel-Comedy, Brain Loading &amp; Comedy Eiskalt ist für jeden Humor etwas dabei 😉
+        </p>
+        <p className="lead shows-lead-kicker">Schau dir die Shows einfach in Ruhe mal an.</p>
       </header>
 
       <section className="container section">
@@ -59,6 +62,7 @@ export default async function ShowsPage() {
                       alt={`Planet der Show ${show.name}`}
                       width={300}
                       height={300}
+                      sizes="(max-width: 900px) 45vw, 300px"
                     />
                   )}
                 </div>
@@ -94,9 +98,14 @@ export default async function ShowsPage() {
 
       {hasArchive && (
         <section className="container section show-archive">
+          {/* Eyebrow + Headline gehören in EINEN Wrapper – .section-head ist
+              space-between, ohne Wrapper wird die Headline an den rechten Rand
+              gedrückt (war der „komisch rechts“-Bug, 28.07.2026). */}
           <div className="section-head">
-            <div className="eyebrow">📼 Archiv</div>
-            <h2>Zum Nachschauen.</h2>
+            <div>
+              <div className="eyebrow">📼 Archiv</div>
+              <h2>Zum Nachschauen.</h2>
+            </div>
           </div>
 
           {creatorVideos.length > 0 && (
@@ -108,11 +117,12 @@ export default async function ShowsPage() {
                     key={v.id}
                     className={`show-media-item${v.orientation === "portrait" ? " portrait" : ""}`}
                   >
+                    {/* Mit Poster lädt der Browser die Videodatei erst auf Klick. */}
                     <video
                       src={mediaUrl(v.video_path)}
                       poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
                       controls
-                      preload="metadata"
+                      preload={v.poster_path ? "none" : "metadata"}
                       playsInline
                     />
                     {v.title && <figcaption>{v.title}</figcaption>}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LEGAL_PAGES } from "@/lib/legal";
 
 type NavItem = { href: string; label: string };
 type NavGroup = { label: string; items: NavItem[] };
@@ -30,8 +31,14 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/galerie", label: "Galerie & Medien" },
       { href: "/admin/youtube", label: "YouTube" },
       { href: "/admin/oneliner", label: "One-Liner" },
-      { href: "/admin/impressum", label: "Impressum" },
     ],
+  },
+  {
+    label: "Rechtliches",
+    items: LEGAL_PAGES.map((page) => ({
+      href: `/admin/rechtliches/${page.slug}`,
+      label: page.label,
+    })),
   },
   {
     label: "System",

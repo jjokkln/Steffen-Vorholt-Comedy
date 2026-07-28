@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { getActiveShows } from "@/lib/data";
 import ConsentSettingsButton from "@/components/consent/ConsentSettingsButton";
+import BrandLogo from "@/components/BrandLogo";
 
-const LOGO = "/assets/media/brand/logo_steffen.png";
 
 export default async function Footer() {
   const shows = await getActiveShows();
@@ -11,9 +11,7 @@ export default async function Footer() {
       <div className="container footer-grid">
         <div>
           <Link className="brand" href="/">
-            <span className="logo">
-              <img src={LOGO} alt="" />
-            </span>
+            <BrandLogo />
             <span>Comedy-Universum</span>
           </Link>
           <p>Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
@@ -49,6 +47,8 @@ export default async function Footer() {
             <Link href="/impressum">Impressum</Link>
             <br />
             <Link href="/datenschutz">Datenschutz</Link>
+            <br />
+            <Link href="/agb">AGB</Link>
             <br />
             {/* Widerruf muss so einfach sein wie die Einwilligung (Art. 7 Abs. 3 DSGVO) */}
             <ConsentSettingsButton />

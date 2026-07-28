@@ -8,6 +8,7 @@ import {
   NECESSARY_ONLY,
   useCookieConsent,
 } from "@/components/consent/CookieConsentProvider";
+import { LEGAL_PAGES } from "@/lib/legal";
 
 /**
  * Vollflächiger Einwilligungs-Dialog.
@@ -24,7 +25,7 @@ import {
  */
 
 /** Auf diesen Pfaden wird die Erstabfrage unterdrückt (Rechtsseiten + interner Admin-Bereich). */
-const UNBLOCKED_ROUTES = ["/impressum", "/datenschutz", "/admin"];
+const UNBLOCKED_ROUTES = [...LEGAL_PAGES.map((page) => `/${page.slug}`), "/admin"];
 
 export default function CookieBanner() {
   const { autoOpen, manualOpen, categories, save, closeSettings } = useCookieConsent();

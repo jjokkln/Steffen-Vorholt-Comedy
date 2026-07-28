@@ -1,9 +1,15 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import StorageImage from "@/components/media/StorageImage";
 
+/**
+ * Bilder tragen den Storage-Pfad (nicht die fertige URL), damit die Lightbox sie
+ * über die Bild-Optimierung laden kann. Vorher lief hier das unbearbeitete
+ * Original über die Leitung — bei den Show-Bildern bis zu 7 MB pro Klick.
+ */
 export type LightboxItem =
-  | { type: "image"; src: string; alt?: string; caption?: string }
+  | { type: "image"; path: string; alt?: string; caption?: string }
   | { type: "video"; src: string; poster?: string; caption?: string };
 
 export default function Lightbox({
@@ -58,8 +64,13 @@ export default function Lightbox({
       )}
       <div className="lightbox-stage" onClick={(e) => e.stopPropagation()}>
         {item.type === "image" ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={item.src} alt={item.alt || ""} />
+          <StorageImage
+            className="lightbox-image"
+            path={item.path}
+            alt={item.alt || ""}
+            sizes="(max-width: 1200px) 92vw, 1100px"
+            priority
+          />
         ) : (
           <video src={item.src} poster={item.poster} controls autoPlay playsInline />
         )}

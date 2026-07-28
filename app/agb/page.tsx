@@ -4,7 +4,7 @@ import { findLegalPage } from "@/lib/legal";
 
 export const revalidate = 3600;
 
-const page = findLegalPage("impressum")!;
+const page = findLegalPage("agb")!;
 
 export const metadata: Metadata = {
   title: page.heading,
@@ -12,6 +12,6 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function ImpressumPage() {
-  return <LegalPageView slug="impressum" />;
+export default function AgbPage() {
+  return <LegalPageView slug="agb" />;
 }

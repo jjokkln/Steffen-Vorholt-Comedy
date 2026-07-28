@@ -59,6 +59,7 @@ export default async function GaleriePage() {
                     alt={c.name}
                     width={320}
                     height={320}
+                    sizes="(max-width: 900px) 45vw, 320px"
                   />
                 )}
                 <div className="comedian-body">

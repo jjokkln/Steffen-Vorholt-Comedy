@@ -4,13 +4,13 @@ import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { createServerSupabase } from "@/lib/supabase/server";
+import BrandLogo from "@/components/BrandLogo";
 
 export const metadata: Metadata = {
   title: { absolute: "Mission Control" },
   robots: { index: false, follow: false },
 };
 
-const LOGO = "/assets/media/brand/logo_steffen.png";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = await createServerSupabase();
@@ -24,9 +24,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <header className="admin-topbar">
         <div className="container admin-topbar-inner">
           <Link className="brand" href="/admin">
-            <span className="logo">
-              <img src={LOGO} alt="" />
-            </span>
+            <BrandLogo />
             <span>Mission Control</span>
           </Link>
           <form action={logout}>

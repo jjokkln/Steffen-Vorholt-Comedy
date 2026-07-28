@@ -115,6 +115,11 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .secondary{background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--text)}
 .section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}
 .section-head p{max-width:600px;margin:0}
+/* Mehrteilige Begleit-Copy rechts neben der Headline: zwei kurze Absätze statt
+   eines Blocks. Der zweite ist die Einladung und wird leicht hervorgehoben
+   (gleiche Behandlung wie .hero-welcome-kicker im Hero). */
+.section-head-copy{display:grid;gap:10px;max-width:600px}
+.section-head-copy .kicker{color:var(--ice);font-weight:850}
 .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
 .card{
@@ -229,7 +234,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-hero-media.ice-hero{color:var(--ice);aspect-ratio:1/1}
 .show-hero-media.checkin-hero{color:var(--orange);aspect-ratio:1/1}
 /* Ganzseitiger, pro Show wählbarer Hintergrund — liegt hinter dem Content, über dem globalen Galaxie-BG */
-.show-page-bg{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center;background-repeat:no-repeat}
+.show-page-bg{position:fixed;inset:0;z-index:-1;overflow:hidden}
 /* Dezenter Dunkel-Verlauf für Lesbarkeit — leicht genug, dass das Bild klar sichtbar bleibt */
 .show-page-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,7,17,.40),rgba(5,7,17,.62))}
 /* Toast-Benachrichtigung (Admin) */
@@ -241,13 +246,20 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-hero-media.has-cover{
   aspect-ratio:210/297;width:min(100%,470px);overflow:hidden;position:relative
 }
-.show-hero-media.has-cover .hero-cover{width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
+/* Läuft über next/image mit `fill` — Position/Größe kommen als Inline-Style, hier bleibt
+   nur die Ebene über dem Rahmen-Hintergrund. */
+.show-hero-media.has-cover .hero-cover{z-index:1}
 .show-hero-media.has-cover .hero-planet{
   position:absolute;bottom:18px;right:18px;z-index:2;
   width:110px;height:110px;object-fit:contain;
   filter:drop-shadow(0 8px 24px rgba(0,0,0,.55));
   border-radius:50%
 }
+/* Storage-Bilder laufen über next/image (components/media/StorageImage.tsx): Der Wrapper
+   trägt Rahmen/Radius/Größe, das Bild darin füllt ihn per position:absolute. Ohne
+   overflow:hidden würde der Radius am Bild vorbeigehen. */
+.storage-image{position:relative;display:block;overflow:hidden}
+.storage-image>img{display:block}
 /* Adaptive kombinierte Mediengalerie (Fotos + Videos) – Kachel-Layout, kein Zuschneiden */
 /* Galerie-Blöcke auf der Show-Subpage (Location / Show / Videos) */
 .show-gallery-block + .show-gallery-block{margin-top:34px}
@@ -255,14 +267,14 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-gallery-title::after{content:"";flex:1;height:1px;background:var(--line)}
 .show-media-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
 .show-media-item{margin:0;display:flex;flex-direction:column;gap:10px;cursor:zoom-in}
-.show-media-item img,.show-media-item video{
+.show-media-item .storage-image,.show-media-item video{
   height:340px;max-height:340px;width:auto;max-width:100%;display:block;object-fit:contain;
   border-radius:22px;border:1px solid var(--line);background:#000;box-shadow:var(--shadow)
 }
 .show-media-item figcaption{display:block;color:var(--muted);font-weight:850;font-size:14px}
 @media (max-width:720px){
   .show-media-grid{justify-content:center}
-  .show-media-item img,.show-media-item video{height:280px;max-height:280px}
+  .show-media-item .storage-image,.show-media-item video{height:280px;max-height:280px}
 }
 .show-media-item .media-thumb{position:relative;display:inline-block}
 .show-media-item .media-play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
@@ -275,7 +287,11 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .lightbox{position:fixed;inset:0;z-index:100;background:rgba(5,7,17,.92);display:flex;align-items:center;justify-content:center;padding:32px;cursor:zoom-out;animation:lightboxIn .18s ease}
 @keyframes lightboxIn{from{opacity:0}to{opacity:1}}
 .lightbox-stage{max-width:min(92vw,1100px);max-height:88vh;display:flex;flex-direction:column;align-items:center;gap:12px;cursor:default}
-.lightbox-stage img,.lightbox-stage video{max-width:100%;max-height:80vh;width:auto;height:auto;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);object-fit:contain;background:#000}
+.lightbox-stage video{max-width:100%;max-height:80vh;width:auto;height:auto;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);object-fit:contain;background:#000}
+/* Bild-Wrapper (StorageImage): definierte Höhe + gelerntes Seitenverhältnis ergeben die
+   Breite; greift max-width, rechnet aspect-ratio die Höhe zurück. Ergebnis wie vorher —
+   das Bild passt sich in die Bühne ein, ohne verzerrt zu werden. */
+.lightbox-stage .lightbox-image{height:80vh;max-height:80vh;width:auto;max-width:100%;border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow);background:#000}
 .lightbox-caption{color:var(--muted);font-weight:850;font-size:14px;text-align:center;margin:0}
 .lightbox-close,.lightbox-nav{border:1px solid var(--line);background:rgba(255,255,255,.1);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s ease}
 .lightbox-close:hover,.lightbox-nav:hover{background:rgba(255,255,255,.2)}
@@ -362,8 +378,9 @@ input[type="file"]::file-selector-button:hover{background:rgba(255,255,255,.22)}
 /* Ziel-Format als Auswahl (Upload-Bereiche ohne festes Seitenverhältnis) */
 .image-crop-format{max-width:340px}
 .image-crop-hint{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
-.image-crop-current{max-width:220px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.24)}
-.image-crop-current img{width:100%;height:100%;object-fit:cover;display:block}
+/* position:relative, weil die Vorschau über next/image mit `fill` läuft. */
+.image-crop-current{position:relative;max-width:220px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:rgba(0,0,0,.24)}
+.image-crop-current img{display:block}
 .image-crop-editor{display:grid;gap:12px;justify-items:center}
 .image-crop-stage{position:relative;overflow:hidden;border-radius:16px;border:2px solid var(--accent,#7CFF6B);background:#000;touch-action:none;cursor:grab}
 .image-crop-stage:active{cursor:grabbing}
@@ -459,7 +476,10 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 
   /* Kompaktere Show-Cards + engere Kopfzeile auf Mobile → weniger Scrollen. */
   .home-shows-section{padding-block:clamp(30px,7vw,58px)}
-  .section-head{margin-bottom:16px}
+  /* Kopfzeile stapeln statt zweispaltig: auf Handy-Breite quetschen sich
+     Headline und Begleittext sonst gegenseitig auf Zwei-Wort-Zeilen zusammen. */
+  .section-head{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:16px}
+  .section-head p,.section-head-copy{max-width:100%}
   .grid-3:has(.show-card){padding-top:2px}
   .show-card:before{width:200px;height:200px;top:64px}
   .show-art{height:186px;margin-top:12px}
@@ -618,6 +638,13 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 
 /* ---------- Legal pages (Impressum / Datenschutz) ---------- */
 .legal{max-width:820px;margin-inline:auto}
+/* Lange Einzelwörter wie „Datenschutzerklärung" oder „Geschäftsbedingungen" sind bei
+   h1-Größe breiter als die Textspalte und haben die Seite horizontal scrollbar gemacht.
+   Silbentrennung (html lang="de") bricht sie sauber um, break-word ist der Notnagel. */
+.legal h1,.legal h2,.legal h3{overflow-wrap:break-word;hyphens:auto}
+/* Etwas kleiner als die Marketing-Überschriften: „Allgemeine Geschäftsbedingungen"
+   füllte in globaler h1-Größe den ersten Bildschirm mit drei Trennstrichen. */
+.legal h1{font-size:clamp(40px,5.5vw,76px)}
 .legal h2{margin-top:2.4em;font-size:1.35rem}
 .legal h3{margin-top:1.6em;font-size:1.05rem}
 .legal p,.legal li{color:var(--muted);line-height:1.75}
@@ -640,6 +667,24 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 
 .proof-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:24px;color:var(--muted);font-size:14px}
 .proof-row b{color:var(--text);font-size:20px;font-family:var(--font-display),sans-serif}
+
+/* Bio-Listen auf /steffen: Lebenslauf links, Buchbar-für rechts. Hängt bewusst
+   in derselben Section wie der Bio-Text (kein eigenes .section-Padding), damit
+   Text und Listen als ein Block gelesen werden. Nutzt .grid-2 (klappt ab 1050px
+   auf eine Spalte) + .card + .list. */
+.bio-lists{margin-top:clamp(28px,3.5vw,52px);align-items:stretch}
+.bio-lists .card{display:flex;flex-direction:column}
+.bio-lists h3{font-size:clamp(22px,2vw,30px);line-height:1.08;letter-spacing:-.04em}
+.bio-lists h3+p{margin:12px 0 0}
+/* Liste dehnt sich, damit der Abschluss-Satz in beiden Karten unten sitzt. */
+.bio-lists .list{flex:1;align-content:start}
+.bio-lists .list li{align-items:baseline}
+.bio-lists .list .emoji{flex:0 0 auto}
+.bio-card-foot{margin-top:20px}
+
+/* Zweite Lead-Zeile im /shows-Kopf: die Einladung, leicht abgesetzt und
+   hervorgehoben (gleiche Behandlung wie .section-head-copy .kicker). */
+.shows-lead-kicker{margin-top:10px;color:var(--ice);font-weight:850}
 
 .buzzer-zone{display:grid;place-items:center;gap:18px;text-align:center}
 .buzzer{width:150px;height:150px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff7a7a,#e02525 60%,#8f0f0f);color:#fff;font-weight:950;font-size:22px;letter-spacing:.08em;box-shadow:0 14px 0 #7a0c0c,0 26px 60px rgba(224,37,37,.35);transition:transform .08s ease,box-shadow .08s ease}
@@ -767,6 +812,30 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .hero-scroll-title{display:grid;gap:.02em;font-size:clamp(44px,6vw,92px)}
 .hero-line-mask{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
 .hero-line-mask>span,.hero-line-mask>em{display:block;width:max-content;max-width:100%}
+
+/* Begrüßungs-Variante des Heros: dreizeilige Headline + mehrteiliger Lead.
+   Wichtig: die Zeilen dürfen NICHT umbrechen – .hero-line-mask hat
+   overflow:hidden, eine zweite Zeile würde abgeschnitten. Darum kleinere
+   Schrift, breitere Copy-Spalte und knapperes vertikales Padding. */
+.hero-scroll-copy.is-welcome{max-width:min(52rem,100%)}
+.hero-scroll-title.is-welcome{font-size:clamp(27px,4.6vw,44px);line-height:1.12}
+.hero-welcome-lead{display:grid;gap:12px;margin-top:18px;font-size:clamp(16px,1.35vw,18px);max-width:38rem}
+.hero-welcome-lead p{margin:0}
+.hero-welcome-kicker{color:var(--ice);font-weight:850}
+@media(min-width:901px){
+  .hero-scroll-grid:has(.hero-scroll-copy.is-welcome){padding-block:clamp(48px,5vw,84px)}
+}
+@media(max-width:900px){
+  .hero-welcome-lead{max-width:100%;gap:10px;margin-top:14px}
+}
+@media(max-width:680px){
+  /* Umbruchsicher statt fixer Größe: die längste Zeile ("Wenn du auf der Suche
+     nach") braucht ~12.2em. Über die vw-Bindung bleibt sie auf JEDER Breite
+     einzeilig – ein Umbruch würde von .hero-line-mask (overflow:hidden)
+     vertikal weggeschnitten. Cap bei 27px, damit die Headline auf großen
+     Handys nicht den halben Hero frisst. */
+  .hero-scroll-title.is-welcome{font-size:min(7.1vw,27px)}
+}
 
 /* Orbital-System: Steffen (Astronaut, Link zu /steffen) ist das Zentralgestirn,
    die drei Show-Planeten kreisen auf sichtbaren Bahnen um ihn. Die Systemgröße

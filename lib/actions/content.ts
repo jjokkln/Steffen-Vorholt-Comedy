@@ -2,9 +2,14 @@
 
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { isLegalSlug } from "@/lib/legal";
 import { revalidatePath } from "next/cache";
 
 export async function saveLegalPage(slug: string, formData: FormData) {
+  // Der Slug kommt über bind() aus der Route — nur die bekannten Rechtsseiten zulassen,
+  // damit hier keine beliebigen Zeilen in legal_pages entstehen.
+  if (!isLegalSlug(slug)) throw new Error(`Unbekannte Rechtsseite: ${slug}`);
+
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("legal_pages").upsert({
     slug,
@@ -13,7 +18,7 @@ export async function saveLegalPage(slug: string, formData: FormData) {
   });
   if (error) throw new Error(`Speichern fehlgeschlagen: ${error.message}`);
   revalidatePublic();
-  revalidatePath("/admin/impressum");
+  revalidatePath(`/admin/rechtliches/${slug}`);
 }
 
 export async function addOneLiner(formData: FormData) {
