@@ -23,7 +23,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <>
       <header className="admin-topbar">
         <div className="container admin-topbar-inner">
-          <Link className="brand" href="/admin">
+          {/* Führt bewusst auf die öffentliche Startseite, nicht auf /admin: der
+              Dashboard-Einstieg hängt schon als „Übersicht" in der Sidebar, und
+              vom Admin zurück auf die Website gab es vorher gar keinen Weg. */}
+          <Link className="brand" href="/" title="Zur Website">
             <BrandLogo />
             <span>Mission Control</span>
           </Link>
