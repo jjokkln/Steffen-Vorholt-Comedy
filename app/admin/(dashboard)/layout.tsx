@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import StorageUsageBar from "@/components/admin/StorageUsageBar";
 import { createServerSupabase } from "@/lib/supabase/server";
 import BrandLogo from "@/components/BrandLogo";
 
@@ -30,9 +31,15 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <BrandLogo />
             <span>Mission Control</span>
           </Link>
-          <form action={logout}>
-            <button className="btn secondary admin-logout-btn">Logout</button>
-          </form>
+          <div className="admin-topbar-actions">
+            {/* Speicherstand auf jeder Admin-Seite sichtbar: Das Kontingent ist der
+                Engpass beim Hochladen von Videos, und niemand soll das erst merken,
+                wenn ein Upload scheitert. Zählt selbst nach dem Rendern. */}
+            <StorageUsageBar />
+            <form action={logout}>
+              <button className="btn secondary admin-logout-btn">Logout</button>
+            </form>
+          </div>
         </div>
       </header>
       <div className="container" style={{ paddingBlock: "32px clamp(48px, 6vw, 96px)" }}>

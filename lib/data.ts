@@ -171,3 +171,16 @@ export async function getSiteMedia(key: string): Promise<string> {
   if (error) throw new Error(`getSiteMedia: ${error.message}`);
   return data?.file_path ?? "";
 }
+
+/**
+ * Alle Medien-Plätze in einem Rutsch. Für Seiten, die mehr als einen Platz brauchen —
+ * eine Abfrage statt einer pro Platz. Auflösen der Fallback-Kette dann über
+ * `resolveSiteMedia()` aus lib/site-media.ts.
+ */
+export async function getSiteMediaMap(): Promise<Record<string, string>> {
+  const { data, error } = await createPublicClient().from("site_media").select("key, file_path");
+  if (error) throw new Error(`getSiteMediaMap: ${error.message}`);
+  return Object.fromEntries(
+    (data ?? []).map((row) => [row.key as string, (row.file_path as string) ?? ""]),
+  );
+}

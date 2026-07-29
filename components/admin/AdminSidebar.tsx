@@ -29,7 +29,8 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Website",
     items: [
-      { href: "/admin/galerie", label: "Galerie & Medien" },
+      { href: "/admin/galerie", label: "Galerie" },
+      { href: "/admin/medien", label: "Videos & Speicher" },
       { href: "/admin/youtube", label: "YouTube" },
       { href: "/admin/oneliner", label: "One-Liner" },
     ],
