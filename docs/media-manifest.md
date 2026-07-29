@@ -3,6 +3,10 @@
 ## Wichtigste Dateien für den Start
 
 ### 1. Brand / Logo
+- `assets/media/brand/steffens-comedyuniversum.webp` — **vorhanden**, 1400×1400 mit Alpha,
+  342 KB. Rundes Key Visual (Steffen + alle drei Show-Planeten), Motiv des Startseiten-Heros
+  (`.hero-moon`). Quelle war ein 2000×2000-PNG mit 6,1 MB — für den Hero zu schwer, daher
+  als WebP q86 abgelegt.
 - `assets/media/brand/steffen-vorholt-logo-primary.svg`
 - `assets/media/brand/steffen-vorholt-logo-white.svg`
 - `assets/media/brand/favicon.svg`

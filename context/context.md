@@ -43,17 +43,30 @@ Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht meh
 
 Umsetzungsnotiz zum Design-Handoff: [docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md](../docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md).
 
-## Hero-Bewegung (seit 29.07.2026)
+## Hero-Motiv „der Mond" (seit 29.07.2026)
 
-Das Orbital-System im Hero ist **scrollgebunden**, nicht mehr dauerrotierend. Ein einzelner
-rAF-Tick in `HeroScrollExperience.tsx` schreibt `transform` direkt auf `.hero-system`,
-`.hero-carrier` und `.hero-planet-inner` — kein React-State pro Frame und **kein
-`ScrollTrigger` mit `pin`+`scrub`** (das ruckelte durch Canvas-Repaint hinter dem
-`backdrop-filter`-Nav, Commit 502c497). Der Entrance bleibt `useGSAP` + `gsap.matchMedia`;
-der Loop startet erst in dessen `onComplete`, weil beide auf dasselbe `transform` schreiben.
-Die CSS-Werte von `--start` in `globals.css` müssen zu `ORBITS[…].start` in der Komponente
-passen, sonst springt das System beim ersten Tick. Bahnbewegung nur Desktop, bei
-`prefers-reduced-motion` läuft der Loop gar nicht.
+Im Hero steht **ein** Key Visual: `.hero-moon` mit
+`public/assets/media/brand/steffens-comedyuniversum.webp` (Steffen + alle drei
+Show-Planeten in einer Kugel). Es hat das frühere Orbital-System aus drei Einzelplaneten
+**und** das Freisteller-Foto (`.hero-captain`) ersetzt; `components/home/hero-types.ts` ist
+damit entfallen, `app/page.tsx` baut keine `heroPlanets` mehr. Rechts zentriert, auf Mobile
+im normalen Fluss unter der Copy (das alte Foto war dort `display:none`).
+
+Beim Scrollen wächst der Mond auf ~3× und wandert nach unten, sodass seine Oberkante als
+Horizont über der hochziehenden Trailer-Sektion steht. Getrieben von **einem** rAF-Tick mit
+direkter Style-Mutation — kein React-State pro Frame und **kein `ScrollTrigger` mit
+`pin`+`scrub`** (das ruckelte durch Canvas-Repaint hinter dem `backdrop-filter`-Nav, Commit
+502c497). Der Entrance bleibt `useGSAP` + `gsap.matchMedia`; der Loop startet erst in dessen
+`onComplete`, weil beide auf dasselbe `transform` schreiben. Alle Kennzahlen stehen im
+`CAMERA`-Objekt der Komponente (`grow`/`rise`/`driftX`/`fade`, getrennt für Desktop/Mobile).
+
+⚠️ **Nicht per `translate`/`transform` zentrieren.** GSAP setzt beim Entrance-Tween
+`translate:none` (es normalisiert die Einzel-Transform-Properties), und eine
+`translate:0 -50%`-Zentrierung kippt dabei weg — der Mond hing so 300 px zu tief. `.hero-moon`
+zentriert deshalb über `top:0;bottom:0;margin-block:auto` + fester `height`. Dieselbe Falle
+stand schon im Kommentar des alten Orbit-CSS.
+
+`prefers-reduced-motion`: kein Loop, der Mond steht in Ruhegröße.
 
 **Reihenfolge im `.hero-pin-block`:** Hero (sticky) → `.hero-trailer` → `.home-shows-pin`.
 Jedes Element schiebt sich per `margin-top:-64px` + `z-index:2` über das vorige. Wer dort

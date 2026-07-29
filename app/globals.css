@@ -980,7 +980,8 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   100%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}
 }
 /* Lesbarkeits-Scrim: dunkelt die linke Hälfte (unter der Copy) ab, läuft nach
-   rechts transparent aus, wo die Planeten-Reihe sichtbar bleibt. */
+   rechts transparent aus, wo der Mond steht. Der Mond liegt bewusst DARUNTER
+   (z-index:1), damit der Scrim greift, sobald er beim Scrollen nach links wächst. */
 .hero-scroll-shell::after{
   content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(95deg,
@@ -1022,95 +1023,54 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .hero-scroll-title.is-welcome{font-size:min(7.1vw,27px)}
 }
 
-/* Orbital-System: Steffen (Astronaut, Link zu /steffen) ist das Zentralgestirn,
-   die drei Show-Planeten kreisen auf sichtbaren Bahnen um ihn. Die Systemgröße
-   koppelt an vh/vw, damit alle drei Planeten bei JEDER Fenstergröße komplett im
-   Hero sichtbar bleiben (das alte Layout mit absoluten %-Positionen hat den
-   dritten Planeten auf kleinen Screens aus dem Viewport geschoben). */
-.hero-system{
-  position:absolute;top:37%;right:clamp(8px,3vw,72px);translate:0 -50%;
-  /* z-index:3 = ÜBER dem Lesbarkeits-Scrim (::after, z-index:2), aber unter der
-     Copy (z-index:6). Die Planeten sind das Motiv des Heros und sollen nicht
-     abgedunkelt werden. */
-  z-index:3;width:min(74vh,46vw,760px);aspect-ratio:1;
-  /* Kamerafahrt beim Scrollen zoomt nicht auf die Mitte, sondern leicht nach
-     rechts oben – dorthin, wo die drei Planeten stehen. */
-  transform-origin:62% 46%;will-change:transform;
+/* Der Mond: EIN Key Visual (Steffens Comedyuniversum – Steffen + alle drei
+   Show-Planeten in einer Kugel) statt des früheren Orbital-Systems aus drei
+   Einzelplaneten plus Freisteller-Foto. Rechts zentriert, Größe an vh/vw
+   gekoppelt, damit die Kugel bei jeder Fenstergröße komplett im Hero steht.
+
+   z-index:1 = UNTER dem Lesbarkeits-Scrim (::after, z-index:2). Das ist Absicht:
+   beim Scrollen wächst der Mond nach links über die Copy-Spalte, und der Scrim
+   dunkelt genau diesen Teil ab. Nebeneffekt, der zum Motiv passt – die
+   abgedunkelte Seite liest sich wie die Schattenseite des Trabanten.
+
+   Bewegung (scale + translate + Leerlauf-Schwebung) schreibt der rAF-Tick in
+   HeroScrollExperience.tsx als inline-`transform`; hier steht nur der
+   Ruhezustand für kein-JS, prefers-reduced-motion und das SSR-Erstbild. */
+/* Vertikal zentriert über top/bottom:0 + margin-block:auto, NICHT über
+   `translate:0 -50%`: GSAP setzt beim Entrance-Tween `translate:none` (es
+   normalisiert die Einzel-Transform-Properties, um Doppelanwendung zu vermeiden)
+   und kippt damit jede translate-basierte Zentrierung. Der Mond hing so 300 px
+   zu tief und lief unten aus dem Hero. Diese Variante ist transform-unabhängig,
+   der rAF-Tick kann `transform` frei überschreiben. */
+.hero-moon{
+  position:absolute;top:0;bottom:0;right:clamp(-40px,1vw,40px);margin-block:auto;
+  z-index:1;width:min(72vh,44vw,620px);height:min(72vh,44vw,620px);
+  display:block;line-height:0;text-decoration:none;cursor:pointer;
+  transform-origin:50% 50%;will-change:transform;
 }
-.hero-system::before{
-  content:"";position:absolute;inset:29%;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(245,214,138,.30),rgba(155,92,255,.12) 46%,transparent 72%);
-  filter:blur(8px);
+/* Weiches Leuchten hinter der Kugel, damit sie nicht als Sticker auf dem
+   Sternenhimmel klebt. Liegt hinter dem Bild und wächst mit. */
+.hero-moon::before{
+  content:"";position:absolute;inset:-14%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(66,217,255,.26),rgba(255,79,216,.14) 44%,transparent 70%);
+  filter:blur(26px);
 }
-/* Orbit-Mechanik, scrollgebunden: der Carrier dreht um `--start` + Scroll-Sweep,
-   der Gegenrotations-Span (.hero-planet-inner) dreht exakt gegenläufig, damit
-   Bild und Motiv aufrecht bleiben. Beide Winkel schreibt der rAF-Tick in
-   HeroScrollExperience.tsx direkt als inline-`transform`; die Werte hier sind der
-   Ruhezustand (kein JS, prefers-reduced-motion, SSR-Erstbild). Die früheren
-   Dauerrotationen `orbit-spin`/`orbit-hold` sind entfallen – sie ließen die
-   Komposition mit der Zeit wegwandern, bis Planeten über Headline und Foto lagen.
-   `--start` muss zu ORBITS[…].start in der Komponente passen, sonst springt das
-   System beim ersten Tick. z-index staffelt die Bahnen in der Tiefe. */
-.hero-carrier{
-  position:absolute;inset:0;pointer-events:none;
-  transform:rotate(var(--start));will-change:transform;
+.hero-moon img{
+  position:relative;width:100%;height:auto;display:block;border-radius:50%;
+  filter:drop-shadow(0 0 54px rgba(66,217,255,.34));
+  transition:filter .35s ease,transform .35s ease;
 }
-.hero-carrier.is-primary{--start:28deg;--orbit-top:28%;--planet-size:40%;z-index:3}
-.hero-carrier.is-secondary{--start:148deg;--orbit-top:33%;--planet-size:29%;z-index:2}
-.hero-carrier.is-tertiary{--start:68deg;--orbit-top:9%;--planet-size:23%;z-index:1}
-/* Der Planet-Link selbst bleibt statisch: er hängt an einem festen Punkt der
-   Bahn, gedreht wird ausschließlich der Carrier über ihm. */
-.hero-planet{
-  position:absolute;left:50%;top:var(--orbit-top);translate:-50% -50%;
-  width:var(--planet-size);pointer-events:auto;display:block;text-decoration:none;cursor:pointer;
+.hero-moon:focus-visible{outline:none}
+.hero-moon:hover img,.hero-moon:focus-visible img{
+  transform:scale(1.03);filter:drop-shadow(0 0 84px rgba(66,217,255,.6));
 }
-.hero-planet.is-primary{--rot:-4deg}
-.hero-planet.is-secondary{--rot:3deg}
-.hero-planet.is-tertiary{--rot:-2deg}
-.hero-planet-inner{
-  display:block;position:relative;
-  transform:rotate(calc(var(--start) * -1));will-change:transform;
-}
-.hero-planet-float{display:block;animation:planet-float 7s ease-in-out infinite}
-.hero-carrier.is-secondary .hero-planet-float{animation-delay:-2.4s}
-.hero-carrier.is-tertiary .hero-planet-float{animation-delay:-4.8s}
-/* Glow scoped auf den Hero – .planet wird auch von components/Planet.tsx auf den
-   Show-Karten benutzt und behält dort seine 38px. */
-.hero-planet .planet{
-  width:100%;height:auto;display:block;animation:none;
-  filter:drop-shadow(0 0 46px var(--planet-glow,rgba(124,255,107,.5)));
-  transition:filter .3s ease,transform .3s ease;
-}
-.hero-planet:focus-visible{outline:none}
-.hero-planet:hover .planet,.hero-planet:focus-visible .planet{transform:scale(1.07);filter:drop-shadow(0 0 76px var(--planet-glow-hover,rgba(124,255,107,.85)))}
-.hero-planet:hover .sticker,.hero-planet:focus-visible .sticker{transform:rotate(var(--rot,-3deg)) scale(1.12)}
-/* Annäherung friert die Leerlauf-Schwebung ein – klickbare, ruhige Ziele.
-   Die Bahndrehung selbst hängt am Scroll und braucht keine Pause. */
-.hero-system:hover .hero-planet-float,.hero-system:focus-within .hero-planet-float{animation-play-state:paused}
-/* Steffen liegt HINTER dem Orbital-System (z-index:0), damit Planeten und
-   Text ihn bei Bedarf leicht überlappen können – bleibt aber voll sichtbar,
-   kein Fading/Blur. */
-.hero-captain{
-  position:absolute;z-index:0;bottom:0;right:clamp(12px,3vw,72px);
-  display:block;line-height:0;pointer-events:auto;
-  /* Foto ist unten schlecht freigestellt (Tisch-Rest sichtbar) – wir schieben
-     Steffen um 22% seiner eigenen Höhe nach unten. Der schlechte Rand
-     verschwindet dadurch unter der Bottom-Kante von .hero-scroll-shell
-     (overflow:hidden), sichtbar bleibt nur der saubere obere Teil. */
-  transform:translateY(22%);
-}
-.hero-captain-photo{
-  display:block;width:clamp(280px,29vw,500px);height:auto;
-  filter:drop-shadow(0 30px 54px rgba(0,0,0,.6));
-  transition:filter .3s ease;
-}
-.hero-captain:hover .hero-captain-photo,.hero-captain:focus-visible .hero-captain-photo{
-  filter:drop-shadow(0 30px 54px rgba(0,0,0,.6)) drop-shadow(0 0 44px rgba(245,214,138,.35));
-}
-.hero-captain:focus-visible{outline:none}
 @media (max-width:900px){
-  .hero-captain{display:none}
-  .hero-system{position:relative;top:auto;right:auto;translate:none;width:min(88vw,420px);margin:10px auto 0}
+  /* Auf Mobile sichtbar (das frühere Freisteller-Foto war hier ausgeblendet):
+     der Mond rutscht unter die Copy in den normalen Fluss. */
+  .hero-moon{
+    position:relative;top:auto;bottom:auto;right:auto;
+    width:min(86vw,420px);height:auto;aspect-ratio:1;margin:14px auto 0;
+  }
 }
 
 /* /steffen-Hero: Steffen kommt von rechts ins Bild, blickt herein. Das Foto
@@ -1269,7 +1229,6 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .dot,
   .calendar-event,
   .pin-halo,
-  .hero-planet-float,
   .hero-comet,
   .steffen-hero-copy>*,
   .steffen-hero-photo{
@@ -1289,9 +1248,9 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   }
   /* Kein Kamera-Zoom: der rAF-Loop startet hier gar nicht, die Regel fängt nur
      einen Rest-Inline-Style ab, falls die Media-Query mitten im Betrieb kippt.
-     `.hero-carrier`/`.hero-planet-inner` bleiben ausdrücklich verschont – ihre
-     CSS-Rotation IST der Ruhezustand des Systems. */
-  .hero-system{transform:none!important;opacity:1!important}
+     Der Mond steht damit in seiner Ruhegröße. */
+  .hero-moon{transform:none!important}
+  .hero-moon:hover img,.hero-moon:focus-visible img{transform:none}
   /* Kometenbahn friert als Langzeitbelichtung ein: Kometen stehen sichtbar
      verteilt auf der Bahn, statt unsichtbar zu verschwinden. */
   .steffen-comet-divider span{animation:none!important;opacity:var(--peak)}

@@ -8,7 +8,6 @@ import Buzzer from "@/components/Buzzer";
 import HeroScrollExperience from "@/components/home/HeroScrollExperience";
 import HeroTrailer from "@/components/home/HeroTrailer";
 import SectionTransition from "@/components/home/SectionTransition";
-import type { HeroPlanet, HeroPlanetRole } from "@/components/home/hero-types";
 import CaptainVideo from "@/components/CaptainVideo";
 import YoutubeGallery from "@/components/YoutubeGallery";
 import AppearancesSection from "@/components/AppearancesSection";
@@ -33,8 +32,6 @@ export const metadata: Metadata = {
     "Drei Shows. Ein Host. Unendlich viele Lacher. Impro, Open Mic und Boarding-Comedy aus NRW – Termine, Tickets und Booking.",
 };
 
-const HERO_ROLES: HeroPlanetRole[] = ["primary", "secondary", "tertiary"];
-
 export default async function HomePage() {
   const [shows, oneLiners, gallery, heroVideo, referenceVideos, appearances] = await Promise.all([
     getActiveShows(),
@@ -52,25 +49,10 @@ export default async function HomePage() {
     3,
   );
 
-  // 2026-06-26 (Lenny): Planeten reaktiviert (Kundenwunsch). Die 3 aktivsten Shows
-  // mit Planeten-Bild werden zu Hero-Planeten – anklickbar (siehe HeroScrollExperience:
-  // Hotspot-Overlay → /shows/[slug], Astronaut → /steffen).
-  const heroPlanets: HeroPlanet[] = shows
-    .filter((s) => s.planet_image_path)
-    .slice(0, 3)
-    .map((s, index) => ({
-      id: s.id,
-      slug: s.slug,
-      name: s.name,
-      color: s.color,
-      imageUrl: mediaUrl(s.planet_image_path),
-      role: HERO_ROLES[index] ?? "tertiary",
-    }));
-
   return (
     <>
       <div className="hero-pin-block">
-        <HeroScrollExperience planets={heroPlanets} />
+        <HeroScrollExperience />
 
         {/* Der Trailer übernimmt die Rolle, die vorher .home-shows-pin hatte:
             er schiebt sich beim Scrollen über den gepinnten Hero. Die Shows-

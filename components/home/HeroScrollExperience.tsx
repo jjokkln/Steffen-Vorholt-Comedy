@@ -2,53 +2,35 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, type CSSProperties } from "react";
+import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import type { HeroPlanet } from "@/components/home/hero-types";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-/**
- * Tatsächliche Anzeigebreiten der Planeten, damit der Optimizer nicht das
- * Original ausliefert: `.hero-system` ist max. 760 px breit (mobil min(88vw,420px)),
- * die Planeten belegen davon 40 % / 29 % / 23 % (siehe .hero-carrier in globals.css).
- * Ohne diese Angabe nimmt next/image 100vw an und holt die größte Variante.
- */
-const PLANET_SIZES: Record<string, string> = {
-  primary: "(max-width: 900px) 36vw, 304px",
-  secondary: "(max-width: 900px) 26vw, 221px",
-  tertiary: "(max-width: 900px) 21vw, 175px",
-};
+const MOON_SRC = "/assets/media/brand/steffens-comedyuniversum.webp";
 
-/**
- * Bahn-Parameter des scrollgebundenen Orbital-Systems (Rolle → Bahn).
- *
- * `start`  Ruhewinkel der Bahn (identisch zu --start in globals.css, sonst
- *          springt die Komposition beim ersten Tick).
- * `sweep`  wie weit die Bahn über SCROLL_DISTANCE weiterdreht.
- * `amp`/`speed` begrenzte Leerlauf-Schwingung (sin, 3.5–5°) – bewusst KEINE
- *          Dauerrotation: die wanderte mit der Zeit weg, nach einer Minute lagen
- *          die Planeten über Headline und Steffen-Foto.
- * `depth`/`drift` Tiefenstaffelung beim Hineinfahren der Kamera.
- */
-const ORBITS: Record<
-  string,
-  { start: number; sweep: number; amp: number; speed: number; depth: number; drift: [number, number] }
-> = {
-  primary: { start: 28, sweep: 210, amp: 5, speed: 0.16, depth: 0.46, drift: [26, -30] },
-  secondary: { start: 148, sweep: -150, amp: -4, speed: 0.11, depth: 0.24, drift: [22, 20] },
-  tertiary: { start: 68, sweep: 108, amp: 3.5, speed: 0.09, depth: 0.1, drift: [14, 24] },
-};
-const SCROLL_DISTANCE = 620;
+/** Scrolldistanz, über die der Mond seine Endgröße erreicht. */
+const SCROLL_DISTANCE = 520;
 const NAV_HEIGHT = 84;
 
-interface HeroScrollExperienceProps {
-  planets: HeroPlanet[];
-}
+/**
+ * Kamerafahrt des Monds, getrennt für Desktop und Mobile.
+ *
+ * `grow`   zusätzlicher Skalierungsfaktor am Ende (1 + grow).
+ * `rise`   wie weit der Mond nach unten wandert, als Anteil seines Durchmessers —
+ *          dadurch schiebt sich seine Oberkante als Horizont ins Bild, statt dass
+ *          er einfach den ganzen Hero zuwächst.
+ * `driftX` Wanderung Richtung Bildmitte, ebenfalls als Anteil des Durchmessers.
+ * `fade`   wie weit die Copy zurücktritt, während der Mond übernimmt.
+ */
+const CAMERA = {
+  desktop: { grow: 1.95, rise: 1.15, driftX: -0.17, fade: 0.62 },
+  mobile: { grow: 1.15, rise: 0.4, driftX: 0, fade: 0.5 },
+};
 
-export default function HeroScrollExperience({ planets }: HeroScrollExperienceProps) {
+export default function HeroScrollExperience() {
   const rootRef = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -66,20 +48,17 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
         (context) => {
           const conditions = context.conditions as { desktop: boolean; reduceMotion: boolean };
           const lines = gsap.utils.toArray<HTMLElement>("[data-hero-line]", root);
-          const heroPlanets = gsap.utils.toArray<HTMLElement>("[data-hero-planet]", root);
+          const moon = root.querySelector<HTMLElement>("[data-hero-moon]");
 
           if (conditions.reduceMotion) {
-            gsap.set([...lines, ...heroPlanets, "[data-hero-lead]", "[data-hero-actions]"], {
+            gsap.set([...lines, "[data-hero-lead]", "[data-hero-actions]", "[data-hero-moon]"], {
               clearProps: "all",
             });
-            // Kein rAF-Loop: damit gibt es weder Leerlauf-Schwingung noch
-            // Kamera-Zoom. Die Planeten stehen auf den Ruhewinkeln, die
-            // `.hero-carrier`/`.hero-planet-inner` in globals.css setzen.
+            // Kein rAF-Loop: kein Kamera-Zoom, keine Leerlauf-Schwebung. Der Mond
+            // steht in seiner Ruhegröße, siehe .hero-moon in globals.css.
             return;
           }
 
-          // Aufräumer sammeln, damit mehrere Effekte in derselben
-          // matchMedia-Bedingung nebeneinander laufen können.
           const cleanups: Array<() => void> = [];
 
           gsap
@@ -88,38 +67,31 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
             .from("[data-hero-lead]", { y: 24, autoAlpha: 0, duration: 0.55 }, "-=0.42")
             .from("[data-hero-actions]", { y: 20, autoAlpha: 0, duration: 0.5 }, "-=0.35");
 
-          // ── Scrollgebundenes Orbital-System ──────────────────────────────
-          // Läuft NICHT über ScrollTrigger mit pin+scrub (das hat beim ersten
-          // Anlauf durch Canvas-Repaint hinter dem backdrop-filter-Nav
-          // geruckelt, siehe Commit 502c497) – stattdessen ein einzelner
-          // rAF-Tick, der `transform`/`opacity` direkt auf die Elemente
-          // schreibt. Kein React-State, kein Re-Render pro Frame.
+          // ── Der Mond ─────────────────────────────────────────────────────
+          // Ein einziges Key Visual statt der drei Orbit-Planeten: rechts
+          // zentriert, und beim Scrollen wächst es zum Trabanten, der über der
+          // hochziehenden Sektion hängt. Wie beim Rest des Heros läuft das über
+          // EINEN rAF-Tick mit direkter Style-Mutation — kein React-State pro
+          // Frame und kein ScrollTrigger mit pin+scrub (das ruckelte durch
+          // Canvas-Repaint hinter dem backdrop-filter-Nav, Commit 502c497).
           //
-          // Der Entrance-Tween unten schreibt selbst auf `transform` von
-          // [data-hero-planet]; der Loop startet deshalb erst in `onComplete`,
-          // sonst überschreiben sich beide gegenseitig.
-          //
-          // Desktop only, und zwar aus Layout-Gründen: die Choreografie hängt am
-          // `.hero-pin-block`, der auf Mobile ganz oben auf der Seite beginnt.
-          // Das System steht dort aber erst unter der Copy – wenn es in Sicht
-          // kommt, ist der Sweep längst durchgelaufen und alle drei Planeten
-          // klumpen an einem Punkt. Mobil bleibt deshalb die Ruhekomposition
-          // aus globals.css stehen, inklusive planet-float.
-          const startOrbit = () => {
-            const system = root.querySelector<HTMLElement>("[data-hero-system]");
-            const carriers = gsap.utils
-              .toArray<HTMLElement>("[data-hero-carrier]", root)
-              .map((carrier) => ({
-                carrier,
-                hold: carrier.querySelector<HTMLElement>("[data-hero-planet]"),
-                orbit: ORBITS[carrier.dataset.heroCarrier ?? ""] ?? ORBITS.primary,
-              }));
-            if (!carriers.length) return;
-
-            // Fortschritt am `.hero-pin-block` messen, nicht am Hero selbst:
-            // der ist auf Desktop `position:sticky;top:84px` und hätte damit
-            // konstant `top === NAV_HEIGHT`, also dauerhaft Fortschritt 0.
+          // Start erst im onComplete des Entrance-Tweens: beide schreiben auf
+          // `transform` des Monds und würden sich sonst überschreiben.
+          const startMoon = () => {
+            if (!moon) return;
+            const copy = root.querySelector<HTMLElement>("[data-hero-copy]");
+            const cfg = conditions.desktop ? CAMERA.desktop : CAMERA.mobile;
+            // Fortschritt am `.hero-pin-block` messen, nicht am Hero selbst: der
+            // ist auf Desktop `position:sticky;top:84px` und hätte damit konstant
+            // `top === NAV_HEIGHT`, also dauerhaft Fortschritt 0.
             const progressEl = root.parentElement ?? root;
+
+            let size = moon.offsetWidth;
+            const onResize = () => {
+              size = moon.offsetWidth;
+            };
+            window.addEventListener("resize", onResize);
+
             let pointerTargetX = 0;
             let pointerTargetY = 0;
             let pointerX = 0;
@@ -130,7 +102,6 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
             const tick = (now: number) => {
               frame = requestAnimationFrame(tick);
               if (document.hidden) return;
-              // Hero komplett aus dem Bild → nichts zu rechnen.
               const heroRect = root.getBoundingClientRect();
               if (heroRect.bottom < 0 || heroRect.top > window.innerHeight) return;
 
@@ -139,68 +110,56 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
               const ease = p * p * (3 - 2 * p);
               const secs = (now - t0) / 1000;
 
-              if (system) {
-                // Maus-Parallax: das System schwebt dem Cursor hinterher.
-                // Läuft über dieselbe transform-Mutation, weil zwei Schreiber
-                // auf einem transform sich sonst gegenseitig plattmachen.
-                pointerX += (pointerTargetX - pointerX) * 0.09;
-                pointerY += (pointerTargetY - pointerY) * 0.09;
-                system.style.transform =
-                  `scale(${1 + ease * 0.34}) ` +
-                  `translate3d(${ease * -50 + pointerX}px,${ease * 20 + pointerY}px,0)`;
-                system.style.opacity = String(1 - ease * 0.22);
-              }
+              // Maus-Parallax läuft im selben Tick: zwei Schreiber auf einem
+              // transform machen sich gegenseitig platt.
+              pointerX += (pointerTargetX - pointerX) * 0.09;
+              pointerY += (pointerTargetY - pointerY) * 0.09;
+              // Begrenzte Leerlauf-Schwebung (sin), keine Dauerbewegung — sonst
+              // wandert der Mond mit der Zeit aus seiner Komposition.
+              const bob = Math.sin(secs * 0.3) * 8 * (1 - ease);
 
-              for (const { carrier, hold, orbit } of carriers) {
-                const angle = orbit.start + ease * orbit.sweep + Math.sin(secs * orbit.speed) * orbit.amp;
-                carrier.style.transform = `rotate(${angle}deg)`;
-                if (!hold) continue;
-                // Gegenrotation hält Planet und Motiv aufrecht, depth/drift
-                // staffeln die drei Bahnen in der Tiefe.
-                hold.style.transform =
-                  `rotate(${-angle}deg) scale(${1 + ease * orbit.depth}) ` +
-                  `translate3d(${ease * orbit.drift[0]}px,${ease * orbit.drift[1]}px,0)`;
-              }
+              moon.style.transform =
+                `translate3d(${size * cfg.driftX * ease + pointerX}px,` +
+                `${size * cfg.rise * ease + bob + pointerY}px,0) ` +
+                `scale(${1 + ease * cfg.grow})`;
+              // Riesig heißt: der Mond liegt über der halben Seite. Ein Link, der
+              // dann die ganze Fläche abfängt, wäre eine Falle.
+              moon.style.pointerEvents = ease > 0.12 ? "none" : "auto";
+
+              // Copy tritt zurück, während der Mond übernimmt — sonst steht die
+              // Headline im gewachsenen Bild.
+              if (copy) copy.style.opacity = String(1 - ease * cfg.fade);
             };
 
             frame = requestAnimationFrame(tick);
 
             const onPointerMove = (event: PointerEvent) => {
               const rect = root.getBoundingClientRect();
-              pointerTargetX = ((event.clientX - rect.left) / rect.width - 0.5) * -22;
-              pointerTargetY = ((event.clientY - rect.top) / rect.height - 0.5) * -14;
+              pointerTargetX = ((event.clientX - rect.left) / rect.width - 0.5) * -26;
+              pointerTargetY = ((event.clientY - rect.top) / rect.height - 0.5) * -16;
             };
-            root.addEventListener("pointermove", onPointerMove, { passive: true });
+            if (conditions.desktop) root.addEventListener("pointermove", onPointerMove, { passive: true });
 
             cleanups.push(() => {
               cancelAnimationFrame(frame);
+              window.removeEventListener("resize", onResize);
               root.removeEventListener("pointermove", onPointerMove);
-              if (system) {
-                system.style.transform = "";
-                system.style.opacity = "";
-              }
-              for (const { carrier, hold } of carriers) {
-                carrier.style.transform = "";
-                if (hold) hold.style.transform = "";
-              }
+              moon.style.transform = "";
+              moon.style.pointerEvents = "";
+              if (copy) copy.style.opacity = "";
             });
           };
 
-          if (heroPlanets.length) {
-            gsap
-              .timeline({
-                defaults: { ease: "power2.out" },
-                onComplete: conditions.desktop ? startOrbit : undefined,
-              })
-              .from(
-                heroPlanets,
-                { scale: 0.4, autoAlpha: 0, stagger: 0.14, duration: 0.9, ease: "back.out(1.6)" },
-                0.5,
-              );
+          if (moon) {
+            gsap.timeline({ onComplete: startMoon }).from(
+              moon,
+              { scale: 0.62, autoAlpha: 0, duration: 1.05, ease: "back.out(1.4)" },
+              0.35,
+            );
           }
 
           // Karten-über-Hero-Effekt: der Hero steckt in `.hero-pin-block`
-          // zusammen mit der folgenden "Wähl deine Mission"-Sektion (siehe
+          // zusammen mit dem Trailer und der "Wähl deine Mission"-Sektion (siehe
           // app/page.tsx) und ist per CSS `position:sticky` fixiert (Desktop
           // only, siehe globals.css). Auch hier kein ScrollTrigger, sondern ein
           // rAF-throttled Fenster-Scroll-Listener, der nur `transform`/`filter`
@@ -215,7 +174,9 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
                 const top = pinBlock.getBoundingClientRect().top;
                 const progress = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SHELL_SCROLL_DISTANCE));
                 root.style.transform = `scale(${1 - progress * 0.1}) translateY(${-progress * 46}px)`;
-                root.style.filter = `brightness(${1 - progress * 0.45})`;
+                // Nur noch leicht abdunkeln: der Mond ist jetzt das Motiv dieser
+                // Szene und soll beim Wachsen nicht wegdimmen.
+                root.style.filter = `brightness(${1 - progress * 0.18})`;
               };
               const onScroll = () => {
                 if (!frame) frame = requestAnimationFrame(apply);
@@ -241,27 +202,13 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
 
       return () => media.revert();
     },
-    { scope: rootRef, dependencies: [planets.length], revertOnUpdate: true },
+    { scope: rootRef, revertOnUpdate: true },
   );
 
   return (
     <header className="hero-scroll-shell" ref={rootRef}>
       <span className="hero-comet" aria-hidden="true" />
       <span className="hero-comet is-second" aria-hidden="true" />
-
-      <Link href="/steffen" className="hero-captain" aria-label="Über Steffen – mehr erfahren">
-        {/* 1122×1402 = das echte Seitenverhältnis des Freistellers; CSS gibt die
-            Breite vor (clamp(280px,29vw,500px)), die Höhe folgt daraus. */}
-        <Image
-          className="hero-captain-photo"
-          src="/assets/media/steffen/steffen-hero-cutout.png"
-          alt="Steffen Vorholt"
-          width={1122}
-          height={1402}
-          sizes="(max-width: 900px) 320px, 500px"
-          priority
-        />
-      </Link>
 
       <div className="container hero-scroll-grid">
         <div className="hero-scroll-copy is-welcome" data-hero-copy>
@@ -304,44 +251,21 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
           </div>
         </div>
 
-        {planets.length > 0 && (
-          <div className="hero-system" data-hero-system>
-            {planets.map((planet) => (
-              <div
-                key={planet.id}
-                className={`hero-carrier is-${planet.role}`}
-                data-hero-carrier={planet.role}
-              >
-                <Link
-                  href={`/shows/${planet.slug}`}
-                  className={`hero-planet is-${planet.role}`}
-                  style={{
-                    "--planet-glow": `${planet.color}80`,
-                    "--planet-glow-hover": `${planet.color}D9`,
-                    "--planet-color": planet.color,
-                    "--sticker-shadow": `${planet.color}8C`,
-                  } as CSSProperties}
-                  aria-label={`Show „${planet.name}" öffnen`}
-                >
-                  <span className="hero-planet-inner" data-hero-planet>
-                    <span className="hero-planet-float">
-                      <Image
-                        className="planet"
-                        src={planet.imageUrl}
-                        alt=""
-                        width={384}
-                        height={384}
-                        sizes={PLANET_SIZES[planet.role]}
-                        priority={planet.role === "primary"}
-                        loading={planet.role === "primary" ? "eager" : "lazy"}
-                      />
-                    </span>
-                  </span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
+        <Link
+          href="/shows"
+          className="hero-moon"
+          data-hero-moon
+          aria-label="Steffens Comedyuniversum – alle Shows ansehen"
+        >
+          <Image
+            src={MOON_SRC}
+            alt="Steffens Comedyuniversum: Steffen Vorholt mit den Planeten Brain Loading, Comedy Eiskalt und Doppel-Comedy"
+            width={1400}
+            height={1400}
+            sizes="(max-width: 900px) 86vw, 620px"
+            priority
+          />
+        </Link>
       </div>
     </header>
   );
