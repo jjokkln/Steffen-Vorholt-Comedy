@@ -11,6 +11,7 @@ import {
   getAllShowVideos,
   getPublishedEvents,
   getReferenceYoutubeVideos,
+  getVenues,
 } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
 import { comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
@@ -25,11 +26,12 @@ export const metadata: Metadata = {
 };
 
 export default async function ShowsPage() {
-  const [shows, events, creatorVideos, referenceVideos] = await Promise.all([
+  const [shows, events, creatorVideos, referenceVideos, venues] = await Promise.all([
     getActiveShows(),
     getPublishedEvents(),
     getAllShowVideos(),
     getReferenceYoutubeVideos(),
+    getVenues(),
   ]);
   const { upcoming } = partitionEvents(events);
   const now = new Date();
@@ -90,6 +92,7 @@ export default async function ShowsPage() {
             events={events}
             upcoming={upcoming}
             shows={shows}
+            venues={venues}
             initialYear={now.getFullYear()}
             initialMonth={now.getMonth() + 1}
           />

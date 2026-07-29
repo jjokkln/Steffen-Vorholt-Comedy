@@ -44,6 +44,21 @@ export interface ShowVideo {
   sort_order: number;
 }
 
+/**
+ * Spielort mit echten Koordinaten. Ersetzt das Stadtnamens-Matching aus dem
+ * früheren lib/nrw-geo.ts – gepflegt wird per Klick in die Karte unter
+ * /admin/standorte.
+ */
+export interface Venue {
+  id: string;
+  city: string;
+  venue: string;
+  lat: number;
+  lng: number;
+  /** Optionale Show-Zuordnung – bestimmt die Markerfarbe, solange kein Termin dranhängt. */
+  show_id: string | null;
+}
+
 export interface EventRow {
   id: string;
   show_id: string;
@@ -52,6 +67,7 @@ export interface EventRow {
   entry_time: string;
   city: string;
   venue: string;
+  venue_id: string | null;
   ticket_url: string;
   provider: string;
   is_published: boolean;

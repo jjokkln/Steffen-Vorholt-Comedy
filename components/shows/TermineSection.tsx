@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Calendar from "@/components/Calendar";
 import TermineFilters from "@/components/TermineFilters";
 import NRWMap from "@/components/shows/NRWMap";
-import type { EventRow, Show } from "@/lib/types";
+import type { EventRow, Show, Venue } from "@/lib/types";
 
 type View = "kalender" | "karte";
 
@@ -13,12 +13,14 @@ export default function TermineSection({
   events,
   upcoming,
   shows,
+  venues,
   initialYear,
   initialMonth,
 }: {
   events: EventRow[];
   upcoming: EventRow[];
   shows: Show[];
+  venues: Venue[];
   initialYear: number;
   initialMonth: number;
 }) {
@@ -87,7 +89,7 @@ export default function TermineSection({
           </div>
         </>
       ) : (
-        <NRWMap events={upcoming} />
+        <NRWMap events={upcoming} venues={venues} shows={shows} />
       )}
     </div>
   );

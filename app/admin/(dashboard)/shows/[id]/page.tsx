@@ -16,7 +16,7 @@ import DeleteButton from "@/components/admin/DeleteButton";
 import { partitionEvents, formatDateLong } from "@/lib/event-helpers";
 import { mediaUrl } from "@/lib/media";
 import { youtubeThumbUrl } from "@/lib/youtube";
-import type { Comedian, EventRow, Show, ShowComedian, ShowImage, ShowVideo, YoutubeVideo } from "@/lib/types";
+import type { Comedian, EventRow, Show, ShowComedian, ShowImage, ShowVideo, Venue, YoutubeVideo } from "@/lib/types";
 
 function ShowEventTable({
   items,
@@ -67,6 +67,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     { data: participantRows },
     { data: youtubeRows },
     { data: eventRows },
+    { data: venueRows },
   ] = await Promise.all([
     supabase.from("shows").select("*").eq("id", id).maybeSingle(),
     supabase.from("show_videos").select("*").eq("show_id", id).order("sort_order"),
@@ -75,6 +76,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     supabase.from("show_comedians").select("*, comedians(*)").eq("show_id", id).order("sort_order"),
     supabase.from("youtube_videos").select("*").eq("show_id", id).order("sort_order"),
     supabase.from("events").select("*").eq("show_id", id).order("date"),
+    supabase.from("venues").select("id, city, venue, lat, lng, show_id").order("city"),
   ]);
   if (!data) notFound();
   const show = data as Show;
@@ -84,6 +86,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
   const participants = (participantRows ?? []) as ShowComedian[];
   const youtubeVideos = (youtubeRows ?? []) as YoutubeVideo[];
   const { upcoming: upcomingEvents, past: pastEvents } = partitionEvents((eventRows ?? []) as EventRow[]);
+  const venues = (venueRows ?? []) as Venue[];
 
   return (
     <>
@@ -97,7 +100,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
         </summary>
         <div className="admin-collapsible-body">
           <p>Termine erscheinen im Kalender und in der Terminliste auf der Website. Hier direkt für „{show.name}“ anlegen.</p>
-          <EventForm lockedShowId={show.id} action={createShowEvent.bind(null, show.id)} />
+          <EventForm lockedShowId={show.id} venues={venues} action={createShowEvent.bind(null, show.id)} />
 
           {upcomingEvents.length === 0 && pastEvents.length === 0 ? (
             <p style={{ marginTop: 16 }}>Noch keine Termine für diese Show.</p>

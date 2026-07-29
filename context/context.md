@@ -21,6 +21,39 @@ Middleware heißt `proxy.ts` im Repo-Root (Next 16) und schützt nur `/admin/*`.
 | Mails | `lib/email.ts`, `lib/email-templates/*.html`, `lib/notification-text.ts` |
 | Tests | `tests/*.test.ts` (`npm test`, node:test mit Type-Stripping) |
 | Hero-Copy Startseite | `components/home/HeroScrollExperience.tsx` (Begrüßungstext von Steffen, Stand 28.07.2026); Typo-Variante `.is-welcome` in `app/globals.css` |
+| NRW-Karte | `components/shows/NRWMap.tsx` (nur `dynamic`-Wrapper) → `NRWMapClient.tsx`; Helfer `lib/venue-helpers.ts` |
+
+## NRW-Karte & Spielorte (seit 29.07.2026)
+
+Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht mehr über das
+9-Punkt-`<polygon>` aus dem gelöschten `lib/nrw-geo.ts`. Drei Regeln, die man kennen muss:
+
+1. **Client-only.** Leaflet fasst beim Import `window` an. `components/shows/NRWMap.tsx` ist
+   deshalb nur der `dynamic(..., { ssr:false })`-Wrapper; die Karte selbst steckt in
+   `NRWMapClient.tsx`. `ssr:false` ist nur in Client Components erlaubt — der Wrapper muss
+   `"use client"` bleiben.
+2. **Attribution ist Pflicht.** „© OpenStreetMap contributors" ist Lizenzbedingung, nicht
+   Deko. Der dunkle Marken-Look kommt aus dem CSS-Filter auf `.leaflet-tile-pane`, damit
+   keine kostenpflichtigen Dark-Tiles nötig sind.
+3. **Positionen kommen aus `venues`, nicht aus dem Stadtnamen.** Ein Termin ohne `venue_id`
+   erscheint nicht auf der Karte — nur im Kalender und in der Terminliste. Orte werden unter
+   `/admin/standorte` per Klick in die Karte angelegt (Server Action `lib/actions/venues.ts`),
+   die Verknüpfung setzt das Feld „Spielort auf der Karte" im Termin-Formular. Markerfarbe:
+   `venues.show_id` → Show des nächsten Termins → Fallback `--ice`.
+
+Umsetzungsnotiz zum Design-Handoff: [docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md](../docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md).
+
+## Hero-Bewegung (seit 29.07.2026)
+
+Das Orbital-System im Hero ist **scrollgebunden**, nicht mehr dauerrotierend. Ein einzelner
+rAF-Tick in `HeroScrollExperience.tsx` schreibt `transform` direkt auf `.hero-system`,
+`.hero-carrier` und `.hero-planet-inner` — kein React-State pro Frame und **kein
+`ScrollTrigger` mit `pin`+`scrub`** (das ruckelte durch Canvas-Repaint hinter dem
+`backdrop-filter`-Nav, Commit 502c497). Der Entrance bleibt `useGSAP` + `gsap.matchMedia`;
+der Loop startet erst in dessen `onComplete`, weil beide auf dasselbe `transform` schreiben.
+Die CSS-Werte von `--start` in `globals.css` müssen zu `ORBITS[…].start` in der Komponente
+passen, sonst springt das System beim ersten Tick. Bahnbewegung nur Desktop, bei
+`prefers-reduced-motion` läuft der Loop gar nicht.
 
 **Hero-Headline-Falle:** Die Zeilen der Hero-Headline stecken in `.hero-line-mask`
 (`overflow:hidden` für den GSAP-Reveal) und sind `width:max-content`. Bricht eine Zeile um,

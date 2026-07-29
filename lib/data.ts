@@ -11,6 +11,7 @@ import type {
   ShowComedian,
   ShowImage,
   ShowVideo,
+  Venue,
   YoutubeVideo,
 } from "@/lib/types";
 
@@ -150,6 +151,18 @@ export async function getLegalContent(slug: string): Promise<string> {
     .from("legal_pages").select("content").eq("slug", slug).maybeSingle();
   if (error) throw new Error(`getLegalContent: ${error.message}`);
   return data?.content ?? "";
+}
+
+export async function getVenues(): Promise<Venue[]> {
+  const { data, error } = await createPublicClient()
+    .from("venues").select("id, city, venue, lat, lng, show_id").order("city");
+  // PGRST205 = Tabelle im Schema-Cache unbekannt: passiert nur, solange die
+  // venues-Migration in einer Umgebung noch nicht gelaufen ist. Die Karte
+  // bleibt dann leer statt die ganze Seite zu killen (gleiche Behandlung wie
+  // getActiveOffers).
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getVenues: ${error.message}`);
+  return data as Venue[];
 }
 
 export async function getSiteMedia(key: string): Promise<string> {

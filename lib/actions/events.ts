@@ -12,10 +12,14 @@ function eventFields(formData: FormData) {
   const date = String(formData.get("date") ?? "");
   const city = String(formData.get("city") ?? "").trim();
   if (!show_id || !date || !city) throw new Error("Show, Datum und Stadt sind Pflicht.");
+  // Leerer Select = kein Punkt auf der NRW-Karte. "" würde die uuid-Spalte
+  // sprengen, deshalb explizit null.
+  const venue_id = String(formData.get("venue_id") ?? "").trim() || null;
   return {
     show_id,
     date,
     city,
+    venue_id,
     start_time: String(formData.get("start_time") ?? ""),
     entry_time: String(formData.get("entry_time") ?? ""),
     venue: String(formData.get("venue") ?? "").trim(),

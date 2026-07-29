@@ -1,18 +1,21 @@
 "use client";
 
 import { useActionState } from "react";
-import type { EventRow, Show } from "@/lib/types";
+import type { EventRow, Show, Venue } from "@/lib/types";
 import type { FormState } from "@/lib/actions/events";
 import Toast from "@/components/admin/Toast";
 
 export default function EventForm({
   event,
   shows,
+  venues,
   action,
   lockedShowId,
 }: {
   event?: EventRow;
   shows?: Show[];
+  /** Gepflegte Spielorte — verknüpft den Termin mit einem Punkt auf der NRW-Karte. */
+  venues?: Venue[];
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
   // Wenn gesetzt, ist die Show fix vorgegeben (z. B. in den Show-Einstellungen):
   // kein Show-Select, sondern ein verstecktes Feld + einspaltiges Datumsfeld.
@@ -65,6 +68,20 @@ export default function EventForm({
           <input name="venue" defaultValue={event?.venue} />
         </label>
       </div>
+      {/* Ohne Spielort steht der Termin nicht auf der NRW-Karte — die Karte
+          zeichnet Punkte aus `venues`, nicht mehr aus dem Stadtnamen. Neue Orte
+          werden unter /admin/standorte per Klick in die Karte angelegt. */}
+      <label>
+        Spielort auf der Karte
+        <select name="venue_id" defaultValue={event?.venue_id ?? ""}>
+          <option value="">— nicht auf der Karte —</option>
+          {(venues ?? []).map((v) => (
+            <option key={v.id} value={v.id}>
+              {v.city} · {v.venue}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="form two">
         <label>
           Ticketlink (extern)
