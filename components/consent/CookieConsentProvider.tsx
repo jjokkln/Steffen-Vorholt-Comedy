@@ -14,9 +14,10 @@ import {
  * Consent-Verwaltung nach § 25 TDDDG / Art. 6 Abs. 1 lit. a DSGVO.
  *
  * Diese Website setzt selbst KEINE Tracking- oder Analyse-Cookies. Einwilligungs-
- * pflichtig ist genau eine Kategorie: "externe Medien" (YouTube-Embeds). Deren
- * Einbindung greift auf das Endgerät zu und überträgt die IP-Adresse an Google
- * (USA) — beides ist ohne Einwilligung nicht zulässig, auch nicht bei
+ * pflichtig ist genau eine Kategorie: "externe Medien" — YouTube-Embeds sowie die
+ * Instagram-/TikTok-/Facebook-Beiträge im Social-Media-Abschnitt der Galerie.
+ * Deren Einbindung greift auf das Endgerät zu und überträgt die IP-Adresse an
+ * Google, Meta bzw. TikTok — ohne Einwilligung nicht zulässig, auch nicht bei
  * youtube-nocookie.com.
  *
  * Adaptiert aus growcore-starter (src/context/CookieConsentContext.tsx), hier
@@ -44,8 +45,12 @@ const STORAGE_KEY = "sv_consent";
 /**
  * Wird hochgezählt, sobald sich die Kategorien oder die eingesetzten Dienste
  * ändern — dann muss erneut eingewilligt werden.
+ *
+ * 2 (30.07.2026): Der Social-Media-Abschnitt auf /galerie bettet zusätzlich
+ * Instagram, TikTok und Facebook ein. Eine Einwilligung, die nur YouTube kannte,
+ * deckt neue Empfänger nicht ab (Art. 4 Nr. 11 DSGVO) — deshalb neu abfragen.
  */
-const CONSENT_VERSION = 1;
+const CONSENT_VERSION = 2;
 
 /** Gültigkeit der Einwilligung; DSK empfiehlt eine erneute Abfrage nach spätestens 12 Monaten. */
 const CONSENT_VALIDITY_DAYS = 180;

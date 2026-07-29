@@ -142,6 +142,41 @@ gegen die längste Zeile prüfen (Variante `.hero-scroll-title.is-welcome` binde
 Mobile per `min(7.1vw,27px)` an die Viewport-Breite). Der Marken-Claim „Comedy aus einer
 anderen Galaxie" lebt weiter in `<title>`/OG-Image (`lib/ogImage.tsx`), nicht mehr im `h1`.
 
+## Social-Media-Abschnitt auf /galerie (seit 30.07.2026)
+
+Tabelle `social_media_items` (Migration 0016), Admin unter `/admin/social`, öffentlich
+`components/SocialMediaSection.tsx`. Details und offene Punkte:
+[docs/2026-07-30-social-media-abschnitt.md](../docs/2026-07-30-social-media-abschnitt.md).
+Vier Dinge, die man kennen muss:
+
+1. **Plattformen stehen im Code, nicht in der DB.** `SOCIAL_PLATFORMS` in
+   [lib/social.ts](../lib/social.ts) hält Label, Markenfarbe, Icon-Schlüssel, Embed-Regel und
+   den datenschutzrechtlichen Empfänger. `platform` ist deshalb bewusst eine freie
+   `text`-Spalte **ohne** CHECK — eine neue Plattform ist ein Frontend-Commit, keine
+   Migration, und unbekannte Werte fallen auf das Website-Icon zurück (`socialPlatform()`
+   gibt nie `undefined`).
+2. **Einbetten ≠ verlinken.** Nur YouTube, Instagram, TikTok und Facebook haben eine
+   Embed-Funktion; alles andere (und jede Profil-URL statt Beitrags-URL, und
+   `vm.tiktok.com`-Kurzlinks) wird als Kachel verlinkt. `socialEmbedUrl()` gibt dafür `null`
+   zurück — Kanäle grundsätzlich, auch bei einbettbarer Plattform.
+3. **Consent-Version steht auf 2.** Die neuen Empfänger (Meta, TikTok) waren von der
+   YouTube-Einwilligung nicht gedeckt, deshalb der Versionssprung in
+   `CookieConsentProvider` + neuer Banner-Text. Kommt eine weitere Plattform mit Embed dazu:
+   wieder hochzählen und den Banner ergänzen. Die Datenschutzerklärung liegt in der DB und
+   muss von Hand mitziehen (Textvorschlag steht im Doc).
+4. **Icons sind Inline-SVG** in `components/SocialIcon.tsx` — keine Icon-Bibliothek, keine
+   Bilddateien, `currentColor`. Neue Plattform = Glyphe dort ergänzen, sonst greift der
+   Website-Globus.
+
+Ohne sichtbaren Eintrag rendert `SocialMediaSection` `null`, der Abschnitt verschwindet also
+komplett. Fehlt die Tabelle (Migration noch nicht eingespielt), fängt
+`getActiveSocialMediaItems` `PGRST205` ab — die Seite bleibt heil.
+
+`lib/social.ts` importiert `./youtube.ts` **relativ und mit Endung**: `npm test` läuft über
+`node --test` mit Type-Stripping und kennt den `@/`-Alias nicht. Dafür steht jetzt
+`allowImportingTsExtensions` in der `tsconfig.json` — das räumt gleich die neun TS5097-Fehler
+weg, die alle Test-Dateien bisher produziert haben.
+
 ## Tonalität der Website-Texte
 
 Seit dem Copy-Update vom 28.07.2026 sprechen Startseite und `/steffen` in der **Ich-Form**

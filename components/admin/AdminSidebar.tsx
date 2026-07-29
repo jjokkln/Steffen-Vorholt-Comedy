@@ -30,6 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: "Website",
     items: [
       { href: "/admin/galerie", label: "Galerie & Medien" },
+      { href: "/admin/social", label: "Social Media" },
       { href: "/admin/youtube", label: "YouTube" },
       { href: "/admin/oneliner", label: "One-Liner" },
     ],

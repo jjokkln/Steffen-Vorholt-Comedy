@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Footer from "@/components/Footer";
 import SocialLinks from "@/components/SocialLinks";
+import SocialMediaSection from "@/components/SocialMediaSection";
 import GalleryFilter from "@/components/GalleryFilter";
-import { getActiveComedians, getGalleryItems } from "@/lib/data";
+import { getActiveComedians, getActiveSocialMediaItems, getGalleryItems } from "@/lib/data";
 import { mediaUrl } from "@/lib/media";
 
 export const revalidate = 3600;
@@ -11,11 +12,15 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Galerie & Gästebuch",
   description:
-    "Fotos von Steffens Shows und Locations – und das Gästebuch der Comedians, die bei ihm auf der Bühne standen.",
+    "Fotos von Steffens Shows und Locations, Clips aus seinen Social-Media-Kanälen – und das Gästebuch der Comedians, die bei ihm auf der Bühne standen.",
 };
 
 export default async function GaleriePage() {
-  const [gallery, comedians] = await Promise.all([getGalleryItems(), getActiveComedians()]);
+  const [gallery, comedians, socialItems] = await Promise.all([
+    getGalleryItems(),
+    getActiveComedians(),
+    getActiveSocialMediaItems(),
+  ]);
 
   return (
     <>
@@ -39,6 +44,9 @@ export default async function GaleriePage() {
           <GalleryFilter items={gallery} />
         </section>
       )}
+
+      {/* Rendert sich selbst weg, wenn kein Eintrag sichtbar geschaltet ist. */}
+      <SocialMediaSection items={socialItems} />
 
       {comedians.length > 0 && (
         <section className="container section">
