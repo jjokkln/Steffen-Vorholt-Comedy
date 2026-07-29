@@ -55,6 +55,24 @@ Die CSS-Werte von `--start` in `globals.css` müssen zu `ORBITS[…].start` in d
 passen, sonst springt das System beim ersten Tick. Bahnbewegung nur Desktop, bei
 `prefers-reduced-motion` läuft der Loop gar nicht.
 
+**Reihenfolge im `.hero-pin-block`:** Hero (sticky) → `.hero-trailer` → `.home-shows-pin`.
+Jedes Element schiebt sich per `margin-top:-64px` + `z-index:2` über das vorige. Wer dort
+etwas einfügt, muss das mitdenken: Bedienelemente in den unteren 64px eines dieser Blöcke
+werden vom nächsten überdeckt und schlucken keine Klicks mehr (deshalb sitzt
+`.hero-trailer-controls` auf `bottom:calc(64px + …)`).
+
+## Trailer unter dem Hero (seit 29.07.2026)
+
+`components/home/HeroTrailer.tsx` — vollflächiges Video aus
+`public/assets/media/steffen/steffen-trailer.mp4` (6,5 MB, 1920×1080, 60 s). Liegt bewusst
+**nicht** in Supabase Storage, sondern statisch bei Vercel: kein Supabase-Egress, immutable
+gecacht. Startet stumm (alles andere blockieren Browser beim Autoplay), Ton per Schalter.
+
+Der Start hängt an einem `IntersectionObserver`, nicht am `autoPlay`-Attribut: sonst zieht
+jeder Startseiten-Aufruf 6,5 MB, auch wenn niemand so weit scrollt. Wer selbst pausiert,
+bekommt das Video nicht wieder automatisch angeworfen (`pausedByUser`), und vollständig
+außerhalb des Bildes pausiert es (sonst läuft der Ton weiter, während man liest).
+
 **Hero-Headline-Falle:** Die Zeilen der Hero-Headline stecken in `.hero-line-mask`
 (`overflow:hidden` für den GSAP-Reveal) und sind `width:max-content`. Bricht eine Zeile um,
 wird die zweite Zeile unsichtbar weggeschnitten. Bei Textänderungen deshalb die Schriftgröße

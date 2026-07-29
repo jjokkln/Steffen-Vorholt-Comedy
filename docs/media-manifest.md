@@ -11,6 +11,10 @@
 ### 2. Steffen Hauptmedien
 - `assets/media/steffen/steffen-stage-loop-hero.webm`
 - `assets/media/steffen/steffen-stage-loop-hero.mp4`
+- `assets/media/steffen/steffen-trailer.mp4` — **vorhanden**, 1920×1080, 60 s, H.264/AAC,
+  6,5 MB. Vollflächiger Trailer unter dem Hero (`components/home/HeroTrailer.tsx`).
+- `assets/media/steffen/steffen-trailer-poster.webp` — **vorhanden**, 1600×899, 20 KB.
+  Erstes Bild des Trailers, dient als `poster`, damit vor dem Laden kein schwarzer Block steht.
 - `assets/media/steffen/steffen-hero-fallback.webp`
 - `assets/media/steffen/steffen-portrait-main.webp`
 - `assets/media/steffen/steffen-portrait-booking.webp`

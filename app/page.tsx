@@ -6,6 +6,7 @@ import HomeGallery from "@/components/HomeGallery";
 import Planet from "@/components/Planet";
 import Buzzer from "@/components/Buzzer";
 import HeroScrollExperience from "@/components/home/HeroScrollExperience";
+import HeroTrailer from "@/components/home/HeroTrailer";
 import SectionTransition from "@/components/home/SectionTransition";
 import type { HeroPlanet, HeroPlanetRole } from "@/components/home/hero-types";
 import CaptainVideo from "@/components/CaptainVideo";
@@ -70,6 +71,11 @@ export default async function HomePage() {
     <>
       <div className="hero-pin-block">
         <HeroScrollExperience planets={heroPlanets} />
+
+        {/* Der Trailer übernimmt die Rolle, die vorher .home-shows-pin hatte:
+            er schiebt sich beim Scrollen über den gepinnten Hero. Die Shows-
+            Karte zieht danach über den Trailer. */}
+        <HeroTrailer />
 
         <SectionTransition variant="cards" className="home-shows-pin">
           <span className="drag-handle" aria-hidden="true" />

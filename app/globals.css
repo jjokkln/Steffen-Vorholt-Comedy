@@ -908,6 +908,58 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   background:linear-gradient(180deg,#0b0620 0%,#070a1e 55%,#04050c 100%);
   box-shadow:0 -70px 130px rgba(0,0,0,.65),0 -1px 0 rgba(255,255,255,.1);
 }
+/* Vollflächiger Trailer zwischen Hero und Shows-Karte. Übernimmt die
+   Über-den-Hero-Mechanik von .home-shows-pin (negativer margin-top + z-index
+   über dem sticky Hero); die Shows-Karte zieht danach über den Trailer. */
+.hero-trailer{
+  position:relative;z-index:2;overflow:hidden;
+  margin-top:-64px;
+  border-radius:40px 40px 0 0;
+  background:linear-gradient(180deg,#0b0620,#04050c);
+  box-shadow:0 -70px 130px rgba(0,0,0,.65),0 -1px 0 rgba(255,255,255,.1);
+}
+/* 16/9 aus dem Quellmaterial (1920×1080). Der max-height-Deckel verhindert,
+   dass das Video auf breiten Screens höher als der Viewport wird — object-fit
+   beschneidet dann oben/unten statt zu verzerren. */
+.hero-trailer-media{
+  display:block;width:100%;aspect-ratio:16/9;
+  max-height:calc(100vh - 84px);
+  object-fit:cover;background:#000;cursor:pointer
+}
+/* Die Shows-Karte darunter zieht mit margin-top:-64px über die Unterkante des
+   Trailers und liegt (gleicher z-index, später im DOM) darüber. Die Steuerung
+   muss also oberhalb dieser 64px sitzen, sonst schluckt die Karte die Klicks. */
+.hero-trailer-controls{
+  position:absolute;right:clamp(14px,2.5vw,32px);
+  bottom:calc(64px + clamp(14px,2.5vw,32px));
+  z-index:3;display:flex;gap:10px;align-items:center
+}
+/* Dauerhaft sichtbar, nicht erst bei :hover wie .captain-video-controls: der
+   Trailer läuft von allein und stumm, der Ton-Schalter muss auf Anhieb
+   auffindbar sein (und auf Touch gibt es kein Hover). */
+.hero-trailer-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:44px;padding:0 16px;border-radius:999px;cursor:pointer;
+  font:inherit;font-size:14px;font-weight:950;white-space:nowrap;color:#fff;
+  border:1px solid rgba(255,255,255,.56);background:rgba(5,7,17,.55);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  transition:background .18s ease,transform .18s ease
+}
+.hero-trailer-btn:not(.is-sound){width:44px;padding:0;justify-content:center;font-size:17px}
+.hero-trailer-btn:hover{background:rgba(255,255,255,.22);transform:translateY(-2px)}
+.hero-trailer-btn[aria-pressed="true"]{
+  background:linear-gradient(135deg,var(--gold1),var(--gold2));color:#050711;
+  border-color:transparent;box-shadow:0 12px 30px rgba(232,163,61,.28)
+}
+@media (max-width:900px){
+  .hero-trailer{border-radius:28px 28px 0 0}
+  /* Hochkant-Viewport: 16/9 wären nur ~220 px hoch. Feste Höhe + cover, damit
+     der Trailer auch auf dem Handy Fläche bekommt. */
+  .hero-trailer-media{aspect-ratio:auto;height:min(72vh,560px);max-height:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-trailer-btn:hover{transform:none}
+}
 .home-shows-pin .drag-handle{
   display:block;width:56px;height:5px;border-radius:999px;
   background:rgba(255,255,255,.25);margin:20px auto 0;
