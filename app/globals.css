@@ -111,6 +111,23 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   transition:.18s ease;white-space:nowrap
 }
 .btn:hover{transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)}
+/* Pillen-Familie bricht nie um: Buttons, Chips, Badges, Status-Pillen, Nav- und
+   Sidebar-Links sind alle `border-radius:999px` mit knappem Innenabstand. Ohne
+   nowrap fällt ein zweizeiliges Label („Tickets bald verfügbar", „Alle Termine
+   im Kalender") aus der runden Form heraus. `.btn` hat es bereits selbst,
+   `.sidebar a` und `.map-city-rail .chip` bisher nur in ihren Media-Queries. */
+.chip,
+.badge,
+.status,
+.navlinks a,
+.sidebar a,
+.social-chip,
+.offer-badge,
+.appearance-kind.badge,
+.yt-placeholder-btn,
+.consent-btn,
+.map-results-count,
+.loc-badge{white-space:nowrap}
 .primary{background:linear-gradient(135deg,var(--gold1),var(--gold2));color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28)}
 .secondary{background:rgba(255,255,255,.1);border:1px solid var(--line);color:var(--text)}
 .section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px}
@@ -195,7 +212,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .nrw-marker:nth-of-type(2n) .nrw-marker-halo{animation-delay:-.8s}
 .nrw-marker:nth-of-type(3n) .nrw-marker-halo{animation-delay:-1.6s}
 @keyframes nrw-halo{0%{opacity:.55;transform:scale(.7)}70%,100%{opacity:0;transform:scale(1.8)}}
-@media (max-width:820px){.nrw-map-layout{grid-template-columns:1fr}.nrw-map-figure{position:static}.map-city-rail{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.map-city-rail .chip{white-space:nowrap}}
+@media (max-width:820px){.nrw-map-layout{grid-template-columns:1fr}.nrw-map-figure{position:static}.map-city-rail{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}}
 .event-card{min-height:265px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer}
 .event-card-link{position:absolute;inset:0;z-index:1;border-radius:inherit}
 .event-card:has(.event-card-link:hover),.event-card:has(.event-card-link:focus-visible){transform:translateY(-5px);border-color:rgba(174,235,255,.45)}
@@ -416,7 +433,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
     flex-direction:row;overflow-x:auto;gap:8px;padding-bottom:2px;
     -webkit-overflow-scrolling:touch;scrollbar-width:thin;
   }
-  .sidebar a{flex:0 0 auto;white-space:nowrap;padding:10px 16px;font-size:14px}
+  .sidebar a{flex:0 0 auto;padding:10px 16px;font-size:14px}
   /* Gruppen-Wrapper in der horizontalen Scroll-Leiste auflösen, damit Label +
      Links als flache Kette in einer Zeile scrollen statt umzubrechen. */
   .sidebar-group{display:contents}
