@@ -230,6 +230,11 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   min-height:360px;border:1px dashed rgba(255,255,255,.36);border-radius:var(--radius);
   display:grid;place-items:center;text-align:center;padding:28px;background:rgba(255,255,255,.06);color:var(--muted);font-weight:850
 }
+/* Video-Platzhalter: Label gehört UNTER das Play-Badge, nicht dahinter. Beide
+   liegen sonst auf demselben Rasterpunkt (place-items:center bzw. inset:0), und
+   das Badge (rgba(5,7,17,.48) + backdrop-filter:blur(8px)) deckt den Text zu. */
+.media-placeholder>span,
+.show-media-item .media-thumb figcaption{align-self:end;padding-bottom:22px}
 .show-hero-media{
   width:min(100%,560px);aspect-ratio:4/5;margin:0 auto;overflow:hidden;position:relative;
   display:grid;place-items:center;border:1px solid rgba(255,255,255,.23);border-radius:44px;
