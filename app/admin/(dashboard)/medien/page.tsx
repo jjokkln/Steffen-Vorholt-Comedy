@@ -31,7 +31,9 @@ export default async function AdminMedienPage() {
             <h3 style={{ margin: 0 }}>Belegter Speicher</h3>
             <p className="media-slot-where">
               {usage.files} Dateien in {usage.buckets.length} Bereichen · Kontingent{" "}
-              {formatBytes(usage.quotaBytes)} (per <code>STORAGE_QUOTA_GB</code> anpassbar)
+              {formatBytes(usage.quotaBytes)} — der Datei-Speicher des Supabase-Free-Plans.
+              Nicht zu verwechseln mit dem Egress-Kontingent (5 GB ausgelieferte Daten pro
+              Monat), das getrennt davon zählt. Einzelne Dateien dürfen maximal 50 MB haben.
             </p>
           </div>
           <strong className="storage-panel-value">

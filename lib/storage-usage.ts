@@ -17,13 +17,22 @@ export const STORAGE_BUCKETS = ["media", "gallery", "planets"] as const;
 /**
  * Kontingent in GB, überschreibbar per `STORAGE_QUOTA_GB`.
  *
- * ACHTUNG: Der Supabase-Free-Plan enthält 1 GB Datei-Storage; die 5 GB sind das
- * Egress-Kontingent (ausgelieferte Datenmenge pro Monat). Der Startwert hier ist 5,
- * weil die Leiste so angefordert wurde — wer den echten Storage-Deckel sehen will,
- * setzt `STORAGE_QUOTA_GB=1`.
+ * **1, nicht 5.** Der Supabase-Free-Plan enthält **1 GB Datei-Storage** — nachgelesen in
+ * Supabases eigener Preis-Datenquelle (`packages/shared-data/plans.ts`: `'1 GB file
+ * storage'`, und `pricing.ts` → `storage.size` → `free: '1 GB included'`). Die 5 GB, die
+ * man im Zusammenhang mit dem Free-Plan überall liest, sind **Egress** — die pro Monat
+ * ausgelieferte Datenmenge, eine völlig andere Größe als der belegte Platz.
+ *
+ * Bis zum 30.07.2026 stand hier 5. Die Leiste zeigte damit „43 MB / 5 GB · 1 %", während
+ * der echte Deckel 1 GB ist — sie hätte also erst bei fünffacher Belegung Alarm geschlagen
+ * und wäre bei 100 % Auslastung noch grün gewesen. Genau das, wovor sie warnen soll.
+ *
+ * Nicht zu verwechseln mit der **Grenze pro Datei**: die liegt auf dem Free-Plan bei 50 MB
+ * (`pricing.ts` → `storage.maxFileSize`) und ist der Grund, warum Videos vor dem Upload
+ * durch `lib/video-compress.ts` laufen.
  */
 export const STORAGE_QUOTA_BYTES =
-  Math.max(0.1, Number(process.env.STORAGE_QUOTA_GB) || 5) * 1024 * 1024 * 1024;
+  Math.max(0.1, Number(process.env.STORAGE_QUOTA_GB) || 1) * 1024 * 1024 * 1024;
 
 const PAGE_SIZE = 1000;
 /** Schutz gegen Endlosschleifen bei unerwarteten API-Antworten. */

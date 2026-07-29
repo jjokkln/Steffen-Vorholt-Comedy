@@ -286,8 +286,13 @@ Storage-API (`storage.objects` liegt nicht im PostgREST-Schema). Kompakte Leiste
 Topbar auf jeder Admin-Seite (`components/admin/StorageUsageBar.tsx`, lädt über
 `/api/admin/storage-usage` nach dem Rendern, damit nichts blockiert — die Route prüft `auth.getUser()`
 selbst, weil `proxy.ts` nur `/admin/:path*` abdeckt), ausführliche Tabelle auf `/admin/medien`.
-Das Kontingent steht in `STORAGE_QUOTA_GB` (Standard 5). **Achtung:** Der Supabase-Free-Plan
-enthält 1 GB Datei-Storage; die 5 GB sind das monatliche Egress-Kontingent.
+Das Kontingent steht in `STORAGE_QUOTA_GB`, **Standard 1** — der Datei-Storage des
+Free-Plans. Bis 30.07.2026 stand hier 5; das ist die Egress-Zahl (pro Monat ausgelieferte
+Daten), nicht der belegte Platz, und die Leiste wäre dadurch bei voller Belegung noch grün
+gewesen. Quelle für beide Werte: Supabases `packages/shared-data/pricing.ts`
+(`storage.size` → `free: '1 GB included'`, `database.egress` → `free: '5 GB included'`).
+Dritte, davon unabhängige Grenze: **50 MB pro Einzeldatei** auf dem Free-Plan
+(`storage.maxFileSize`) — der Grund für `lib/video-compress.ts`.
 
 ## Rechtstexte (Impressum, Datenschutz, AGB)
 

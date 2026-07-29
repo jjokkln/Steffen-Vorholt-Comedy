@@ -15,7 +15,7 @@ function splitStoragePath(path: string): { bucket: string; file: string } | null
 
 /**
  * Löscht eine ersetzte Datei aus dem Storage — aber nur, wenn kein anderer Datensatz
- * mehr auf sie zeigt. Bei 5 GB Kontingent wäre die Alternative, dass jeder Austausch
+ * mehr auf sie zeigt. Bei 1 GB Kontingent wäre die Alternative, dass jeder Austausch
  * eines Trailers dauerhaft ein paar hundert MB Altlast liegen lässt.
  *
  * Fehler werden bewusst geschluckt: Der neue Pfad ist zu diesem Zeitpunkt schon
