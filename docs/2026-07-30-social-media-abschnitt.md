@@ -1,6 +1,6 @@
 # Social-Media-Abschnitt auf der Galerie-Seite (30.07.2026)
 
-Branch: `worktree-social-media-galerie` · Migration: `supabase/migrations/0016_social_media_items.sql`
+Branch: `worktree-social-media-galerie` · Migration: `supabase/migrations/0017_social_media_items.sql`
 
 ## Was drin ist
 
@@ -26,7 +26,7 @@ nicht gerendert — keine Überschrift, kein leerer Rahmen.
 ## Noch offen — braucht Lenny
 
 1. **Migration einspielen.** Der Supabase-MCP war in der Session nicht authentifiziert,
-   deshalb liegt `0016_social_media_items.sql` nur im Repo. In einer interaktiven Session:
+   deshalb liegt `0017_social_media_items.sql` nur im Repo. In einer interaktiven Session:
    `apply_migration` auf Projekt-Ref `insyjxxpeywehwnoazjr` (vorher `get_project_url`
    prüfen — das alte Projekt `unirwufvnfggwmdbkbpu` gehört nicht dazu). Danach
    `get_advisors` laufen lassen.

@@ -173,7 +173,7 @@ anderen Galaxie" lebt weiter in `<title>`/OG-Image (`lib/ogImage.tsx`), nicht me
 
 ## Social-Media-Abschnitt auf /galerie (seit 30.07.2026)
 
-Tabelle `social_media_items` (Migration 0016), Admin unter `/admin/social`, öffentlich
+Tabelle `social_media_items` (Migration 0017), Admin unter `/admin/social`, öffentlich
 `components/SocialMediaSection.tsx`. Details und offene Punkte:
 [docs/2026-07-30-social-media-abschnitt.md](../docs/2026-07-30-social-media-abschnitt.md).
 Vier Dinge, die man kennen muss:
@@ -259,7 +259,7 @@ Jetzt: `/admin/medien` („Videos & Speicher") mit einem Upload-Feld pro Platz.
   Client-Komponenten die Liste importieren können.
 - **Fallback-Kette** (`resolveSiteMedia`): eigener Wert → `fallbackKey` → … → `localFallback`
   aus `public/`. Lokale Reserven greifen erst am Ende der Kette, sonst würde ein leerer Platz
-  den historischen Schlüssel `hero_video` überspringen (Migration 0016 hat ihn zu
+  den historischen Schlüssel `hero_video` überspringen (Migration 0018 hat ihn zu
   `home_portrait_video` umbenannt). Getestet in `tests/site-media.test.ts`.
 - **Plätze:** `home_trailer_video`, `home_trailer_poster`, `home_portrait_video`,
   `steffen_portrait_video` (leer = erbt das Video der Startseite).

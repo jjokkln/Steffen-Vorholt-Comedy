@@ -60,7 +60,7 @@ export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
     aspect: 4 / 5,
     targetLongEdge: 1280,
     targetMbps: 2.5,
-    // Vor Migration 0016 hieß dieser Platz `hero_video` — Kette hält alte Umgebungen lauffähig.
+    // Vor Migration 0018 hieß dieser Platz `hero_video` — Kette hält alte Umgebungen lauffähig.
     fallbackKey: "hero_video",
     localFallback: "/assets/media/steffen/steffen-stage-loop-hero.mp4",
   },
