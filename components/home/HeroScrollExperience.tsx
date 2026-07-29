@@ -11,23 +11,42 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const MOON_SRC = "/assets/media/brand/steffens-comedyuniversum.webp";
 
-/** Scrolldistanz, über die der Mond seine Endgröße erreicht. */
+/** Scrolldistanz, über die der Mond seine Kamerafahrt abfährt (nur Desktop). */
 const SCROLL_DISTANCE = 520;
 const NAV_HEIGHT = 84;
 
 /**
  * Kamerafahrt des Monds, getrennt für Desktop und Mobile.
  *
- * `grow`   zusätzlicher Skalierungsfaktor am Ende (1 + grow).
- * `rise`   wie weit der Mond nach unten wandert, als Anteil seines Durchmessers —
- *          dadurch schiebt sich seine Oberkante als Horizont ins Bild, statt dass
- *          er einfach den ganzen Hero zuwächst.
- * `driftX` Wanderung Richtung Bildmitte, ebenfalls als Anteil des Durchmessers.
- * `fade`   wie weit die Copy zurücktritt, während der Mond übernimmt.
+ * Der Mond wächst beim Scrollen NICHT mehr (früher `grow`), er zieht sich
+ * zurück: kleiner werden plus Ausblenden, sodass er aufgelöst ist, wenn die
+ * nächste Sektion übernimmt. Vorher wuchs er zum Horizont – das nahm der
+ * Startseite beim Scrollen die Luft und stand im Weg.
+ *
+ * `shrink`   Anteil, den der Mond am Ende verloren hat (scale = 1 - shrink).
+ * `rise`     Wanderung auf der Y-Achse, als Anteil seines Durchmessers.
+ *            Positiv = sinkt nach unten weg, negativ = zieht nach oben ab.
+ * `driftX`   Wanderung Richtung Bildmitte, ebenfalls als Anteil des Durchmessers.
+ * `fade`     wie weit die Copy zurücktritt, während die Szene wegzieht.
+ * `dissolve` Ausblend-Tempo relativ zum Fortschritt. 1.25 heißt: bei 80 % des
+ *            Fortschritts ist der Mond ganz weg — auf Desktop also bevor der
+ *            Trailer den Hero überschiebt (SHELL_SCROLL_DISTANCE = 380); man
+ *            scrollt nicht an einem halbtransparenten Mond vorbei.
+ *
+ * Desktop und Mobile fahren bewusst unterschiedliche Kurven, weil der Mond
+ * unterschiedlich im Layout steht (siehe MOBILE_PROGRESS unten):
+ * Desktop rechts absolut neben der Copy, Mobile darunter im normalen Fluss.
+ *
+ * Mobile ist deshalb bewusst ein reiner Parallax: der Mond wandert nach OBEN
+ * (rise negativ), sonst nichts — kein Schrumpfen, kein Ausblenden. Ein Fade
+ * wurde verworfen (Freigabe 30.07.2026): auf dem Handy ist der Mond das einzige
+ * Bild im Hero, ein halb aufgelöster Mond sah kaputt aus statt elegant. Weil
+ * alle Werte allein aus der Scroll-Position folgen und nirgends Zustand hängt,
+ * ist die Bewegung exakt umkehrbar — zurückscrollen trifft denselben Punkt.
  */
 const CAMERA = {
-  desktop: { grow: 1.95, rise: 1.15, driftX: -0.17, fade: 0.62 },
-  mobile: { grow: 1.15, rise: 0.4, driftX: 0, fade: 0.5 },
+  desktop: { shrink: 0.72, rise: 0.18, driftX: -0.12, fade: 0.35, dissolve: 1.25 },
+  mobile: { shrink: 0, rise: -0.52, driftX: 0, fade: 0, dissolve: 0 },
 };
 
 export default function HeroScrollExperience() {
@@ -68,9 +87,10 @@ export default function HeroScrollExperience() {
             .from("[data-hero-actions]", { y: 20, autoAlpha: 0, duration: 0.5 }, "-=0.35");
 
           // ── Der Mond ─────────────────────────────────────────────────────
-          // Ein einziges Key Visual statt der drei Orbit-Planeten: rechts
-          // zentriert, und beim Scrollen wächst es zum Trabanten, der über der
-          // hochziehenden Sektion hängt. Wie beim Rest des Heros läuft das über
+          // Ein einziges Key Visual statt der drei Orbit-Planeten. Beim Scrollen
+          // zieht es sich zurück: kleiner werden + ausblenden, bis es weg ist und
+          // die nächste Sektion die Bühne allein hat. Wie beim Rest des Heros
+          // läuft das über
           // EINEN rAF-Tick mit direkter Style-Mutation — kein React-State pro
           // Frame und kein ScrollTrigger mit pin+scrub (das ruckelte durch
           // Canvas-Repaint hinter dem backdrop-filter-Nav, Commit 502c497).
@@ -85,6 +105,27 @@ export default function HeroScrollExperience() {
             // ist auf Desktop `position:sticky;top:84px` und hätte damit konstant
             // `top === NAV_HEIGHT`, also dauerhaft Fortschritt 0.
             const progressEl = root.parentElement ?? root;
+
+            // ── Fortschritt, zwei Messpunkte ───────────────────────────────
+            // Desktop: feste Scrolldistanz ab Hero-Oberkante. Der Hero ist dort
+            // sticky, der Mond steht die ganze Zeit im Bild — die Fahrt kann also
+            // sofort beim ersten Scrollen losgehen.
+            //
+            // Mobile: ab Hero-Oberkante wäre falsch. Der Mond steht dort UNTER der
+            // Copy im Fluss und kommt erst nach ~1100 px Scroll überhaupt ins
+            // Bild — die Fahrt war da längst durch und man sah nur eine statische
+            // große Kugel. Gemessen wird deshalb, wie der Hero-BODEN durch den
+            // Viewport nach oben läuft:
+            //   0 = Hero-Ende am unteren Viewport-Rand (Mond gerade voll im Bild)
+            //   1 = Hero-Ende an der Viewport-Oberkante (Trailer füllt den Screen)
+            // Damit läuft die Fahrt genau in dem Fenster, in dem man den Mond
+            // wirklich sieht. Reine Funktion der Scroll-Position, also umkehrbar.
+            // Bezug ist `root` (nicht der Mond selbst): der Mond trägt den
+            // transform, den wir gerade schreiben — an ihm zu messen wäre eine
+            // Rückkopplung. Auf Mobile wird `root` nicht transformiert (der
+            // Shell-Scroll-Effekt unten läuft nur auf Desktop), ist also stabil.
+            const MOBILE_PROGRESS = (heroBottom: number) =>
+              1 - heroBottom / Math.max(1, window.innerHeight);
 
             let size = moon.offsetWidth;
             const onResize = () => {
@@ -105,8 +146,10 @@ export default function HeroScrollExperience() {
               const heroRect = root.getBoundingClientRect();
               if (heroRect.bottom < 0 || heroRect.top > window.innerHeight) return;
 
-              const top = progressEl.getBoundingClientRect().top;
-              const p = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SCROLL_DISTANCE));
+              const raw = conditions.desktop
+                ? (NAV_HEIGHT - progressEl.getBoundingClientRect().top) / SCROLL_DISTANCE
+                : MOBILE_PROGRESS(heroRect.bottom);
+              const p = Math.min(1, Math.max(0, raw));
               const ease = p * p * (3 - 2 * p);
               const secs = (now - t0) / 1000;
 
@@ -115,19 +158,25 @@ export default function HeroScrollExperience() {
               pointerX += (pointerTargetX - pointerX) * 0.09;
               pointerY += (pointerTargetY - pointerY) * 0.09;
               // Begrenzte Leerlauf-Schwebung (sin), keine Dauerbewegung — sonst
-              // wandert der Mond mit der Zeit aus seiner Komposition.
-              const bob = Math.sin(secs * 0.3) * 8 * (1 - ease);
+              // wandert der Mond mit der Zeit aus seiner Komposition. Nur Desktop:
+              // auf Mobile soll die Position ALLEIN am Scroll hängen, damit
+              // Zurückscrollen exakt denselben Punkt trifft. Die Schwebung ist
+              // zeitabhängig und verschob den Mond je Messung um bis zu 8 px.
+              const bob = conditions.desktop ? Math.sin(secs * 0.3) * 8 * (1 - ease) : 0;
+
+              const opacity = Math.max(0, 1 - ease * cfg.dissolve);
 
               moon.style.transform =
                 `translate3d(${size * cfg.driftX * ease + pointerX}px,` +
                 `${size * cfg.rise * ease + bob + pointerY}px,0) ` +
-                `scale(${1 + ease * cfg.grow})`;
-              // Riesig heißt: der Mond liegt über der halben Seite. Ein Link, der
-              // dann die ganze Fläche abfängt, wäre eine Falle.
-              moon.style.pointerEvents = ease > 0.12 ? "none" : "auto";
+                `scale(${1 - ease * cfg.shrink})`;
+              moon.style.opacity = String(opacity);
+              // Ein unsichtbarer Link, der noch Klicks abfängt, ist eine Falle —
+              // sobald der Mond weitgehend aufgelöst ist, ist er auch inaktiv.
+              moon.style.pointerEvents = opacity < 0.4 ? "none" : "auto";
 
-              // Copy tritt zurück, während der Mond übernimmt — sonst steht die
-              // Headline im gewachsenen Bild.
+              // Copy tritt mit zurück, damit die ganze Szene gemeinsam wegzieht
+              // statt nur der Mond.
               if (copy) copy.style.opacity = String(1 - ease * cfg.fade);
             };
 
@@ -145,6 +194,7 @@ export default function HeroScrollExperience() {
               window.removeEventListener("resize", onResize);
               root.removeEventListener("pointermove", onPointerMove);
               moon.style.transform = "";
+              moon.style.opacity = "";
               moon.style.pointerEvents = "";
               if (copy) copy.style.opacity = "";
             });
@@ -174,8 +224,8 @@ export default function HeroScrollExperience() {
                 const top = pinBlock.getBoundingClientRect().top;
                 const progress = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SHELL_SCROLL_DISTANCE));
                 root.style.transform = `scale(${1 - progress * 0.1}) translateY(${-progress * 46}px)`;
-                // Nur noch leicht abdunkeln: der Mond ist jetzt das Motiv dieser
-                // Szene und soll beim Wachsen nicht wegdimmen.
+                // Nur leicht abdunkeln: der Mond löst sich ohnehin schon selbst
+                // auf, ein zweiter starker Dimmer wäre doppelt.
                 root.style.filter = `brightness(${1 - progress * 0.18})`;
               };
               const onScroll = () => {
@@ -212,9 +262,8 @@ export default function HeroScrollExperience() {
 
       <div className="container hero-scroll-grid">
         <div className="hero-scroll-copy is-welcome" data-hero-copy>
-          <div className="eyebrow">
-            <span className="dot" /> WILLKOMMEN – LIVE-COMEDY AUS NRW
-          </div>
+          {/* Kein Eyebrow-Badge über der Headline: der Hook soll als Erstes
+              greifen, das Pill wirkte davor wie ein Fremdkörper. */}
           {/* Begrüßungstext von Steffen (Freigabe 28.07.2026): der Hook trägt die
               Headline, der Rest steht vollständig im Lead. Headline bewusst
               kleiner als .hero-scroll-title, weil sie dreizeilig läuft – sonst
@@ -232,9 +281,9 @@ export default function HeroScrollExperience() {
           </h1>
           <div className="lead hero-welcome-lead" data-hero-lead>
             <p>
-              Ich bin Steffen Vorholt – Comedian, Veranstalter und hauptberuflicher
+              Ich bin Steffen Vorholt. Comedian, Veranstalter und hauptberuflicher
               Lieferant für gute Laune. Ob du mich schon kennst oder gerade erst auf mich
-              aufmerksam geworden bist – ich freue mich, dass du hier bist.
+              aufmerksam geworden bist... Ich freue mich, dass du hier bist.
             </p>
             <p>
               Mit meinen Comedy-Shows möchte ich Menschen für ein paar Stunden den Alltag

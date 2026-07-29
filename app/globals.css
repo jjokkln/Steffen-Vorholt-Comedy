@@ -22,6 +22,11 @@
   --shadow:0 28px 90px rgba(0,0,0,.38);
   --gold1:#f5d68a;
   --gold2:#e8a33d;
+  /* Show-Card-Tags: eine Pillen-Zeile = 34px, reservierter Block = zwei Zeilen.
+     Siehe .show-card .top — hält die Planeten aller Karten auf einer Höhe. */
+  /* Pillen-Höhe = line-height 18 + padding 2×8 + border 2×1 */
+  --show-tag-row:36px;
+  --show-tag-block:80px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -155,15 +160,21 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .brain{color:var(--green)}.brain:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
 .ice{color:var(--ice)}.ice:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 80deg,#fff,var(--ice),var(--turq),#4f7dff,#fff)}
 .checkin{color:var(--orange)}.checkin:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 130deg,var(--orange),var(--yellow),var(--captain),var(--orange))}
-/* Badges dürfen umbrechen: bei langen Labels („Open MIC mit Publikumsjoker")
-   passen Show-Name und Format-Label nicht in eine Zeile. Ohne wrap laufen die
-   nowrap-Pillen aus der Karte heraus und `overflow:hidden` schneidet sie ab. */
-.show-card .top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:start;gap:10px 14px;color:var(--text)}
-/* Letzte Reißleine, wenn schon eine einzelne Pille breiter als die Karte ist:
-   dann bricht ihr Text intern um statt abgeschnitten zu werden. */
+/* Tags IMMER untereinander, auf jeder Breite: nebeneinander passten kurze
+   Labels („Brain Loading" + „Impro") in eine Zeile, lange („Open MIC mit
+   Publikumsspiel") brauchten zwei — dadurch starteten Planet, Headline und
+   Text der Karten nebeneinander auf unterschiedlicher Höhe. Zusammen mit der
+   reservierten Blockhöhe (--show-tag-block = zwei Pillen-Zeilen) belegt der
+   Tag-Block jetzt in JEDER Karte exakt gleich viel Platz. */
+.show-card .top{
+  display:flex;flex-direction:column;align-items:flex-start;
+  gap:8px;color:var(--text);
+  min-height:var(--show-tag-block)
+}
 /* Feste Pixel-Zeilenhöhe: sonst ergeben unterschiedliche Labels durch
-   Subpixel-Rundung minimal verschieden hohe Pillen — und schon starten Planet
-   und Text der Karten nebeneinander nicht exakt gleich. */
+   Subpixel-Rundung minimal verschieden hohe Pillen. `white-space:normal` ist
+   die Reißleine, wenn ein Label breiter als die Karte ist — dann bricht es
+   intern um statt abgeschnitten zu werden. */
 .show-card .top .badge{white-space:normal;max-width:100%;line-height:18px}
 .badge{display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.34);border:1px solid var(--line);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)}
 .show-card .spacer{height:240px}
@@ -698,11 +709,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .section-head{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:16px}
   .section-head p,.section-head-copy{max-width:100%}
   .grid-3:has(.show-card){padding-top:2px}
-  /* Tags auf Mobile immer untereinander (nie nebeneinander): so belegt der
-     Tag-Block in JEDER Karte gleich viele Zeilen und Planet, Headline und Text
-     starten karten­übergreifend auf derselben Höhe. Nebeneinander würde je nach
-     Label-Länge mal eine, mal zwei Zeilen ergeben → sichtbarer Versatz. */
-  .show-card .top{flex-direction:column;align-items:flex-start;gap:8px}
+  /* Tag-Block (Spalte + reservierte Höhe) steht global in .show-card .top. */
   .show-card:before{width:200px;height:200px;top:64px}
   .show-art{height:186px;margin-top:12px}
   .show-card-copy{margin-top:12px;padding-top:14px}
@@ -1198,12 +1205,13 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   100%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}
 }
 /* Lesbarkeits-Scrim: dunkelt die linke Hälfte (unter der Copy) ab, läuft nach
-   rechts transparent aus, wo der Mond steht. Der Mond liegt bewusst DARUNTER
-   (z-index:1), damit der Scrim greift, sobald er beim Scrollen nach links wächst. */
+   rechts transparent aus, wo der Mond steht. Der Auslauf endet bei 62 % — der
+   Mond sitzt jetzt weiter mittig, ein späterer Auslauf würde seine linke Hälfte
+   sichtbar abdunkeln. Die Copy braucht den Scrim nur bis ~55 % der Breite. */
 .hero-scroll-shell::after{
   content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
   background:linear-gradient(95deg,
-    rgba(5,7,17,.78) 0%,rgba(5,7,17,.5) 30%,rgba(5,7,17,.12) 52%,transparent 68%);
+    rgba(5,7,17,.78) 0%,rgba(5,7,17,.5) 26%,rgba(5,7,17,.12) 46%,transparent 62%);
 }
 .hero-scroll-grid{
   min-height:calc(100vh - 84px);
@@ -1260,11 +1268,15 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    und kippt damit jede translate-basierte Zentrierung. Der Mond hing so 300 px
    zu tief und lief unten aus dem Hero. Diese Variante ist transform-unabhängig,
    der rAF-Tick kann `transform` frei überschreiben. */
+/* Rechter Abstand bewusst großzügig: der Mond soll nicht am Viewport-Rand
+   kleben, sondern sichtbar Richtung Bildmitte sitzen. Die Untergrenze (20px)
+   greift nur bei sehr schmalen Desktop-Fenstern — der Mond ist mit 44vw
+   gedeckelt, ein größerer Einzug würde ihn dort in die Copy schieben. */
 .hero-moon{
-  position:absolute;top:0;bottom:0;right:clamp(-40px,1vw,40px);margin-block:auto;
+  position:absolute;top:0;bottom:0;right:clamp(20px,7vw,200px);margin-block:auto;
   z-index:1;width:min(72vh,44vw,620px);height:min(72vh,44vw,620px);
   display:block;line-height:0;text-decoration:none;cursor:pointer;
-  transform-origin:50% 50%;will-change:transform;
+  transform-origin:50% 50%;will-change:transform,opacity;
 }
 /* Weiches Leuchten hinter der Kugel, damit sie nicht als Sticker auf dem
    Sternenhimmel klebt. Liegt hinter dem Bild und wächst mit. */
@@ -1284,7 +1296,8 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 }
 @media (max-width:900px){
   /* Auf Mobile sichtbar (das frühere Freisteller-Foto war hier ausgeblendet):
-     der Mond rutscht unter die Copy in den normalen Fluss. */
+     der Mond rutscht unter die Copy in den normalen Fluss. Größe bleibt konstant
+     — die mobile Kamerafahrt bewegt ihn nur nach oben, sie skaliert nicht. */
   .hero-moon{
     position:relative;top:auto;bottom:auto;right:auto;
     width:min(86vw,420px);height:auto;aspect-ratio:1;margin:14px auto 0;

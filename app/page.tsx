@@ -164,12 +164,12 @@ export default async function HomePage() {
               {/* Kein Eyebrow mehr: die „Captain“-Metapher ist raus (Steffen, 28.07.2026).
                   Copy jetzt in der Ich-Form wie im Hero – Langfassung steht auf /steffen. */}
               <p className="lead">
-                🎤 Comedian &amp; Moderator – ehrlich, schlagfertig und (fast) immer charmant!
+                🎤 Comedian &amp; Moderator. Ehrlich, schlagfertig und (fast) immer charmant!
               </p>
               <p>
                 Seit 2019 erzähle ich auf den Bühnen Deutschlands von meinem chaotischen Leben:
                 Ausbildung zum Kfz-Mechatroniker, Einsätze im Rettungsdienst, das Leben als ewiger
-                Single – und natürlich von meinen legendären Feiereskapaden in der Jugend.
+                Single, bis ich eine Freundin fand, die meine Gags über sie duldete und natürlich von meinen legendären Feiereskapaden in der Jugend.
               </p>
               <div className="actions">
                 <Link className="btn primary" href="/kontakt#booking-steffen">Steffen buchen</Link>
