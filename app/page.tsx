@@ -18,11 +18,12 @@ import {
   getGalleryItems,
   getPublishedAppearances,
   getReferenceYoutubeVideos,
-  getSiteMedia,
+  getSiteMediaMap,
 } from "@/lib/data";
 import { upcomingAppearances } from "@/lib/event-helpers";
 import { personJsonLd } from "@/lib/jsonld";
 import { mediaUrl } from "@/lib/media";
+import { resolveSiteMedia } from "@/lib/site-media";
 
 export const revalidate = 3600;
 
@@ -33,14 +34,20 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const [shows, oneLiners, gallery, heroVideo, referenceVideos, appearances] = await Promise.all([
+  const [shows, oneLiners, gallery, media, referenceVideos, appearances] = await Promise.all([
     getActiveShows(),
     getActiveOneLiners(),
     getGalleryItems(),
-    getSiteMedia("hero_video"),
+    getSiteMediaMap(),
     getReferenceYoutubeVideos(),
     getPublishedAppearances(),
   ]);
+
+  // Medien-Plätze aus dem Admin (lib/site-media.ts). `resolveSiteMedia` liefert die
+  // Reserve-Datei aus public/, solange ein Platz leer ist.
+  const trailerVideo = resolveSiteMedia(media, "home_trailer_video");
+  const trailerPoster = resolveSiteMedia(media, "home_trailer_poster");
+  const portraitVideo = resolveSiteMedia(media, "home_portrait_video");
 
   // „Wo Steffen selbst auf der Bühne steht": nur die 3 nächsten Termine, die
   // KEINE eigene Show sind (Gastauftritte, Open Mics, Gigs).
@@ -57,7 +64,7 @@ export default async function HomePage() {
         {/* Der Trailer übernimmt die Rolle, die vorher .home-shows-pin hatte:
             er schiebt sich beim Scrollen über den gepinnten Hero. Die Shows-
             Karte zieht danach über den Trailer. */}
-        <HeroTrailer />
+        <HeroTrailer src={mediaUrl(trailerVideo)} poster={mediaUrl(trailerPoster)} />
 
         <SectionTransition variant="cards" className="home-shows-pin">
           <span className="drag-handle" aria-hidden="true" />
@@ -177,8 +184,8 @@ export default async function HomePage() {
               </div>
             </div>
             <div className="captain-media">
-              {heroVideo ? (
-                <CaptainVideo src={mediaUrl(heroVideo)} />
+              {portraitVideo ? (
+                <CaptainVideo src={mediaUrl(portraitVideo)} />
               ) : (
                 <div className="media-placeholder">Bühnen-Video folgt</div>
               )}

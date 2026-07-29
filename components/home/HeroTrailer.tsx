@@ -2,9 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const SRC = "/assets/media/steffen/steffen-trailer.mp4";
-const POSTER = "/assets/media/steffen/steffen-trailer-poster.webp";
-
 /**
  * Vollflächiger Trailer direkt unter dem Hero. Liegt im `.hero-pin-block` und
  * schiebt sich beim Scrollen über den gepinnten Hero — dieselbe Mechanik, die
@@ -12,11 +9,14 @@ const POSTER = "/assets/media/steffen/steffen-trailer-poster.webp";
  * .hero-trailer in globals.css).
  *
  * Startet stumm (alles andere blockieren Browser beim Autoplay) und erst, wenn
- * das Video wirklich im Bild ist: die Datei ist 6,5 MB groß, ein `autoPlay` am
+ * das Video wirklich im Bild ist: die Datei ist mehrere MB groß, ein `autoPlay` am
  * Markup würde sie bei JEDEM Startseiten-Aufruf ziehen, auch wenn niemand so
  * weit scrollt. Deshalb `preload="none"` + IntersectionObserver.
+ *
+ * `src`/`poster` kommen aus den Medien-Plätzen im Admin (lib/site-media.ts) — vorher
+ * standen beide Dateipfade hier im Code und waren nur per Deploy austauschbar.
  */
-export default function HeroTrailer() {
+export default function HeroTrailer({ src, poster }: { src: string; poster?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   // Hat der Besucher selbst pausiert? Dann darf der Observer nicht wieder
   // anwerfen, sobald das Video erneut ins Bild scrollt.
@@ -73,13 +73,17 @@ export default function HeroTrailer() {
     }
   }
 
+  // Kein Trailer hinterlegt (Platz geleert und keine Reserve): Abschnitt komplett weglassen,
+  // statt eine schwarze Vollbildfläche zu zeigen.
+  if (!src) return null;
+
   return (
     <div className="hero-trailer">
       <video
         ref={videoRef}
         className="hero-trailer-media"
-        src={SRC}
-        poster={POSTER}
+        src={src}
+        poster={poster || undefined}
         preload="none"
         loop
         muted

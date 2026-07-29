@@ -125,10 +125,18 @@ werden vom nächsten überdeckt und schlucken keine Klicks mehr (deshalb sitzt
 
 ## Trailer unter dem Hero (seit 29.07.2026)
 
-`components/home/HeroTrailer.tsx` — vollflächiges Video aus
-`public/assets/media/steffen/steffen-trailer.mp4` (6,5 MB, 1920×1080, 60 s). Liegt bewusst
-**nicht** in Supabase Storage, sondern statisch bei Vercel: kein Supabase-Egress, immutable
-gecacht. Startet stumm (alles andere blockieren Browser beim Autoplay), Ton per Schalter.
+`components/home/HeroTrailer.tsx` — vollflächiges Video. `src`/`poster` kommen seit dem
+30.07.2026 als Props aus den Medien-Plätzen (siehe „Medienverwaltung im Admin"); solange
+niemand etwas hochgeladen hat, greift die mitgelieferte Datei
+`public/assets/media/steffen/steffen-trailer.mp4` (6,5 MB, 1920×1080, 60 s). Startet stumm
+(alles andere blockieren Browser beim Autoplay), Ton per Schalter.
+
+**Egress-Abwägung:** Die mitgelieferte Datei liegt statisch bei Vercel — kein Supabase-Egress.
+Ein im Admin hochgeladener Trailer liegt dagegen in Supabase Storage und zählt bei jedem
+Abspielen auf das Egress-Kontingent. Deshalb ist die Vorab-Komprimierung kein Kosmetikthema:
+1,5 MB statt 6,5 MB sind der Unterschied zwischen ~3.400 und ~800 Abspielvorgängen pro Monat
+im Free-Kontingent. Wer eine Dauer-Lösung ohne Egress will, legt die Datei weiter in `public/`
+ab und lässt den Platz im Admin leer.
 
 Der Start hängt an einem `IntersectionObserver`, nicht am `autoPlay`-Attribut: sonst zieht
 jeder Startseiten-Aufruf 6,5 MB, auch wenn niemand so weit scrollt. Wer selbst pausiert,
@@ -182,6 +190,44 @@ Pflichtregeln: **`sizes` immer angeben** (ohne nimmt next/image 100vw an und lie
 über `lib/upload.ts` (setzt `cacheControl: 31536000`, unbedenklich wegen unveränderlicher
 Dateinamen). `next.config.ts` hält `minimumCacheTTL` auf 31 Tage und die Breiten-Varianten klein —
 jede Variante ist ein eigener Abruf beim Storage.
+
+## Medienverwaltung im Admin (seit 30.07.2026)
+
+Vorher gab es genau **ein** Video-Feld („Hero-Video") auf der Galerie-Seite, dessen Datei an
+zwei verschiedenen Stellen ausgespielt wurde, während der Trailer gar nicht pflegbar war.
+Jetzt: `/admin/medien` („Videos & Speicher") mit einem Upload-Feld pro Platz.
+
+- **Registry `lib/site-media.ts`** — eine Zeile pro Platz (Schlüssel, Beschriftung, „wo
+  erscheint das", Zielgröße/-bitrate, Fallback-Kette). Neuer Platz = Eintrag hier + Migration
+  für den Startwert + `resolveSiteMedia()` an der Zielstelle. Frei von Server-Code, damit auch
+  Client-Komponenten die Liste importieren können.
+- **Fallback-Kette** (`resolveSiteMedia`): eigener Wert → `fallbackKey` → … → `localFallback`
+  aus `public/`. Lokale Reserven greifen erst am Ende der Kette, sonst würde ein leerer Platz
+  den historischen Schlüssel `hero_video` überspringen (Migration 0016 hat ihn zu
+  `home_portrait_video` umbenannt). Getestet in `tests/site-media.test.ts`.
+- **Plätze:** `home_trailer_video`, `home_trailer_poster`, `home_portrait_video`,
+  `steffen_portrait_video` (leer = erbt das Video der Startseite).
+- **Aufräumen:** `lib/actions/site-media.ts` löscht beim Ersetzen die vorherige Datei aus dem
+  Storage — aber nur, wenn kein anderer Datensatz (`site_media`, `gallery_items`,
+  `show_videos`, `show_images`) noch auf sie zeigt. Bei endlichem Kontingent wäre die
+  Alternative, dass jeder Austausch dauerhaft Altlast liegen lässt.
+
+**Komprimierung vor dem Upload:** `lib/video-compress.ts`, ohne jede Dependency — Video
+abspielen, Frames verkleinert auf ein Canvas zeichnen, Canvas-Stream plus Tonspur (über
+Web-Audio, damit die Vorschau lautlos bleibt) per `MediaRecorder` neu kodieren. Kein
+ffmpeg.wasm, weil das `SharedArrayBuffer` und damit COOP/COEP für die ganze Domain bräuchte
+(würde YouTube-Embeds und Leaflet zerschießen). Läuft in Echtzeit, Tab muss offen bleiben.
+Gemessen am 30.07.2026 in Chrome: 11,8 MB / 1080p / 12 Mbit/s → **1,48 MB** bei 1280×720 als
+MP4/H.264 (−87 %). Jeder Fehlschlag lädt still das Original hoch — Komprimieren ist eine
+Optimierung, kein Tor, an dem ein Upload scheitern darf.
+
+**Speicher-Anzeige:** `lib/storage-usage.ts` summiert die Storage-Objekte pro Bucket über die
+Storage-API (`storage.objects` liegt nicht im PostgREST-Schema). Kompakte Leiste in der
+Topbar auf jeder Admin-Seite (`components/admin/StorageUsageBar.tsx`, lädt über
+`/api/admin/storage-usage` nach dem Rendern, damit nichts blockiert — die Route prüft `auth.getUser()`
+selbst, weil `proxy.ts` nur `/admin/:path*` abdeckt), ausführliche Tabelle auf `/admin/medien`.
+Das Kontingent steht in `STORAGE_QUOTA_GB` (Standard 5). **Achtung:** Der Supabase-Free-Plan
+enthält 1 GB Datei-Storage; die 5 GB sind das monatliche Egress-Kontingent.
 
 ## Rechtstexte (Impressum, Datenschutz, AGB)
 

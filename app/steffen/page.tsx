@@ -12,14 +12,13 @@ import {
   getActiveShows,
   getPublishedAppearances,
   getReferenceYoutubeVideos,
-  getSiteMedia,
+  getSiteMediaMap,
 } from "@/lib/data";
 import { upcomingAppearances } from "@/lib/event-helpers";
 import { mediaUrl } from "@/lib/media";
+import { resolveSiteMedia } from "@/lib/site-media";
 
 export const revalidate = 3600;
-
-const LOCAL_HERO_VIDEO = "/assets/media/steffen/steffen-stage-loop-hero.mp4";
 
 export const metadata: Metadata = {
   title: "Über Steffen",
@@ -28,15 +27,18 @@ export const metadata: Metadata = {
 };
 
 export default async function SteffenPage() {
-  const [partners, referenceVideos, shows, heroVideo, appearances] = await Promise.all([
+  const [partners, referenceVideos, shows, media, appearances] = await Promise.all([
     getActivePartners(),
     getReferenceYoutubeVideos(),
     getActiveShows(),
-    getSiteMedia("hero_video"),
+    getSiteMediaMap(),
     getPublishedAppearances(),
   ]);
 
-  const videoSrc = heroVideo ? mediaUrl(heroVideo) : LOCAL_HERO_VIDEO;
+  // Eigener Medien-Platz für diese Seite; solange er leer ist, greift laut Fallback-Kette
+  // (lib/site-media.ts) das Video der Startseite — so wie bisher.
+  const portraitVideo = resolveSiteMedia(media, "steffen_portrait_video");
+  const videoSrc = portraitVideo ? mediaUrl(portraitVideo) : "";
   const steffenAppearances = upcomingAppearances(
     appearances.filter((a) => a.kind !== "show"),
     3,

@@ -106,3 +106,23 @@ vor Interaktionen `.consent-btn-reject` klicken. Bei langen Seiten `fullPage` me
 **Admin-Seiten lassen sich nicht ohne Zugangsdaten prüfen.** `/admin/*` hängt an einer echten
 Supabase-Session (User `steffen@123.de`). Für visuelle Abnahme im Dashboard braucht es das Passwort
 von Lenny; Templates und reine Logik lassen sich stattdessen isoliert rendern.
+
+## Video-Komprimierung im Browser (30.07.2026)
+
+**Fixe Zielbitrate macht schlanke Dateien größer.** Der erste Anlauf von
+`lib/video-compress.ts` kodierte stur mit der in `lib/site-media.ts` hinterlegten Zielbitrate.
+Ergebnis am vorhandenen Trailer (1080p, aber nur 0,86 Mbit/s): nach **61 Sekunden** Rechenzeit
+ein Ergebnis, das größer war als das Original — gerettet nur von der `MIN_GAIN`-Prüfung, die
+dann das Original hochlädt. Fix: `BITRATE_TOLERANCE` vergleicht vorab die aus Größe und Laufzeit
+geschätzte Quellbitrate mit dem Ziel und überspringt das Umkodieren, wenn die Quelle schon
+schlank ist. Wer die Ziele in der Registry ändert, muss das mitdenken — die Zielbitrate ist
+eine **Obergrenze**, kein Sollwert.
+
+**Verifikation ohne Admin-Login:** Die Komprimierung hängt an Browser-APIs (`MediaRecorder`,
+`canvas.captureStream`, Web-Audio) und ist mit `node --test` nicht prüfbar. Bewährter Weg: eine
+temporäre Seite unter `app/<name>/page.tsx` (außerhalb `/admin`, also ohne Login), die die
+Funktion aufruft und das Ergebnis als JSON in ein `<pre id="out">` schreibt, dann per Playwright
+mit **echtem Chrome** (`executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'`)
+ansteuern und die Seite danach löschen. Der Chromium aus dem Playwright-Cache bringt keine
+H.264-Kodierung mit; nur mit echtem Chrome zeigt sich, dass `MediaRecorder` MP4 liefert
+(`video/mp4;codecs="avc1.4d002a,mp4a.40.2"`) und nicht WebM.

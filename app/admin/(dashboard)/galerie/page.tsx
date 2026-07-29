@@ -1,18 +1,15 @@
 import Image from "next/image";
+import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { updateGalleryItem, deleteGalleryItem } from "@/lib/actions/gallery";
 import { mediaUrl } from "@/lib/media";
 import GalleryImageUpload from "@/components/admin/GalleryImageUpload";
-import HeroVideoUpload from "@/components/admin/HeroVideoUpload";
 import { GALLERY_CATEGORIES, type GalleryItem } from "@/lib/types";
 import DeleteButton from "@/components/admin/DeleteButton";
 
 export default async function AdminGaleriePage() {
   const supabase = await createServerSupabase();
-  const [{ data: items }, { data: hero }] = await Promise.all([
-    supabase.from("gallery_items").select("*").order("sort_order"),
-    supabase.from("site_media").select("file_path").eq("key", "hero_video").maybeSingle(),
-  ]);
+  const { data: items } = await supabase.from("gallery_items").select("*").order("sort_order");
 
   return (
     <>
@@ -62,8 +59,13 @@ export default async function AdminGaleriePage() {
         ))}
       </div>
 
-      <h2 style={{ marginTop: 42 }}>Hero-Video</h2>
-      <HeroVideoUpload current={hero?.file_path ?? ""} />
+      {/* Videos liegen seit dem Umbau nicht mehr hier: Sie hängen nicht an der Galerie,
+          sondern an festen Plätzen der Website und werden zusammen mit dem
+          Speicherverbrauch gepflegt. */}
+      <p className="media-slot-hint" style={{ marginTop: 32 }}>
+        Videos der Website (Trailer, Bühnen-Videos) pflegst du unter{" "}
+        <Link href="/admin/medien">Videos &amp; Speicher</Link>.
+      </p>
     </>
   );
 }
