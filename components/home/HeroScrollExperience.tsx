@@ -12,15 +12,37 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 /**
  * Tatsächliche Anzeigebreiten der Planeten, damit der Optimizer nicht das
- * Original ausliefert: `.hero-system` ist max. 620 px breit (mobil min(88vw,420px)),
- * die Planeten belegen davon 30 % / 22 % / 18 % (siehe .hero-carrier in globals.css).
+ * Original ausliefert: `.hero-system` ist max. 760 px breit (mobil min(88vw,420px)),
+ * die Planeten belegen davon 40 % / 29 % / 23 % (siehe .hero-carrier in globals.css).
  * Ohne diese Angabe nimmt next/image 100vw an und holt die größte Variante.
  */
 const PLANET_SIZES: Record<string, string> = {
-  primary: "(max-width: 900px) 27vw, 190px",
-  secondary: "(max-width: 900px) 20vw, 140px",
-  tertiary: "(max-width: 900px) 16vw, 115px",
+  primary: "(max-width: 900px) 36vw, 304px",
+  secondary: "(max-width: 900px) 26vw, 221px",
+  tertiary: "(max-width: 900px) 21vw, 175px",
 };
+
+/**
+ * Bahn-Parameter des scrollgebundenen Orbital-Systems (Rolle → Bahn).
+ *
+ * `start`  Ruhewinkel der Bahn (identisch zu --start in globals.css, sonst
+ *          springt die Komposition beim ersten Tick).
+ * `sweep`  wie weit die Bahn über SCROLL_DISTANCE weiterdreht.
+ * `amp`/`speed` begrenzte Leerlauf-Schwingung (sin, 3.5–5°) – bewusst KEINE
+ *          Dauerrotation: die wanderte mit der Zeit weg, nach einer Minute lagen
+ *          die Planeten über Headline und Steffen-Foto.
+ * `depth`/`drift` Tiefenstaffelung beim Hineinfahren der Kamera.
+ */
+const ORBITS: Record<
+  string,
+  { start: number; sweep: number; amp: number; speed: number; depth: number; drift: [number, number] }
+> = {
+  primary: { start: 28, sweep: 210, amp: 5, speed: 0.16, depth: 0.46, drift: [26, -30] },
+  secondary: { start: 148, sweep: -150, amp: -4, speed: 0.11, depth: 0.24, drift: [22, 20] },
+  tertiary: { start: 68, sweep: 108, amp: 3.5, speed: 0.09, depth: 0.1, drift: [14, 24] },
+};
+const SCROLL_DISTANCE = 620;
+const NAV_HEIGHT = 84;
 
 interface HeroScrollExperienceProps {
   planets: HeroPlanet[];
@@ -45,15 +67,20 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
           const conditions = context.conditions as { desktop: boolean; reduceMotion: boolean };
           const lines = gsap.utils.toArray<HTMLElement>("[data-hero-line]", root);
           const heroPlanets = gsap.utils.toArray<HTMLElement>("[data-hero-planet]", root);
-          const orbits = gsap.utils.toArray<HTMLElement>("[data-hero-orbit]", root);
 
           if (conditions.reduceMotion) {
-            gsap.set(
-              [...lines, ...heroPlanets, ...orbits, "[data-hero-lead]", "[data-hero-actions]"],
-              { clearProps: "all" },
-            );
+            gsap.set([...lines, ...heroPlanets, "[data-hero-lead]", "[data-hero-actions]"], {
+              clearProps: "all",
+            });
+            // Kein rAF-Loop: damit gibt es weder Leerlauf-Schwingung noch
+            // Kamera-Zoom. Die Planeten stehen auf den Ruhewinkeln, die
+            // `.hero-carrier`/`.hero-planet-inner` in globals.css setzen.
             return;
           }
+
+          // Aufräumer sammeln, damit mehrere Effekte in derselben
+          // matchMedia-Bedingung nebeneinander laufen können.
+          const cleanups: Array<() => void> = [];
 
           gsap
             .timeline({ defaults: { ease: "power3.out" } })
@@ -61,10 +88,110 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
             .from("[data-hero-lead]", { y: 24, autoAlpha: 0, duration: 0.55 }, "-=0.42")
             .from("[data-hero-actions]", { y: 20, autoAlpha: 0, duration: 0.5 }, "-=0.35");
 
+          // ── Scrollgebundenes Orbital-System ──────────────────────────────
+          // Läuft NICHT über ScrollTrigger mit pin+scrub (das hat beim ersten
+          // Anlauf durch Canvas-Repaint hinter dem backdrop-filter-Nav
+          // geruckelt, siehe Commit 502c497) – stattdessen ein einzelner
+          // rAF-Tick, der `transform`/`opacity` direkt auf die Elemente
+          // schreibt. Kein React-State, kein Re-Render pro Frame.
+          //
+          // Der Entrance-Tween unten schreibt selbst auf `transform` von
+          // [data-hero-planet]; der Loop startet deshalb erst in `onComplete`,
+          // sonst überschreiben sich beide gegenseitig.
+          //
+          // Desktop only, und zwar aus Layout-Gründen: die Choreografie hängt am
+          // `.hero-pin-block`, der auf Mobile ganz oben auf der Seite beginnt.
+          // Das System steht dort aber erst unter der Copy – wenn es in Sicht
+          // kommt, ist der Sweep längst durchgelaufen und alle drei Planeten
+          // klumpen an einem Punkt. Mobil bleibt deshalb die Ruhekomposition
+          // aus globals.css stehen, inklusive planet-float.
+          const startOrbit = () => {
+            const system = root.querySelector<HTMLElement>("[data-hero-system]");
+            const carriers = gsap.utils
+              .toArray<HTMLElement>("[data-hero-carrier]", root)
+              .map((carrier) => ({
+                carrier,
+                hold: carrier.querySelector<HTMLElement>("[data-hero-planet]"),
+                orbit: ORBITS[carrier.dataset.heroCarrier ?? ""] ?? ORBITS.primary,
+              }));
+            if (!carriers.length) return;
+
+            // Fortschritt am `.hero-pin-block` messen, nicht am Hero selbst:
+            // der ist auf Desktop `position:sticky;top:84px` und hätte damit
+            // konstant `top === NAV_HEIGHT`, also dauerhaft Fortschritt 0.
+            const progressEl = root.parentElement ?? root;
+            let pointerTargetX = 0;
+            let pointerTargetY = 0;
+            let pointerX = 0;
+            let pointerY = 0;
+            const t0 = performance.now();
+            let frame = 0;
+
+            const tick = (now: number) => {
+              frame = requestAnimationFrame(tick);
+              if (document.hidden) return;
+              // Hero komplett aus dem Bild → nichts zu rechnen.
+              const heroRect = root.getBoundingClientRect();
+              if (heroRect.bottom < 0 || heroRect.top > window.innerHeight) return;
+
+              const top = progressEl.getBoundingClientRect().top;
+              const p = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SCROLL_DISTANCE));
+              const ease = p * p * (3 - 2 * p);
+              const secs = (now - t0) / 1000;
+
+              if (system) {
+                // Maus-Parallax: das System schwebt dem Cursor hinterher.
+                // Läuft über dieselbe transform-Mutation, weil zwei Schreiber
+                // auf einem transform sich sonst gegenseitig plattmachen.
+                pointerX += (pointerTargetX - pointerX) * 0.09;
+                pointerY += (pointerTargetY - pointerY) * 0.09;
+                system.style.transform =
+                  `scale(${1 + ease * 0.34}) ` +
+                  `translate3d(${ease * -50 + pointerX}px,${ease * 20 + pointerY}px,0)`;
+                system.style.opacity = String(1 - ease * 0.22);
+              }
+
+              for (const { carrier, hold, orbit } of carriers) {
+                const angle = orbit.start + ease * orbit.sweep + Math.sin(secs * orbit.speed) * orbit.amp;
+                carrier.style.transform = `rotate(${angle}deg)`;
+                if (!hold) continue;
+                // Gegenrotation hält Planet und Motiv aufrecht, depth/drift
+                // staffeln die drei Bahnen in der Tiefe.
+                hold.style.transform =
+                  `rotate(${-angle}deg) scale(${1 + ease * orbit.depth}) ` +
+                  `translate3d(${ease * orbit.drift[0]}px,${ease * orbit.drift[1]}px,0)`;
+              }
+            };
+
+            frame = requestAnimationFrame(tick);
+
+            const onPointerMove = (event: PointerEvent) => {
+              const rect = root.getBoundingClientRect();
+              pointerTargetX = ((event.clientX - rect.left) / rect.width - 0.5) * -22;
+              pointerTargetY = ((event.clientY - rect.top) / rect.height - 0.5) * -14;
+            };
+            root.addEventListener("pointermove", onPointerMove, { passive: true });
+
+            cleanups.push(() => {
+              cancelAnimationFrame(frame);
+              root.removeEventListener("pointermove", onPointerMove);
+              if (system) {
+                system.style.transform = "";
+                system.style.opacity = "";
+              }
+              for (const { carrier, hold } of carriers) {
+                carrier.style.transform = "";
+                if (hold) hold.style.transform = "";
+              }
+            });
+          };
+
           if (heroPlanets.length) {
             gsap
-              .timeline({ defaults: { ease: "power2.out" } })
-              .from(orbits, { scale: 0.72, autoAlpha: 0, stagger: 0.1, duration: 1.1 }, 0.1)
+              .timeline({
+                defaults: { ease: "power2.out" },
+                onComplete: conditions.desktop ? startOrbit : undefined,
+              })
               .from(
                 heroPlanets,
                 { scale: 0.4, autoAlpha: 0, stagger: 0.14, duration: 0.9, ease: "back.out(1.6)" },
@@ -72,47 +199,21 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
               );
           }
 
-          // Maus-Parallax: das ganze Orbital-System schwebt dem Cursor leicht
-          // hinterher (nur Desktop). Direkt per quickTo auf transform – kein
-          // React-State, kein Re-Render pro Pointer-Tick.
-          if (conditions.desktop && heroPlanets.length) {
-            const system = root.querySelector<HTMLElement>("[data-hero-system]");
-            if (system) {
-              const xTo = gsap.quickTo(system, "x", { duration: 0.9, ease: "power3.out" });
-              const yTo = gsap.quickTo(system, "y", { duration: 0.9, ease: "power3.out" });
-              const onPointerMove = (event: PointerEvent) => {
-                const rect = root.getBoundingClientRect();
-                const relX = (event.clientX - rect.left) / rect.width - 0.5;
-                const relY = (event.clientY - rect.top) / rect.height - 0.5;
-                xTo(relX * -22);
-                yTo(relY * -14);
-              };
-              root.addEventListener("pointermove", onPointerMove, { passive: true });
-              context.add(() => {
-                root.removeEventListener("pointermove", onPointerMove);
-              });
-            }
-          }
-
           // Karten-über-Hero-Effekt: der Hero steckt in `.hero-pin-block`
           // zusammen mit der folgenden "Wähl deine Mission"-Sektion (siehe
           // app/page.tsx) und ist per CSS `position:sticky` fixiert (Desktop
-          // only, siehe globals.css). Der Scroll-Fortschritt wird hier NICHT
-          // per GSAP ScrollTrigger pin+scrub berechnet (das hat beim ersten
-          // Anlauf durch Canvas-Repaint hinter dem backdrop-filter-Nav
-          // geruckelt, siehe Commit 502c497) – stattdessen ein einzelner,
+          // only, siehe globals.css). Auch hier kein ScrollTrigger, sondern ein
           // rAF-throttled Fenster-Scroll-Listener, der nur `transform`/`filter`
           // direkt auf `root` mutiert (kein Re-Render pro Tick).
           if (conditions.desktop) {
             const pinBlock = root.parentElement;
             if (pinBlock) {
-              const NAV_HEIGHT = 84;
-              const SCROLL_DISTANCE = 380;
+              const SHELL_SCROLL_DISTANCE = 380;
               let frame = 0;
               const apply = () => {
                 frame = 0;
                 const top = pinBlock.getBoundingClientRect().top;
-                const progress = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SCROLL_DISTANCE));
+                const progress = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SHELL_SCROLL_DISTANCE));
                 root.style.transform = `scale(${1 - progress * 0.1}) translateY(${-progress * 46}px)`;
                 root.style.filter = `brightness(${1 - progress * 0.45})`;
               };
@@ -122,15 +223,19 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
               apply();
               window.addEventListener("scroll", onScroll, { passive: true });
               window.addEventListener("resize", onScroll);
-              return () => {
+              cleanups.push(() => {
                 if (frame) cancelAnimationFrame(frame);
                 window.removeEventListener("scroll", onScroll);
                 window.removeEventListener("resize", onScroll);
                 root.style.transform = "";
                 root.style.filter = "";
-              };
+              });
             }
           }
+
+          return () => {
+            for (const cleanup of cleanups) cleanup();
+          };
         },
       );
 
@@ -202,21 +307,17 @@ export default function HeroScrollExperience({ planets }: HeroScrollExperiencePr
         {planets.length > 0 && (
           <div className="hero-system" data-hero-system>
             {planets.map((planet) => (
-              <span
-                key={`orbit-${planet.id}`}
-                className={`hero-orbit is-${planet.role}`}
-                data-hero-orbit
-                aria-hidden="true"
-              />
-            ))}
-
-            {planets.map((planet) => (
-              <div key={planet.id} className={`hero-carrier is-${planet.role}`}>
+              <div
+                key={planet.id}
+                className={`hero-carrier is-${planet.role}`}
+                data-hero-carrier={planet.role}
+              >
                 <Link
                   href={`/shows/${planet.slug}`}
                   className={`hero-planet is-${planet.role}`}
                   style={{
-                    "--planet-glow": `${planet.color}66`,
+                    "--planet-glow": `${planet.color}80`,
+                    "--planet-glow-hover": `${planet.color}D9`,
                     "--planet-color": planet.color,
                     "--sticker-shadow": `${planet.color}8C`,
                   } as CSSProperties}
