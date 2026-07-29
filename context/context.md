@@ -262,7 +262,11 @@ Jetzt: `/admin/medien` („Videos & Speicher") mit einem Upload-Feld pro Platz.
   den historischen Schlüssel `hero_video` überspringen (Migration 0018 hat ihn zu
   `home_portrait_video` umbenannt). Getestet in `tests/site-media.test.ts`.
 - **Plätze:** `home_trailer_video`, `home_trailer_poster`, `home_portrait_video`,
-  `steffen_portrait_video` (leer = erbt das Video der Startseite).
+  `steffen_portrait_video` (leer = erbt das Video der Startseite) sowie seit Migration 0019
+  `home_portrait_poster` und `steffen_portrait_poster`. Die beiden Poster-Plätze sind nötig, weil
+  die Bühnen-Videos seit dem 30.07.2026 mit `preload="none"` erst beim Hinscrollen laden — ohne
+  Standbild bliebe die Fläche bis dahin schwarz. Sie haben bewusst **keinen** `localFallback`:
+  solange nichts hochgeladen ist, liefert `resolveSiteMedia` einen Leerstring.
 - **Aufräumen:** `lib/actions/site-media.ts` löscht beim Ersetzen die vorherige Datei aus dem
   Storage — aber nur, wenn kein anderer Datensatz (`site_media`, `gallery_items`,
   `show_videos`, `show_images`) noch auf sie zeigt. Bei endlichem Kontingent wäre die
@@ -297,13 +301,109 @@ Markdown-Teilmenge aus [lib/markdown.ts](../lib/markdown.ts) (`##`/`###`, Absät
 und stehen bewusst **nicht** in der `sitemap.ts`.
 
 ⚠️ Der AGB-Text ist ein **ungeprüfter Entwurf** (erste Zeile sagt das auch dem Leser) — vor der
-Bewerbung der Seite juristisch prüfen lassen.
+Bewerbung der Seite juristisch prüfen lassen. Er ist trotzdem schon im Footer verlinkt.
 
-## RLS-Konvention
+⚠️ **Die Rechtstexte liegen in der DB und driften deshalb still vom Code weg.** Ein Commit, der
+einen neuen Empfänger einbindet (Embed, Karte, Analytics), ändert die Erklärung **nicht** mit —
+niemand merkt es, weil weder Build noch Tests die DB-Texte kennen. Genau so ist der aktuelle
+Rückstand entstanden (Social-Embeds und OpenStreetMap fehlen, siehe „Rechtsstand"). Regel:
+Wer einen Drittanbieter hinzufügt, ändert im selben Arbeitsschritt (a) `SOCIAL_PLATFORMS` bzw.
+die Consent-Version, (b) den Banner-Text und (c) `legal_pages.datenschutz` über
+`/admin/rechtliches/datenschutz`. Der aktuelle Stand ist per SQL prüfbar:
+`select slug, content ilike '%openstreetmap%' from legal_pages where slug='datenschutz';`
+
+## Sicherheitsmodell (Stand 30.07.2026, geprüft)
 
 Pro Tabelle eine öffentliche Lese-/Insert-Policy plus `admin all <tabelle>` für `authenticated`
 (Single-Admin-Setup: eingeloggt = Steffen). Bei `site_settings` sind bewusst **nur** Keys mit
 Prefix `notify_email_` anon-lesbar — der öffentliche Formular-Submit braucht sie ohne Session.
+
+Wer hier etwas ändert, muss die drei tragenden Annahmen kennen. Sie hängen voneinander ab:
+
+1. **`authenticated` = Vollzugriff auf ALLES.** Jede `admin all`-Policy ist
+   `using (true) with check (true)`. Es gibt keine Rollen, keine Zeilenbeschränkung, keine
+   Trennung zwischen „darf Shows pflegen" und „darf Anfragen löschen". Der Supabase Security
+   Advisor meldet das als 18 × `rls_policy_always_true` — das sind **erwartete** Warnungen, keine
+   offenen Lücken, solange Punkt 2 gilt.
+2. **Selbstregistrierung ist ausgeschaltet — das ist die eigentliche Absicherung.**
+   `disable_signup: true`, Anonymous-Logins aus, kein OAuth-Provider aktiv, genau **ein** User in
+   `auth.users`. Nachprüfbar ohne Dashboard:
+   `curl -s -H "apikey: $ANON_KEY" "$SUPABASE_URL/auth/v1/settings"`.
+   ⚠️ **Wird Signup je aktiviert, kann sich jede fremde Person registrieren und ist damit sofort
+   `authenticated` — also schreib- und löschberechtigt auf jeder Tabelle und im Storage.** Das ist
+   kein theoretisches Risiko, sondern die direkte Folge von Punkt 1. Vor dem Aktivieren erst die
+   Policies auf eine echte Rollenprüfung umbauen.
+3. **`proxy.ts` schützt Server Actions NICHT.** Requests mit `next-action`-Header werden bewusst
+   ohne Redirect durchgelassen (sonst bricht die Flight-Response, siehe Kommentar dort). Die
+   Autorisierung von Schreibvorgängen macht damit **allein RLS** — die Server Action läuft mit dem
+   anon-Key plus Session-Cookie, ohne Session ist die Rolle `anon` und jede `admin all`-Policy
+   greift nicht. Nur `events.ts`, `venues.ts`, `settings.ts` und die Route
+   `/api/admin/storage-usage` prüfen zusätzlich selbst `auth.getUser()`. Ein Service-Role-Key
+   existiert im Projekt **nicht** — bewusst, denn er würde RLS umgehen.
+
+Real gegengeprüft (30.07.2026, mit dem anon-Key gegen die Produktions-API): Anfragen sind für
+`anon` nicht lesbar, unveröffentlichte Termine nicht sichtbar, `site_settings` nur mit
+`notify_email_`-Prefix, und Schreibversuche auf `shows`/`legal_pages`/`inquiries` bleiben ohne
+Wirkung.
+
+**Storage:** Die Buckets `media`, `gallery`, `planets` sind öffentlich lesbar (nötig, die
+Bild-URLs stehen im HTML), Schreiben darf nur `authenticated`. Seit Migration 0022 gilt je
+Bucket ein `file_size_limit` von **50 MiB** und eine Positivliste von acht MIME-Typen. Zwei
+Gründe, die man beim Anfassen kennen muss:
+
+- `lib/video-compress.ts` lädt bei jedem Fehlschlag der Komprimierung still das **Original**
+  hoch. Ohne Grenze hätte ein 300-MB-Handyvideo das 1-GB-Kontingent des Free-Plans in einem Zug
+  gesprengt (Bestand am 30.07.2026: ~116 MB, größte Datei 16 MB). Jetzt scheitert so ein Upload
+  sichtbar, statt leise das Kontingent zu fressen.
+- `image/svg+xml` fehlt **absichtlich** in der Liste: Die Buckets sind öffentlich, eine SVG kann
+  Skript enthalten und würde direkt von der Storage-Domain ausgeliefert. Gebraucht wird sie
+  nicht — hochgeladen werden Fotos und Videos, die Marken-Icons liegen statisch in `public/`.
+
+**Öffentliches Anfrageformular:** `inquiries` ist die einzige Tabelle mit anon-INSERT und damit
+die einzige öffentliche Schreibstelle. Migration 0021 begrenzt sie auf DB-Ebene (nicht im Code —
+die Server Action läuft in beliebig vielen Serverless-Instanzen, ein Zähler im Prozessspeicher
+wäre pro Instanz getrennt und damit wirkungslos): max. 5 Anfragen je E-Mail-Adresse pro Stunde,
+60 insgesamt, plus harte Längengrenzen als CHECK-Constraint. Gegen was das schützt: Die
+Bestätigungsmail geht an die im Formular angegebene Adresse — ohne Bremse ist das Formular ein
+Spam-Verstärker über Steffens SMTP-Konto, und der realistische Schaden ist ein gesperrtes
+Postfach bei DMARC `p=reject`.
+
+## Rechtsstand — was steht, was offen ist
+
+Geprüft am 30.07.2026. **Umgesetzt und belastbar:** Impressum nach § 5 DDG (inkl. § 18 Abs. 2
+MStV), Datenschutzerklärung nach Art. 13 DSGVO, Einwilligung nach § 25 TDDDG als echte
+Zwei-Klick-Lösung (vor der Zustimmung geht kein Request an Google/Meta/TikTok, auch kein
+Vorschaubild), gleichgewichtete Buttons ohne Dark Pattern, Widerruf über den Footer,
+Consent-Versionierung, Schriften self-hosted über `next/font` (kein Google-Request zur Laufzeit),
+Daten in der EU (Supabase Frankfurt), Security-Header in `next.config.ts`.
+
+**Am 30.07.2026 nachgezogen:**
+
+- **Ziffer 12 der Datenschutzerklärung** — Instagram, TikTok, Facebook mit Empfängern
+  (Meta Platforms Ireland Ltd., TikTok Technology Ltd.), Zwei-Klick-Lösung, Art. 6 Abs. 1 lit. a
+  DSGVO + § 25 Abs. 1 TDDDG. Enthält einen datierten Vorrang-Hinweis gegenüber der alten
+  Aussage in Ziffer 8.
+- **Ziffer 13** — Karte der Spielorte, OpenStreetMap Foundation (UK), Art. 6 Abs. 1 lit. f DSGVO,
+  Angemessenheitsbeschluss, plus der Hinweis auf Liste und Kalender als kartenfreie Alternative.
+- **Cookie-Banner** — eigener Punkt für die Karte; die Behauptung „nur Vercel und Supabase" war
+  sonst unwahr.
+- **Hinweis nach Art. 13 an der Erhebungsstelle** — sitzt in `components/ContactForm.tsx`
+  (`.contact-card-privacy`), also automatisch unter *jedem* Formular. Bewusst nicht auf der
+  Kontaktseite, damit ein künftiges Formular ihn nicht vergessen kann.
+
+**Weiter offen — braucht Lenny bzw. den Kunden:**
+
+| Punkt | Kern |
+|---|---|
+| Ein Satz in Ziffer 8 ist noch falsch | „Inhalte von Instagram, TikTok … werden **nicht** eingebettet." Ziffer 12 stellt es datiert richtig, aber der Satz selbst gehört gestrichen — Anhängen allein konnte ihn nicht beseitigen. |
+| AGB ist ein Entwurf und live verlinkt | Fachliche Prüfung der Klauseln steht aus, Befund im Bericht vom 30.07.2026. Bis dahin: prüfen lassen oder Footer-Link entfernen. |
+| Admin-Adresse ist ein Platzhalter | `steffen@123.de` gehört Steffen nicht — Passwort-Reset läuft ins Leere. Lenny stellt um. |
+| Karte ohne Einwilligungs-Gate | Informationspflicht ist mit Ziffer 13 erfüllt, die Karte lädt aber weiterhin automatisch. Wer ganz sicher gehen will, hängt sie an dasselbe Gate wie die Embeds (`SocialEmbed` ist die Vorlage). |
+
+BFSG (Barrierefreiheit) greift hier nach derzeitiger Einschätzung **nicht**: Steffen ist
+Kleinstunternehmen (§ 3 Abs. 3 BFSG), und es wird kein Vertrag auf der Seite geschlossen —
+Tickets laufen über externe Anbieter. Die Grundlagen sitzen ohnehin (`lang="de"`,
+Labels an allen Formularfeldern, `alt` an allen Bildern, Fokus-Falle im Consent-Dialog).
 
 ## Domain & Deployment
 
