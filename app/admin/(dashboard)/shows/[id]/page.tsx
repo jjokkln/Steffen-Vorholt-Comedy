@@ -5,7 +5,15 @@ import ShowForm from "@/components/admin/ShowForm";
 import EventForm from "@/components/admin/EventForm";
 import ShowVideoUpload from "@/components/admin/ShowVideoUpload";
 import ShowImageUpload from "@/components/admin/ShowImageUpload";
+import OfferForm from "@/components/admin/OfferForm";
 import { updateShow } from "@/lib/actions/shows";
+import {
+  assignOfferToShow,
+  createShowOffer,
+  deleteOffer,
+  setOfferActive,
+  updateOffer,
+} from "@/lib/actions/offers";
 import { createShowEvent, deleteShowEvent } from "@/lib/actions/events";
 import { deleteShowVideo, updateShowVideoOrientation } from "@/lib/actions/show-videos";
 import { deleteShowImage } from "@/lib/actions/show-images";
@@ -16,7 +24,17 @@ import DeleteButton from "@/components/admin/DeleteButton";
 import { partitionEvents, formatDateLong } from "@/lib/event-helpers";
 import { mediaUrl } from "@/lib/media";
 import { youtubeThumbUrl } from "@/lib/youtube";
-import type { Comedian, EventRow, Show, ShowComedian, ShowImage, ShowVideo, Venue, YoutubeVideo } from "@/lib/types";
+import type {
+  Comedian,
+  EventRow,
+  Offer,
+  Show,
+  ShowComedian,
+  ShowImage,
+  ShowVideo,
+  Venue,
+  YoutubeVideo,
+} from "@/lib/types";
 
 function ShowEventTable({
   items,
@@ -68,6 +86,8 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     { data: youtubeRows },
     { data: eventRows },
     { data: venueRows },
+    { data: offerRows },
+    { data: showRows },
   ] = await Promise.all([
     supabase.from("shows").select("*").eq("id", id).maybeSingle(),
     supabase.from("show_videos").select("*").eq("show_id", id).order("sort_order"),
@@ -77,6 +97,10 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     supabase.from("youtube_videos").select("*").eq("show_id", id).order("sort_order"),
     supabase.from("events").select("*").eq("show_id", id).order("date"),
     supabase.from("venues").select("id, city, venue, lat, lng, show_id").order("city"),
+    // Alle Angebote, nicht nur die dieser Show: der Zuordnungs-Block braucht auch die
+    // unzugeordneten (Altbestand der früheren /angebote-Seite) und die anderer Shows.
+    supabase.from("offers").select("*").order("sort_order"),
+    supabase.from("shows").select("id, name").order("sort_order"),
   ]);
   if (!data) notFound();
   const show = data as Show;
@@ -87,6 +111,15 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
   const youtubeVideos = (youtubeRows ?? []) as YoutubeVideo[];
   const { upcoming: upcomingEvents, past: pastEvents } = partitionEvents((eventRows ?? []) as EventRow[]);
   const venues = (venueRows ?? []) as Venue[];
+  const allOffers = (offerRows ?? []) as Offer[];
+  const allShows = (showRows ?? []) as Pick<Show, "id" | "name">[];
+  const offers = allOffers.filter((o) => o.show_id === show.id);
+  // Zuordenbar: Altbestand ohne Show zuerst, danach die Angebote der anderen Shows.
+  const assignableOffers = [
+    ...allOffers.filter((o) => !o.show_id),
+    ...allOffers.filter((o) => o.show_id && o.show_id !== show.id),
+  ];
+  const showNames = new Map(allShows.map((s) => [s.id, s.name]));
 
   return (
     <>
@@ -112,6 +145,112 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
               <ShowEventTable items={pastEvents} showId={show.id} emptyText="Keine vergangenen Termine." />
             </>
           )}
+        </div>
+      </details>
+
+      <details className="admin-collapsible">
+        <summary>
+          <span className="admin-collapsible-title">Angebote &amp; Promo-Codes ({offers.length})</span>
+          <span className="admin-collapsible-chevron">▾</span>
+        </summary>
+        <div className="admin-collapsible-body">
+          <p>
+            Rabatt-Codes zu dieser Show. Sie erscheinen als eigene Sektion auf der Show-Seite und
+            werden von den Gästen beim Ticketkauf beim jeweiligen Anbieter eingelöst. „Anzeigen" /
+            „Ausblenden" schaltet ein Angebot ohne Löschen aus der Show-Seite heraus.
+          </p>
+
+          {offers.length > 0 && (
+            <>
+              <h3>Angebote dieser Show ({offers.length})</h3>
+              {offers.map((o) => (
+                <details className="admin-collapsible is-nested" key={o.id}>
+                  <summary>
+                    <span className="admin-collapsible-title">
+                      {o.title}
+                      {o.code && ` · ${o.code}`}
+                    </span>
+                    <span className={`status ${o.is_active ? "live" : "draft"}`}>
+                      {o.is_active ? "Wird angezeigt" : "Ausgeblendet"}
+                    </span>
+                    <span className="admin-collapsible-chevron">▾</span>
+                  </summary>
+                  <div className="admin-collapsible-body">
+                    <div className="actions">
+                      {/* Ein-Klick-Schalter neben dem Formular. Das `key` unten hängt an
+                          `is_active`, damit das Formular nach dem Schalten neu mountet und
+                          seine Checkbox nicht den alten Stand zurückschreibt. */}
+                      <form action={setOfferActive.bind(null, o.id, show.id, !o.is_active)}>
+                        <button className="btn secondary">
+                          {o.is_active ? "Ausblenden" : "Anzeigen"}
+                        </button>
+                      </form>
+                      <DeleteButton
+                        action={deleteOffer.bind(null, o.id, show.id)}
+                        confirm={`Angebot „${o.title}“ wirklich löschen?`}
+                      />
+                    </div>
+                    <OfferForm
+                      key={`${o.id}-${o.is_active}-${o.show_id}`}
+                      offer={o}
+                      action={updateOffer.bind(null, o.id, show.id)}
+                      shows={allShows}
+                      currentShowId={show.id}
+                    />
+                  </div>
+                </details>
+              ))}
+            </>
+          )}
+
+          {assignableOffers.length > 0 && (
+            <>
+              <h3 style={{ marginTop: 28 }}>Bestehende Aktionen zuordnen</h3>
+              <p>
+                Aktionen, die noch keiner oder einer anderen Show gehören. Zuordnen hängt sie an „
+                {show.name}" — die frühere Show verliert sie dabei.
+              </p>
+              <div className="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Aktion</th>
+                      <th>Code</th>
+                      <th>Gehört zurzeit zu</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignableOffers.map((o) => (
+                      <tr key={o.id}>
+                        <td>{o.title}</td>
+                        <td>{o.code || "—"}</td>
+                        <td>
+                          {o.show_id ? (
+                            showNames.get(o.show_id) ?? "einer anderen Show"
+                          ) : (
+                            <span className="status draft">keiner Show</span>
+                          )}
+                        </td>
+                        <td>
+                          <form action={assignOfferToShow.bind(null, o.id, show.id, show.id)}>
+                            <button className="btn secondary">Dieser Show zuordnen</button>
+                          </form>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          <h3 style={{ marginTop: 28 }}>Neues Angebot</h3>
+          <OfferForm
+            action={createShowOffer.bind(null, show.id)}
+            shows={allShows}
+            currentShowId={show.id}
+          />
         </div>
       </details>
 

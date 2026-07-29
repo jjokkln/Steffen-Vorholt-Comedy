@@ -7,6 +7,7 @@ import Calendar from "@/components/Calendar";
 import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import ShowGalleries from "@/components/shows/ShowGalleries";
+import ShowOffers from "@/components/shows/ShowOffers";
 import ShowUpcomingEvents from "@/components/shows/ShowUpcomingEvents";
 import SocialLinks from "@/components/SocialLinks";
 import YoutubeGallery from "@/components/YoutubeGallery";
@@ -15,6 +16,7 @@ import {
   getComediansForShowId,
   getEventsForShowId,
   getImagesForShowId,
+  getOffersForShowId,
   getShowBySlug,
   getVideosForShowId,
   getYoutubeVideosForShowId,
@@ -42,12 +44,13 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const show = await getShowBySlug(slug);
   if (!show) notFound();
-  const [events, videos, images, participants, youtubeVideos] = await Promise.all([
+  const [events, videos, images, participants, youtubeVideos, offers] = await Promise.all([
     getEventsForShowId(show.id),
     getVideosForShowId(show.id),
     getImagesForShowId(show.id),
     getComediansForShowId(show.id),
     getYoutubeVideosForShowId(show.id),
+    getOffersForShowId(show.id),
   ]);
   const { upcoming } = partitionEvents(events);
   const now = new Date();
@@ -140,6 +143,19 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
               </article>
             ))}
           </div>
+        </section>
+      )}
+
+      {offers.length > 0 && (
+        <section className="container section" id="angebote">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow" style={{ color: show.color }}>🚀 Angebote</div>
+              <h2>Spar-Codes für {show.name}.</h2>
+            </div>
+            <p>Code merken oder kopieren und beim Ticketkauf eingeben.</p>
+          </div>
+          <ShowOffers offers={offers} color={show.color} />
         </section>
       )}
 

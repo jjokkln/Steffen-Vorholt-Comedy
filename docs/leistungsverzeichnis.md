@@ -43,7 +43,7 @@
 | 3.9 | **Videobereich** mit Einbindung der YouTube-Clips |
 | 3.10 | **Seite „Über Steffen"** mit Vorstellung, Bildern und Werdegang |
 | 3.11 | **Auftritte & Partner** — Auflistung von Bühnen, Veranstaltern und Kooperationen |
-| 3.12 | **Angebotsseite** für laufende Aktionen und Spar-Codes |
+| 3.12 | **Angebote & Spar-Codes je Show** — eigener Abschnitt auf der Show-Seite, Code per Klick kopierbar |
 | 3.13 | **Kontaktseite** mit Erreichbarkeit und Verweisen auf die Social-Media-Kanäle |
 | 3.14 | **Ein-Zeiler / Sprüche** als wiederkehrendes Element |
 | 3.15 | Durchgängige Navigation und Fußbereich auf allen Seiten |
@@ -78,7 +78,7 @@ Eigener, passwortgeschützter Bereich, in dem Steffen die komplette Website selb
 | 5.9 | YouTube-Clips verwalten |
 | 5.10 | Mitwirkende Comedians pflegen und Shows zuordnen |
 | 5.11 | Auftritte und Partner pflegen |
-| 5.12 | Angebote und Aktionen mit Laufzeit anlegen |
+| 5.12 | Angebote und Rabatt-Codes direkt in einer Show anlegen — mit Bild in wählbarem Format |
 | 5.13 | Ein-Zeiler und Sprüche pflegen |
 | 5.14 | Rechtstexte (Impressum, Datenschutz, AGB) selbst bearbeiten |
 | 5.15 | Einstellungen wie Benachrichtigungs-Adressen selbst ändern |
