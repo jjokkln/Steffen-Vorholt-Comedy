@@ -120,8 +120,9 @@ export default function CookieBanner() {
 
         <p id="consent-text" className="consent-text">
           Diese Seite kommt ohne Tracking, ohne Werbe-Cookies und ohne Analyse-Tools aus. Was wir
-          brauchen, ist deine Zustimmung für eine einzige Sache: die eingebetteten YouTube-Videos.
-          Sobald ein Video geladen wird, geht deine IP-Adresse an Google in die USA.
+          brauchen, ist deine Zustimmung für eine einzige Sache: die eingebetteten Videos von
+          YouTube, Instagram, TikTok und Facebook. Sobald so ein Beitrag geladen wird, geht deine
+          IP-Adresse an die jeweilige Plattform.
         </p>
 
         <details className="consent-details">
@@ -133,11 +134,12 @@ export default function CookieBanner() {
               werden von unserem eigenen Server geladen. Keine Cookies, kein Profil, kein Tracking.
             </li>
             <li>
-              <strong>Externe Medien — nur mit deiner Zustimmung.</strong> YouTube-Videos
-              (Google Ireland Ltd. / Google LLC, USA). Beim Laden werden IP-Adresse und
-              Geräteinformationen an Google übertragen und Daten auf deinem Gerät gespeichert.
-              Ohne Zustimmung zeigen wir statt des Videos eine Vorschau — du kannst jedes Video dann
-              trotzdem einzeln per Klick laden.
+              <strong>Externe Medien — nur mit deiner Zustimmung.</strong> Eingebettete Videos und
+              Beiträge von YouTube (Google Ireland Ltd. / Google LLC, USA), Instagram und Facebook
+              (Meta Platforms Ireland Ltd.) sowie TikTok (TikTok Technology Ltd., Irland). Beim Laden
+              werden IP-Adresse und Geräteinformationen an die jeweilige Plattform übertragen und
+              Daten auf deinem Gerät gespeichert. Ohne Zustimmung zeigen wir statt des Beitrags eine
+              Vorschau — du kannst jeden Beitrag dann trotzdem einzeln per Klick laden.
             </li>
           </ul>
           <p className="consent-note">

@@ -11,6 +11,7 @@ import type {
   ShowComedian,
   ShowImage,
   ShowVideo,
+  SocialMediaItem,
   Venue,
   YoutubeVideo,
 } from "@/lib/types";
@@ -129,6 +130,18 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
     .from("gallery_items").select("*").order("sort_order");
   if (error) throw new Error(`getGalleryItems: ${error.message}`);
   return data as GalleryItem[];
+}
+
+/**
+ * Aktive Social-Media-Einträge für den gleichnamigen Abschnitt der Galerie-Seite.
+ * Leeres Ergebnis heißt: Abschnitt wird gar nicht gerendert (siehe app/galerie/page.tsx).
+ */
+export async function getActiveSocialMediaItems(): Promise<SocialMediaItem[]> {
+  const { data, error } = await createPublicClient()
+    .from("social_media_items").select("*").eq("is_active", true).order("sort_order");
+  if (error?.code === "PGRST205") return [];
+  if (error) throw new Error(`getActiveSocialMediaItems: ${error.message}`);
+  return data as SocialMediaItem[];
 }
 
 export async function getActiveOffers(): Promise<Offer[]> {

@@ -14,6 +14,11 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    // `npm test` läuft über `node --test` mit Type-Stripping: Node braucht die
+    // echte Dateiendung im Import-Pfad ("./youtube.ts"), sonst findet es das
+    // Modul nicht. Ohne dieses Flag meldet tsc dafür TS5097 — betraf bisher alle
+    // Test-Dateien. Erlaubt, weil hier ohnehin nur geprüft wird (noEmit).
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,

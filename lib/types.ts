@@ -153,6 +153,43 @@ export interface YoutubeVideo {
   sort_order: number;
 }
 
+/**
+ * Social-Media-Abschnitt der Galerie-Seite. Die Beschriftungen, Farben und
+ * Embed-Regeln je Plattform stehen in lib/social.ts (SOCIAL_PLATFORMS).
+ */
+export type SocialPlatformKey =
+  | "youtube"
+  | "instagram"
+  | "tiktok"
+  | "facebook"
+  | "x"
+  | "linkedin"
+  | "spotify"
+  | "website";
+
+/** "video" = einzelner Beitrag (Embed oder Kachel), "channel" = Profil/Kanal (Chip). */
+export type SocialItemKind = "video" | "channel";
+
+export const SOCIAL_ITEM_KINDS: { key: SocialItemKind; label: string }[] = [
+  { key: "video", label: "Video / Beitrag" },
+  { key: "channel", label: "Kanal / Profil" },
+];
+
+export interface SocialMediaItem {
+  id: string;
+  /** Freier Text in der DB; unbekannte Werte fallen auf das Website-Icon zurück. */
+  platform: string;
+  kind: SocialItemKind;
+  title: string;
+  description: string;
+  url: string;
+  /** Vorschaubild für nicht einbettbare Beiträge (leer = Plattform-Verlauf). */
+  thumbnail_path: string;
+  orientation: VideoOrientation;
+  sort_order: number;
+  is_active: boolean;
+}
+
 export type AppearanceKind = "open_mic" | "guest" | "gig" | "show";
 
 export interface Appearance {

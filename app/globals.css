@@ -1552,6 +1552,89 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .social-chip{display:inline-flex;padding:7px 13px;border-radius:999px;background:rgba(0,0,0,.34);border:1px solid var(--line);font-size:13px;font-weight:900;color:rgba(255,255,255,.9);transition:background .15s,color .15s}
 .social-chip:hover{background:var(--panel2);color:#fff}
 
+/* ── Social Media (Abschnitt auf /galerie) ──
+   --brand ist die Plattform-Markenfarbe, gesetzt inline von SocialMediaSection
+   (Quelle: SOCIAL_PLATFORMS in lib/social.ts). Fallback --ice, damit eine neue
+   Plattform ohne Farbe nicht schwarz durchschlägt. */
+.social-icon{display:block;flex:0 0 auto}
+
+.social-channels{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:28px}
+.social-channel{
+  display:flex;align-items:center;gap:14px;padding:14px 20px 14px 16px;
+  border-radius:20px;background:var(--panel);border:1px solid var(--line);
+  color:inherit;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .25s,background .25s
+}
+.social-channel-icon{
+  display:grid;place-items:center;width:42px;height:42px;border-radius:14px;flex:0 0 auto;
+  color:var(--brand,var(--ice));
+  background:color-mix(in srgb,var(--brand,var(--ice)) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--brand,var(--ice)) 34%,transparent)
+}
+.social-channel-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.social-channel-text strong{font-size:15px;font-weight:950;letter-spacing:-.01em}
+.social-channel-text span{font-size:13px;color:var(--muted);font-weight:800}
+.social-channel-arrow{color:var(--brand,var(--ice));font-weight:950;opacity:.7;transition:transform .25s ease}
+@media (hover:hover) and (pointer:fine){
+  .social-channel:hover{
+    transform:translateY(-4px);background:var(--panel2);
+    border-color:color-mix(in srgb,var(--brand,var(--ice)) 46%,var(--line))
+  }
+  .social-channel:hover .social-channel-arrow{transform:translateX(4px);opacity:1}
+}
+
+/* Gemischte Formate (16:9 und 9:16) in einem Raster: align-items:start, damit
+   hochkant-Kacheln die Zeile nicht auf ihre Höhe zwingen. */
+.social-video-grid{
+  display:grid;gap:24px;align-items:start;
+  grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))
+}
+.social-item{margin:0;display:flex;flex-direction:column;gap:12px}
+.social-frame{
+  position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;
+  border:1px solid var(--line);background:#000;box-shadow:var(--shadow)
+}
+.social-frame[data-orientation="portrait"]{aspect-ratio:9/16}
+/* Der Einwilligungs-Platzhalter braucht mehr Höhe, als ein 16:9-Kasten bei ~300 px
+   Spaltenbreite hergibt (Erklärtext + zwei Buttons + Direktlink ≈ 300 px) — sonst
+   ist „Beitrag laden" abgeschnitten. Sobald der echte Player geladen ist, gilt
+   wieder das exakte Seitenverhältnis. Hochkant hat von sich aus genug Höhe. */
+.social-frame[data-orientation="landscape"]:has(.yt-placeholder){aspect-ratio:auto;min-height:330px}
+.social-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* Nicht einbettbare Beiträge (X, LinkedIn, Kurzlinks): anklickbare Kachel. */
+.social-tile{position:relative;display:block;width:100%;height:100%}
+.social-tile img{object-fit:cover}
+.social-tile-glow{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--brand,var(--ice)) 42%,transparent),transparent 62%),
+    linear-gradient(150deg,rgba(255,255,255,.08),rgba(5,7,17,.9))
+}
+.social-tile-badge{
+  position:absolute;left:14px;bottom:14px;right:14px;
+  display:inline-flex;align-items:center;gap:9px;width:fit-content;max-width:calc(100% - 28px);
+  padding:9px 15px;border-radius:999px;font-size:13px;font-weight:950;
+  background:rgba(5,7,17,.72);border:1px solid var(--line);color:#fff;
+  backdrop-filter:blur(6px);transition:transform .25s ease,background .25s
+}
+@media (hover:hover) and (pointer:fine){
+  .social-tile:hover .social-tile-badge{transform:translateY(-3px);background:rgba(5,7,17,.9)}
+}
+.social-item figcaption{display:flex;flex-direction:column;gap:5px}
+.social-item-platform{
+  display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:950;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--brand,var(--ice))
+}
+.social-item figcaption strong{font-size:15.5px;font-weight:950;letter-spacing:-.01em;line-height:1.25}
+.social-item figcaption p{margin:0;font-size:13.5px;line-height:1.5;color:var(--muted)}
+/* Direktlink im Einwilligungs-Platzhalter (SocialEmbed) — die Option für alle,
+   die nichts von der Plattform laden wollen. */
+.yt-placeholder-link{font-size:12.5px;font-weight:900;color:var(--ice);text-decoration:underline}
+.yt-placeholder-link:hover{color:#fff}
+@media (max-width:520px){
+  .social-channel{width:100%}
+  .social-video-grid{grid-template-columns:1fr}
+}
+
 /* ── Auftritte (Homepage & /steffen: „Wo Steffen selbst auf der Bühne steht") ── */
 .appearance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
 .appearance-card{

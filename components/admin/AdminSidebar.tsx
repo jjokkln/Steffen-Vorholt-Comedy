@@ -29,8 +29,11 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: "Website",
     items: [
+      // „Galerie" heißt nicht mehr „Galerie & Medien": Videos und Speicher haben mit
+      // /admin/medien ihren eigenen Punkt bekommen.
       { href: "/admin/galerie", label: "Galerie" },
       { href: "/admin/medien", label: "Videos & Speicher" },
+      { href: "/admin/social", label: "Social Media" },
       { href: "/admin/youtube", label: "YouTube" },
       { href: "/admin/oneliner", label: "One-Liner" },
     ],
