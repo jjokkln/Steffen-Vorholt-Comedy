@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NRW-Spielortkarte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:#050711;color:#f7f7ff;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:0;
+  }
+  a{color:#42D9FF;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  button{font:inherit}
+
+  /* ── Panel-Rahmen: identisch zu .nrw-map-figure im Programm ─────────── */
+  .atlas{
+    display:grid;
+    grid-template-columns:minmax(0,1.06fr) minmax(320px,.94fr);
+    gap:1px;
+    height:100%;
+    min-height:0;
+    overflow:hidden;
+    border:1px solid rgba(174,235,255,.22);
+    border-radius:32px;
+    background:
+      radial-gradient(circle at 53% 38%,rgba(66,217,255,.12),transparent 42%),
+      linear-gradient(145deg,rgba(17,26,60,.9),rgba(5,7,17,.88));
+    box-shadow:0 30px 80px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.09);
+  }
+  @media (max-width:900px){ .atlas{grid-template-columns:1fr;grid-template-rows:minmax(340px,52vh) auto} }
+
+  /* ── Kartenspalte ───────────────────────────────────────────────────── */
+  .map-col{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column}
+  .map-head{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+    padding:16px 18px 12px;
+    color:rgba(247,247,255,.65);font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;
+  }
+  .map-head-live{color:#7CFF6B;font-size:10px;letter-spacing:.1em;display:inline-flex;align-items:center;gap:6px}
+  .map-head-live::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 12px currentColor}
+
+  .mode-switch{display:flex;gap:4px;padding:3px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(0,0,0,.34)}
+  .mode-switch button{
+    border:0;cursor:pointer;border-radius:999px;padding:7px 13px;
+    font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+    background:transparent;color:rgba(247,247,255,.6);transition:background .18s,color .18s;
+  }
+  .mode-switch button:hover{color:#f7f7ff}
+  .mode-switch button[aria-pressed="true"]{background:#f7f7ff;color:#050711}
+
+  #map{
+    flex:1;min-height:0;margin:0 14px 14px;
+    border-radius:22px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.1);
+    background:#0b1026;
+    outline:none;
+  }
+  body[data-mode="admin"] #map .leaflet-container{cursor:crosshair}
+
+  /* Dunkle Kartendarstellung: OSM-Tiles werden invertiert und entsättigt,
+     damit sie zur dunklen Marken-Oberfläche passen. Labels bleiben lesbar. */
+  .leaflet-container{background:#0b1026;font-family:Inter,sans-serif}
+  .leaflet-tile-pane{
+    filter:invert(1) brightness(.84) contrast(1.04) grayscale(.9) sepia(.42) hue-rotate(176deg) saturate(2.4);
+  }
+  body[data-theme="tief"] .leaflet-tile-pane{
+    filter:invert(1) brightness(.62) contrast(1.14) grayscale(.95) sepia(.5) hue-rotate(178deg) saturate(2.1);
+  }
+  body[data-theme="neutral"] .leaflet-tile-pane{ filter:none }
+  .leaflet-control-attribution{
+    background:rgba(5,7,17,.72)!important;color:rgba(247,247,255,.55)!important;
+    font-size:10px!important;padding:3px 7px!important;border-radius:8px 0 0 0;
+  }
+  .leaflet-control-attribution a{color:rgba(174,235,255,.8)!important}
+  .leaflet-bar{border:0!important;box-shadow:none!important}
+  .leaflet-bar a{
+    background:rgba(5,7,17,.78)!important;color:#f7f7ff!important;
+    border:1px solid rgba(255,255,255,.16)!important;
+    width:32px!important;height:32px!important;line-height:30px!important;
+    font-size:17px!important;font-weight:700;
+    backdrop-filter:blur(10px);
+  }
+  .leaflet-bar a:first-child{border-radius:11px 11px 0 0!important}
+  .leaflet-bar a:last-child{border-radius:0 0 11px 11px!important;border-top:0!important}
+  .leaflet-bar a:hover{background:rgba(255,255,255,.16)!important}
+
+  /* ── Marker ─────────────────────────────────────────────────────────── */
+  .pin{position:relative;width:0;height:0}
+  .pin-halo{
+    position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;
+    border-radius:50%;border:1px solid var(--c);opacity:.55;
+    animation:pin-halo 2.8s ease-out infinite;pointer-events:none;
+  }
+  @keyframes pin-halo{0%{opacity:.6;transform:scale(.45)}70%,100%{opacity:0;transform:scale(1.5)}}
+  .pin-dot{
+    position:absolute;left:50%;top:50%;
+    width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+    border-radius:50%;background:var(--c);
+    box-shadow:0 0 0 2px rgba(5,7,17,.85),0 0 18px var(--c),0 0 42px var(--c);
+    transition:transform .2s ease;
+  }
+  .pin:hover .pin-dot,.pin.is-active .pin-dot{transform:scale(1.35)}
+  .pin.is-active .pin-dot{box-shadow:0 0 0 3px #fff,0 0 24px var(--c),0 0 54px var(--c)}
+  .pin-count{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-size:9px;font-weight:900;color:#050711;pointer-events:none;
+  }
+  .pin-label{
+    position:absolute;left:50%;top:calc(50% + var(--s));transform:translateX(-50%);
+    margin-top:5px;white-space:nowrap;
+    font-size:11px;font-weight:800;letter-spacing:.01em;color:#f7f7ff;
+    text-shadow:0 0 4px #050711,0 0 9px #050711,0 1px 2px #050711;
+    pointer-events:none;
+  }
+  body[data-labels="off"] .pin-label{display:none}
+  .pin-draft .pin-dot{background:#fff;box-shadow:0 0 0 2px #050711,0 0 20px #fff}
+
+  .leaflet-popup-content-wrapper{
+    background:rgba(5,7,17,.92);color:#f7f7ff;border:1px solid rgba(174,235,255,.28);
+    border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.5);backdrop-filter:blur(12px);
+  }
+  .leaflet-popup-content{margin:14px 16px;font-size:13px;line-height:1.5}
+  .leaflet-popup-tip{background:rgba(5,7,17,.92);border:1px solid rgba(174,235,255,.28)}
+  .leaflet-popup-close-button{color:rgba(247,247,255,.6)!important}
+  .pop-title{display:block;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;letter-spacing:-.02em;margin-bottom:3px}
+  .pop-meta{color:rgba(247,247,255,.62);font-size:12px;font-weight:700}
+
+  /* ── Seitenspalte ───────────────────────────────────────────────────── */
+  .side{
+    display:flex;flex-direction:column;min-width:0;min-height:0;
+    border-left:1px solid rgba(255,255,255,.1);
+    background:rgba(0,0,0,.2);
+  }
+  @media (max-width:900px){ .side{border-left:0;border-top:1px solid rgba(255,255,255,.1)} }
+  .side-scroll{overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px;flex:1;min-height:0}
+  .side-scroll::-webkit-scrollbar{width:8px}
+  .side-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:99px}
+
+  .rail{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.045);color:#f7f7ff;
+    padding:9px 12px;border-radius:999px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;
+    transition:transform .2s ease,background .2s ease,border-color .2s ease;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .chip:hover{transform:translateY(-2px);border-color:rgba(174,235,255,.42)}
+  .chip[aria-pressed="true"]{background:#f7f7ff;color:#050711;box-shadow:0 8px 25px rgba(255,255,255,.14)}
+  .chip .chip-dot{width:7px;height:7px;border-radius:50%;background:var(--c,#7CFF6B);box-shadow:0 0 8px var(--c,#7CFF6B);flex:0 0 auto}
+  .chip[aria-pressed="true"] .chip-dot{box-shadow:none}
+
+  .results-head{
+    display:flex;justify-content:space-between;align-items:end;gap:16px;
+    padding:0 2px 14px;border-bottom:1px solid rgba(255,255,255,.13);
+  }
+  .results-eyebrow{display:block;margin-bottom:6px;color:#42D9FF;font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+  .results-head h2{margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,38px);letter-spacing:-.05em;line-height:.98}
+  .results-count{
+    flex:none;padding:8px 11px;border:1px solid rgba(174,235,255,.28);border-radius:999px;
+    background:rgba(66,217,255,.08);color:#AEEBFF;font-size:12px;font-weight:900;white-space:nowrap;
+  }
+  .results-sub{margin:0;color:rgba(247,247,255,.6);font-size:13px;font-weight:700}
+
+  .ev-list{display:grid;gap:10px}
+  .ev{
+    display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:13px;align-items:center;
+    padding:13px;border:1px solid rgba(255,255,255,.14);border-radius:20px;
+    background:rgba(255,255,255,.06);
+    border-left:3px solid var(--c);
+    transition:transform .2s ease,border-color .2s ease,background .2s ease;
+  }
+  .ev:hover{transform:translateY(-2px);background:rgba(255,255,255,.09);border-color:rgba(174,235,255,.34)}
+  .ev-date{text-align:center;border-radius:14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);padding:8px 4px}
+  .ev-date strong{display:block;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1}
+  .ev-date span{display:block;color:rgba(247,247,255,.62);font-size:10px;font-weight:900;text-transform:uppercase;margin-top:2px}
+  .ev-body{min-width:0}
+  .ev-body h3{margin:0 0 3px;font-family:'Space Grotesk',sans-serif;font-size:16px;letter-spacing:-.02em;line-height:1.15}
+  .ev-body p{margin:0;color:rgba(247,247,255,.62);font-size:12.5px;line-height:1.45}
+  .ev-cta{
+    border:0;border-radius:999px;padding:10px 14px;font-size:13px;font-weight:900;white-space:nowrap;
+    background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;cursor:pointer;
+    box-shadow:0 10px 26px rgba(232,163,61,.24);transition:.18s ease;
+  }
+  .ev-cta:hover{transform:translateY(-2px);filter:brightness(1.07)}
+  .ev-cta.is-soon{background:rgba(255,255,255,.1);color:rgba(247,247,255,.72);border:1px solid rgba(255,255,255,.18);box-shadow:none}
+
+  .empty{
+    padding:20px;border-radius:20px;border:1px dashed rgba(255,255,255,.28);
+    background:rgba(255,255,255,.04);color:rgba(247,247,255,.66);font-size:14px;line-height:1.6;
+  }
+
+  /* ── Admin-Bereich ──────────────────────────────────────────────────── */
+  .admin{display:none;flex-direction:column;gap:14px}
+  body[data-mode="admin"] .admin{display:flex}
+  body[data-mode="admin"] .visitor{display:none}
+  .admin-hint{
+    display:flex;gap:11px;align-items:flex-start;
+    padding:14px 16px;border-radius:18px;
+    background:rgba(66,217,255,.08);border:1px solid rgba(174,235,255,.26);
+    color:rgba(247,247,255,.84);font-size:13px;line-height:1.55;
+  }
+  .admin-hint b{color:#AEEBFF}
+  .field{display:grid;gap:6px}
+  .field > span{color:rgba(255,255,255,.84);font-size:12px;font-weight:800}
+  .field input,.field select{
+    border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(0,0,0,.3);
+    color:#f7f7ff;padding:11px 13px;width:100%;outline:none;font:inherit;font-weight:400;font-size:14px;
+  }
+  .field input:focus,.field select:focus{border-color:rgba(174,235,255,.5)}
+  .coords{
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+    color:rgba(247,247,255,.6);padding:9px 12px;border-radius:12px;
+    background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{
+    border:0;border-radius:999px;padding:12px 18px;font-weight:900;font-size:14px;white-space:nowrap;
+    cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.18s ease;
+  }
+  .btn:disabled{opacity:.42;cursor:default}
+  .btn-gold{background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 12px 30px rgba(232,163,61,.24)}
+  .btn-ghost{background:rgba(255,255,255,.1);color:#f7f7ff;border:1px solid rgba(255,255,255,.18)}
+  .btn-danger{background:rgba(255,85,119,.16);color:#ffd0da;border:1px solid rgba(255,85,119,.42)}
+  .btn:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.06)}
+
+  .loc-table{display:grid;gap:8px}
+  .loc-row{
+    display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:11px;align-items:center;
+    padding:11px 13px;border:1px solid rgba(255,255,255,.13);border-radius:16px;background:rgba(255,255,255,.05);
+  }
+  .loc-row .chip-dot{width:9px;height:9px;border-radius:50%;background:var(--c);box-shadow:0 0 10px var(--c)}
+  .loc-name{min-width:0}
+  .loc-name strong{display:block;font-size:14px;font-weight:800}
+  .loc-name span{display:block;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:rgba(247,247,255,.5);margin-top:2px}
+  .loc-badge{
+    padding:5px 9px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:rgba(247,247,255,.72);
+  }
+  .loc-row button{
+    border:1px solid rgba(255,85,119,.42);background:rgba(255,85,119,.14);color:#ffd0da;
+    border-radius:999px;width:30px;height:30px;cursor:pointer;font-size:13px;line-height:1;
+    display:grid;place-items:center;transition:background .18s;
+  }
+  .loc-row button:hover{background:rgba(255,85,119,.28)}
+  .loc-row[data-seed="1"] button{opacity:.3;pointer-events:none}
+
+  .section-label{
+    font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(247,247,255,.45);display:flex;align-items:center;gap:11px;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:rgba(255,255,255,.13)}
+
+  .toast{
+    position:absolute;left:50%;bottom:22px;transform:translateX(-50%) translateY(14px);
+    padding:11px 17px;border-radius:14px;font-size:13px;font-weight:800;
+    background:rgba(119,255,183,.16);border:1px solid rgba(119,255,183,.42);color:#caffe3;
+    box-shadow:0 20px 50px rgba(0,0,0,.4);
+    opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s ease;z-index:900;
+  }
+  .toast.is-on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media (prefers-reduced-motion:reduce){
+    .pin-halo{animation:none;opacity:.35}
+    .chip:hover,.ev:hover,.btn:hover,.ev-cta:hover{transform:none}
+  }
+</style>
+</head>
+<body data-mode="besucher" data-theme="cosmic" data-labels="on">
+
+<div class="atlas">
+  <!-- ── Karte ── -->
+  <div class="map-col">
+    <div class="map-head">
+      <span>Nordrhein-Westfalen · Spielorte</span>
+      <div class="mode-switch" role="group" aria-label="Modus">
+        <button type="button" id="mBesucher" aria-pressed="true">Besucher</button>
+        <button type="button" id="mAdmin" aria-pressed="false">Standorte pflegen</button>
+      </div>
+      <span class="map-head-live">Live</span>
+    </div>
+    <div id="map"></div>
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- ── Seitenspalte ── -->
+  <div class="side">
+    <div class="side-scroll">
+
+      <!-- Besucher-Ansicht -->
+      <div class="visitor" style="display:flex;flex-direction:column;gap:18px">
+        <div class="rail" id="rail" role="group" aria-label="Ort wählen"></div>
+        <div class="results-head">
+          <div>
+            <span class="results-eyebrow" id="resEyebrow">Alle Spielorte</span>
+            <h2 id="resTitle">Nordrhein-Westfalen</h2>
+          </div>
+          <span class="results-count" id="resCount">0 Termine</span>
+        </div>
+        <div class="ev-list" id="evList"></div>
+      </div>
+
+      <!-- Admin-Ansicht -->
+      <div class="admin">
+        <div class="admin-hint">
+          <span aria-hidden="true">📍</span>
+          <span><b>Klick in die Karte</b>, wo der neue Spielort liegt — dann Namen und Show eintragen und speichern. Der Ort erscheint sofort für Besucher, Termine hängen sich automatisch daran.</span>
+        </div>
+
+        <span class="section-label">Neuer Standort</span>
+        <div class="coords" id="draftCoords">Noch kein Punkt gesetzt — bitte in die Karte klicken.</div>
+        <label class="field"><span>Ort</span><input id="fCity" placeholder="z. B. Bochum" autocomplete="off"></label>
+        <label class="field"><span>Location</span><input id="fVenue" placeholder="z. B. Bahnhof Langendreer" autocomplete="off"></label>
+        <label class="field"><span>Show</span>
+          <select id="fShow">
+            <option value="#7CFF6B">Brain Loading</option>
+            <option value="#AEEBFF">Comedy Eiskalt</option>
+            <option value="#FF9F43">Comedy Check-In</option>
+          </select>
+        </label>
+        <div class="row">
+          <button class="btn btn-gold" id="btnSave" disabled>Standort speichern</button>
+          <button class="btn btn-ghost" id="btnCancel" disabled>Abbrechen</button>
+        </div>
+
+        <span class="section-label">Gepflegte Standorte</span>
+        <div class="loc-table" id="locTable"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SHOWS = {
+    "#7CFF6B": "Brain Loading",
+    "#AEEBFF": "Comedy Eiskalt",
+    "#FF9F43": "Comedy Check-In"
+  };
+  var MONTHS = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  var STORE = "sv-nrw-locations";
+
+  // Bestandsdaten aus supabase/seed.sql — echte Koordinaten aus lib/nrw-geo.ts.
+  var SEED = [
+    { id: "s1", city: "Oberhausen", venue: "Druckluft", lat: 51.47, lng: 6.85, color: "#7CFF6B", seed: true,
+      events: [{ date: "2026-02-12", start: "20:00", entry: "19:00", provider: "Eventbrite", ticket: true }] },
+    { id: "s2", city: "Neuss", venue: "Further Str. 127", lat: 51.20, lng: 6.69, color: "#7CFF6B", seed: true,
+      events: [{ date: "2026-04-09", start: "20:00", entry: "19:00", provider: "Rausgegangen", ticket: true }] },
+    { id: "s3", city: "Bergisch Gladbach", venue: "Eissportarena", lat: 50.99, lng: 7.13, color: "#AEEBFF", seed: true,
+      events: [{ date: "2026-03-06", start: "19:30", entry: "19:00", provider: "", ticket: false }] },
+    { id: "s4", city: "Dortmund", venue: "Subrosa", lat: 51.51, lng: 7.47, color: "#7CFF6B", seed: true,
+      events: [{ date: "2026-05-21", start: "20:00", entry: "19:15", provider: "Eventbrite", ticket: true }] },
+    { id: "s5", city: "Köln", venue: "Wechselnde Bühne", lat: 50.94, lng: 6.96, color: "#FF9F43", seed: true,
+      events: [] }
+  ];
+
+  var params = new URLSearchParams(location.search);
+  var body = document.body;
+  var markerScale = clamp(parseFloat(params.get("markerScale")) || 1, 0.6, 1.8);
+  if (params.get("mode") === "admin") setMode("admin");
+  if (params.get("theme")) body.setAttribute("data-theme", params.get("theme"));
+  if (params.get("labels") === "off") body.setAttribute("data-labels", "off");
+  var showLines = params.get("lines") !== "off";
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+
+  var custom = [];
+  try {
+    var raw = localStorage.getItem(STORE);
+    if (raw) custom = JSON.parse(raw) || [];
+  } catch (e) { custom = []; }
+
+  function persist() {
+    try { localStorage.setItem(STORE, JSON.stringify(custom)); } catch (e) {}
+  }
+  function all() { return SEED.concat(custom); }
+
+  // ── Karte ────────────────────────────────────────────────────────────
+  var NRW = L.latLngBounds([50.29, 5.83], [52.55, 9.50]);
+  var map = L.map("map", {
+    zoomControl: false,
+    attributionControl: true,
+    maxBounds: NRW.pad(0.35),
+    maxBoundsViscosity: 0.75,
+    minZoom: 6,
+    maxZoom: 15,
+    zoomSnap: 0.25,
+    scrollWheelZoom: false
+  });
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap contributors",
+    maxZoom: 19,
+    detectRetina: true
+  }).addTo(map);
+  L.control.zoom({ position: "bottomright" }).addTo(map);
+  map.fitBounds(NRW, { padding: [12, 12] });
+  map.on("click", function () { map.scrollWheelZoom.enable(); });
+  map.on("mouseout", function () { map.scrollWheelZoom.disable(); });
+
+  var pinLayer = L.layerGroup().addTo(map);
+  var lineLayer = L.layerGroup().addTo(map);
+  var draftMarker = null;
+  var draft = null;
+  var selected = null;
+
+  function pinIcon(loc, active) {
+    var count = loc.events.length;
+    var size = Math.round((count > 0 ? 15 : 11) * markerScale);
+    var label = loc.city.replace(/</g, "");
+    return L.divIcon({
+      className: "",
+      iconSize: [0, 0],
+      html:
+        '<div class="pin' + (active ? " is-active" : "") + '" style="--c:' + loc.color + ";--s:" + size + 'px">' +
+          (count > 0 ? '<span class="pin-halo"></span>' : "") +
+          '<span class="pin-dot"></span>' +
+          (count > 1 ? '<span class="pin-count">' + count + "</span>" : "") +
+          '<span class="pin-label">' + label + "</span>" +
+        "</div>"
+    });
+  }
+
+  function drawPins() {
+    pinLayer.clearLayers();
+    lineLayer.clearLayers();
+    var list = all();
+
+    if (showLines && list.length > 1) {
+      // Sternbild-Linien: jeder Ort verbindet sich mit seinem nächsten Nachbarn.
+      list.forEach(function (a) {
+        var best = null, bestD = Infinity;
+        list.forEach(function (b) {
+          if (a === b) return;
+          var d = Math.pow(a.lat - b.lat, 2) + Math.pow(a.lng - b.lng, 2);
+          if (d < bestD) { bestD = d; best = b; }
+        });
+        if (best) {
+          L.polyline([[a.lat, a.lng], [best.lat, best.lng]], {
+            color: "#AEEBFF", weight: 1, opacity: 0.28, dashArray: "3 7", interactive: false
+          }).addTo(lineLayer);
+        }
+      });
+    }
+
+    list.forEach(function (loc) {
+      var m = L.marker([loc.lat, loc.lng], {
+        icon: pinIcon(loc, selected === loc.id),
+        keyboard: true,
+        title: loc.city + " – " + loc.venue,
+        riseOnHover: true
+      });
+      m.bindPopup(
+        '<span class="pop-title">' + loc.city + "</span>" +
+        '<span class="pop-meta">' + loc.venue + " · " + SHOWS[loc.color] + "</span><br>" +
+        '<span class="pop-meta">' + (loc.events.length ? loc.events.length + " Termin" + (loc.events.length > 1 ? "e" : "") : "Termin folgt") + "</span>"
+      );
+      m.on("click", function () { select(loc.id); });
+      m.addTo(pinLayer);
+    });
+  }
+
+  // ── Besucher-Seitenspalte ────────────────────────────────────────────
+  var rail = document.getElementById("rail");
+  var evList = document.getElementById("evList");
+  var resTitle = document.getElementById("resTitle");
+  var resEyebrow = document.getElementById("resEyebrow");
+  var resCount = document.getElementById("resCount");
+
+  function totalEvents(list) {
+    return list.reduce(function (n, l) { return n + l.events.length; }, 0);
+  }
+
+  function drawRail() {
+    rail.textContent = "";
+    var allBtn = document.createElement("button");
+    allBtn.type = "button";
+    allBtn.className = "chip";
+    allBtn.setAttribute("aria-pressed", selected === null ? "true" : "false");
+    allBtn.textContent = "Alle Orte";
+    allBtn.onclick = function () { select(null); };
+    rail.appendChild(allBtn);
+
+    all().forEach(function (loc) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.style.setProperty("--c", loc.color);
+      b.setAttribute("aria-pressed", selected === loc.id ? "true" : "false");
+      var d = document.createElement("span");
+      d.className = "chip-dot";
+      b.appendChild(d);
+      b.appendChild(document.createTextNode(loc.city));
+      b.onclick = function () { select(loc.id); };
+      rail.appendChild(b);
+    });
+  }
+
+  function drawEvents() {
+    var list = selected ? all().filter(function (l) { return l.id === selected; }) : all();
+    var rows = [];
+    list.forEach(function (loc) {
+      loc.events.forEach(function (ev) { rows.push({ loc: loc, ev: ev }); });
+    });
+    rows.sort(function (a, b) { return a.ev.date < b.ev.date ? -1 : 1; });
+
+    var sel = selected ? all().filter(function (l) { return l.id === selected; })[0] : null;
+    resTitle.textContent = sel ? sel.city : "Nordrhein-Westfalen";
+    resEyebrow.textContent = sel ? sel.venue : all().length + " Spielorte";
+    resCount.textContent = rows.length + (rows.length === 1 ? " Termin" : " Termine");
+
+    evList.textContent = "";
+    if (!rows.length) {
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = sel
+        ? "Für " + sel.city + " ist gerade kein Termin geplant – Steffen schreibt vermutlich neue Witze."
+        : "Gerade keine Termine geplant.";
+      evList.appendChild(e);
+      return;
+    }
+
+    rows.forEach(function (r) {
+      var d = new Date(r.ev.date + "T00:00:00");
+      var card = document.createElement("article");
+      card.className = "ev";
+      card.style.setProperty("--c", r.loc.color);
+
+      var date = document.createElement("div");
+      date.className = "ev-date";
+      var day = document.createElement("strong");
+      day.textContent = String(d.getDate()).padStart(2, "0");
+      var mon = document.createElement("span");
+      mon.textContent = MONTHS[d.getMonth()];
+      date.appendChild(day); date.appendChild(mon);
+
+      var bodyEl = document.createElement("div");
+      bodyEl.className = "ev-body";
+      var h = document.createElement("h3");
+      h.textContent = SHOWS[r.loc.color];
+      var p = document.createElement("p");
+      var meta = r.loc.city + " · " + r.loc.venue;
+      if (r.ev.start) meta += " · " + r.ev.start;
+      if (r.ev.provider) meta += " · " + r.ev.provider;
+      p.textContent = meta;
+      bodyEl.appendChild(h); bodyEl.appendChild(p);
+
+      var cta = document.createElement("button");
+      cta.type = "button";
+      cta.className = "ev-cta" + (r.ev.ticket ? "" : " is-soon");
+      cta.textContent = r.ev.ticket ? "Tickets" : "Bald";
+      if (!r.ev.ticket) cta.disabled = true;
+
+      card.appendChild(date); card.appendChild(bodyEl); card.appendChild(cta);
+      card.onclick = function () { select(r.loc.id); };
+      evList.appendChild(card);
+    });
+  }
+
+  function select(id) {
+    selected = id;
+    drawPins();
+    drawRail();
+    drawEvents();
+    if (id) {
+      var loc = all().filter(function (l) { return l.id === id; })[0];
+      if (loc) map.flyTo([loc.lat, loc.lng], Math.max(map.getZoom(), 9), { duration: 0.7 });
+    } else {
+      map.flyToBounds(NRW, { padding: [12, 12], duration: 0.7 });
+    }
+  }
+
+  // ── Admin ────────────────────────────────────────────────────────────
+  var fCity = document.getElementById("fCity");
+  var fVenue = document.getElementById("fVenue");
+  var fShow = document.getElementById("fShow");
+  var btnSave = document.getElementById("btnSave");
+  var btnCancel = document.getElementById("btnCancel");
+  var draftCoords = document.getElementById("draftCoords");
+  var locTable = document.getElementById("locTable");
+  var toast = document.getElementById("toast");
+  var toastTimer = null;
+
+  function say(msg) {
+    toast.textContent = msg;
+    toast.classList.add("is-on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("is-on"); }, 2600);
+  }
+
+  function setMode(mode) {
+    document.body.setAttribute("data-mode", mode);
+    var a = document.getElementById("mAdmin");
+    var b = document.getElementById("mBesucher");
+    if (a && b) {
+      a.setAttribute("aria-pressed", mode === "admin" ? "true" : "false");
+      b.setAttribute("aria-pressed", mode === "admin" ? "false" : "true");
+    }
+  }
+  document.getElementById("mAdmin").onclick = function () { setMode("admin"); };
+  document.getElementById("mBesucher").onclick = function () { setMode("besucher"); clearDraft(); };
+
+  function clearDraft() {
+    draft = null;
+    if (draftMarker) { map.removeLayer(draftMarker); draftMarker = null; }
+    draftCoords.textContent = "Noch kein Punkt gesetzt — bitte in die Karte klicken.";
+    btnSave.disabled = true;
+    btnCancel.disabled = true;
+  }
+
+  map.on("click", function (e) {
+    if (document.body.getAttribute("data-mode") !== "admin") return;
+    draft = { lat: Math.round(e.latlng.lat * 1e4) / 1e4, lng: Math.round(e.latlng.lng * 1e4) / 1e4 };
+    if (draftMarker) map.removeLayer(draftMarker);
+    draftMarker = L.marker([draft.lat, draft.lng], {
+      icon: L.divIcon({
+        className: "",
+        iconSize: [0, 0],
+        html: '<div class="pin pin-draft" style="--c:#fff;--s:13px"><span class="pin-halo"></span><span class="pin-dot"></span><span class="pin-label">Neuer Standort</span></div>'
+      })
+    }).addTo(map);
+    draftCoords.textContent = draft.lat.toFixed(4) + " N, " + draft.lng.toFixed(4) + " E";
+    btnSave.disabled = !fCity.value.trim();
+    btnCancel.disabled = false;
+  });
+
+  fCity.addEventListener("input", function () {
+    btnSave.disabled = !(draft && fCity.value.trim());
+  });
+
+  btnSave.onclick = function () {
+    if (!draft || !fCity.value.trim()) return;
+    custom.push({
+      id: "c" + Date.now(),
+      city: fCity.value.trim(),
+      venue: fVenue.value.trim() || "Location folgt",
+      lat: draft.lat,
+      lng: draft.lng,
+      color: fShow.value,
+      events: []
+    });
+    persist();
+    fCity.value = ""; fVenue.value = "";
+    clearDraft();
+    drawPins(); drawRail(); drawEvents(); drawLocTable();
+    say("Standort gespeichert – Karte aktualisiert.");
+  };
+  btnCancel.onclick = clearDraft;
+
+  function drawLocTable() {
+    locTable.textContent = "";
+    all().forEach(function (loc) {
+      var row = document.createElement("div");
+      row.className = "loc-row";
+      row.style.setProperty("--c", loc.color);
+      if (loc.seed) row.setAttribute("data-seed", "1");
+
+      var dot = document.createElement("span");
+      dot.className = "chip-dot";
+
+      var name = document.createElement("div");
+      name.className = "loc-name";
+      var s = document.createElement("strong");
+      s.textContent = loc.city + " · " + loc.venue;
+      var c = document.createElement("span");
+      c.textContent = loc.lat.toFixed(3) + " N, " + loc.lng.toFixed(3) + " E";
+      name.appendChild(s); name.appendChild(c);
+
+      var badge = document.createElement("span");
+      badge.className = "loc-badge";
+      badge.textContent = loc.events.length ? loc.events.length + " Termine" : "kein Termin";
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.title = loc.seed ? "Bestandsdaten kommen aus Supabase" : "Standort löschen";
+      del.textContent = "✕";
+      del.onclick = function () {
+        custom = custom.filter(function (l) { return l.id !== loc.id; });
+        persist();
+        if (selected === loc.id) selected = null;
+        drawPins(); drawRail(); drawEvents(); drawLocTable();
+        say("Standort entfernt.");
+      };
+
+      row.appendChild(dot); row.appendChild(name); row.appendChild(badge); row.appendChild(del);
+      locTable.appendChild(row);
+    });
+  }
+
+  // ── Start ────────────────────────────────────────────────────────────
+  drawPins();
+  drawRail();
+  drawEvents();
+  drawLocTable();
+  setTimeout(function () { map.invalidateSize(); }, 120);
+  window.addEventListener("resize", function () { map.invalidateSize(); });
+})();
+</script>
+</body>
+</html>

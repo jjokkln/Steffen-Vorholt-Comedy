@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#050711;color:#f7f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  *{box-sizing:border-box}
+  img,video{max-width:100%;display:block}
+  @keyframes sv-stars{to{transform:translateY(320px)}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),radial-gradient(circle at 90% 10%,rgba(66,217,255,.22),transparent 28%),radial-gradient(circle at 70% 72%,rgba(255,79,216,.18),transparent 28%),linear-gradient(180deg,#050711,#0b1026 48%,#050711);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f7f7ff">
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#fff 1px,transparent 1px);background-size:72px 72px,128px 128px;background-position:0 0,34px 48px;animation:sv-stars 90s linear infinite"></div>
+  <div style="position:relative;z-index:1">
+
+    <nav style="position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px clamp(18px,4vw,64px);border-bottom:1px solid rgba(255,255,255,.18);background:rgba(5,7,17,.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)">
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="01 Startseite.dc.html" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;font-size:17px;white-space:nowrap">
+          <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+          <span>Steffen Vorholt</span>
+        </a>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <a href="01 Startseite.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Startseite</a>
+        <a href="02 Shows.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Shows</a>
+        <a href="04 Steffen.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Steffen</a>
+        <a href="05 Kontakt.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Booking &amp; Kontakt</a>
+        <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:14px;font-weight:800">Angebote</a>
+        <a href="07 Galerie.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Galerie &amp; Gästebuch</a>
+        <a href="02 Shows.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:linear-gradient(135deg,#FFD166,#FF9F43);color:#050711;font-size:14px;font-weight:950">🎟 Tickets</a>
+      </div>
+    </nav>
+
+    <header style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">🚀 Angebote</div>
+      <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(54px,9vw,132px);letter-spacing:-.075em;line-height:.93">Aktuelle Aktionen.</h1>
+      <p style="color:rgba(247,247,255,.72);font-size:clamp(18px,2vw,24px);line-height:1.66;max-width:770px;margin:24px 0 0">Spar-Codes, Aktionen und besondere Deals – schnapp sie dir, solange sie laufen.</p>
+    </header>
+
+    <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px">
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden">
+          <div style="position:relative">
+            <span style="position:absolute;top:14px;left:16px;padding:7px 12px;border-radius:999px;white-space:nowrap;background:#FF4FD8;color:#fff;font-size:12px;font-weight:900;z-index:1">Aktion</span>
+            <div style="width:100%;height:200px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px);display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.45)">offer poster 600×400</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Rettember</h3>
+            <p style="font-weight:850;color:#f7f7ff;margin:0">Der Monat für alle im Rettungsdienst</p>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Weil ich selbst im Rettungsdienst war: den ganzen September gibt's auf jedes Ticket einen Rabatt für Rettungskräfte, Pflege und Feuerwehr.</p>
+            <p style="margin:0;font-weight:850;color:rgba(247,247,255,.72)">Code: <span style="display:inline-block;background:#f7f7ff;color:#050711;padding:3px 10px;border-radius:8px;letter-spacing:.04em">RETTEMBER</span></p>
+            <p style="margin:0;font-size:13px;color:rgba(247,247,255,.72)">Gültig 01.09.–30.09.2026</p>
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;width:max-content">Zur Aktion</a>
+          </div>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden">
+          <div style="position:relative">
+            <span style="position:absolute;top:14px;left:16px;padding:7px 12px;border-radius:999px;white-space:nowrap;background:#FF4FD8;color:#fff;font-size:12px;font-weight:900;z-index:1">Aktion</span>
+            <div style="width:100%;height:200px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px);display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.45)">offer poster 600×400</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Missions Pass</h3>
+            <p style="font-weight:850;color:#f7f7ff;margin:0">Drei Shows, ein Preis</p>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Alle drei Formate einmal sehen — Brain Loading, Comedy Eiskalt und Comedy Check-In — und beim dritten Besuch zahlst du nichts.</p>
+            <p style="margin:0;font-weight:850;color:rgba(247,247,255,.72)">Code: <span style="display:inline-block;background:#f7f7ff;color:#050711;padding:3px 10px;border-radius:8px;letter-spacing:.04em">MISSION3</span></p>
+            <p style="margin:0;font-size:13px;color:rgba(247,247,255,.72)">Solange die Saison läuft</p>
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;justify-content:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;width:max-content">Zur Aktion</a>
+          </div>
+        </article>
+      </div>
+
+      <!-- Leer-Zustand (offers.length === 0) -->
+      <div style="margin-top:40px;display:flex;flex-direction:column;gap:12px">
+        <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">Zustand: keine Aktion aktiv</span>
+        <div style="padding:22px;border-radius:24px;border:1px dashed rgba(255,255,255,.3);color:rgba(247,247,255,.72);background:rgba(255,255,255,.05);font-size:17px;line-height:1.66">Gerade keine Aktion aktiv – aber Steffen heckt bestimmt schon die nächste aus. Schau bald wieder rein!</div>
+      </div>
+    </section>
+
+    <footer style="border-top:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.22);padding:42px 0">
+      <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);display:grid;grid-template-columns:1.2fr repeat(3,.7fr);gap:24px">
+        <div>
+          <a href="01 Startseite.dc.html" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;font-size:17px;white-space:nowrap;margin-bottom:12px">
+            <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+            <span>Comedy-Universum</span>
+          </a>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0">Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Shows</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="03 Show-Detail.dc.html">Brain Loading</a><br><a href="03 Show-Detail.dc.html">Comedy Eiskalt</a><br><a href="03 Show-Detail.dc.html">Comedy Check-In</a></p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Entdecken</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="02 Shows.dc.html">Shows &amp; Termine</a><br><a href="#">Angebote</a><br><a href="07 Galerie.dc.html">Galerie &amp; Gästebuch</a><br><a href="04 Steffen.dc.html">Über Steffen</a><br><a href="05 Kontakt.dc.html">Booking &amp; Kontakt</a></p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Rechtliches</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="08 Rechtliches.dc.html">Impressum</a><br><a href="08 Rechtliches.dc.html">Datenschutz</a><br><a href="08 Rechtliches.dc.html">AGB</a><br><button style="background:none;border:0;padding:0;margin:0;cursor:pointer;font:inherit;color:rgba(247,247,255,.72);text-align:left" style-hover="color:#f7f7ff;text-decoration:underline">Cookie-Einstellungen</button></p>
+        </div>
+      </div>
+      <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:18px;color:rgba(247,247,255,.72);font-size:13px">© 2026 Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Recklinghausen und Andromeda gebaut.</div>
+    </footer>
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

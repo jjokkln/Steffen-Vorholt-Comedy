@@ -1,6 +1,13 @@
 # Umsetzung Design-Handoff „Cosmic-Galaxie" (29.07.2026)
 
 Quelle: `design_handoff_cosmic_galaxie/README.md` (Ordner bleibt im Repo).
+
+**Hinweis zu `design_handoff_cosmic_galaxie/assets/`:** nicht versioniert. Alle neun Dateien
+darin sind byte-identische Kopien von Bildern, die unter `public/assets/media/` schon im Repo
+liegen (per SHA-256 geprüft) — der Handoff sagt das selbst so („nur Kopien für die Vorschau").
+Wer die `.dc.html`-Vorschauen mit Bildern öffnen will, kopiert sie von dort:
+`brand/logo_steffen.png`, `shows/brain-loading/brain-loading-{card,hero,planet}.webp`,
+`shows/comedy-{check-in,eiskalt}/*-planet.webp`, `steffen/steffen-hero-{cutout,right}.png`.
 Alle vier Aufgaben abgearbeitet, je ein Commit. Build und `npm test` (42 Tests) nach jedem
 Schritt grün.
 

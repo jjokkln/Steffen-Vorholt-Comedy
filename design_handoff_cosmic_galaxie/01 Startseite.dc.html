@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#050711;color:#f7f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  *{box-sizing:border-box}
+  img,video{max-width:100%;display:block}
+  @keyframes sv-stars{to{transform:translateY(320px)}}
+  @keyframes sv-pulse{50%{transform:scale(1.45);opacity:.55}}
+  @keyframes sv-float{50%{transform:translateY(-14px) rotate(3deg)}}
+  @keyframes sv-eventpulse{50%{filter:brightness(1.2)}}
+  @keyframes sv-comet{0%{transform:translate3d(0,0,0) rotate(20deg);opacity:0}3%{opacity:.85}11%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}100%{transform:translate3d(72vw,26vw,0) rotate(20deg);opacity:0}}
+  @keyframes sv-orbit-spin{from{transform:rotate(var(--start))}to{transform:rotate(calc(var(--start) + 360deg))}}
+  @keyframes sv-orbit-hold{from{transform:rotate(calc(var(--start) * -1))}to{transform:rotate(calc(var(--start) * -1 - 360deg))}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),radial-gradient(circle at 90% 10%,rgba(66,217,255,.22),transparent 28%),radial-gradient(circle at 70% 72%,rgba(255,79,216,.18),transparent 28%),linear-gradient(180deg,#050711,#0b1026 48%,#050711);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f7f7ff">
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#fff 1px,transparent 1px);background-size:72px 72px,128px 128px;background-position:0 0,34px 48px;animation:sv-stars 90s linear infinite"></div>
+
+  <div style="position:relative;z-index:1">
+
+    <!-- ─── NAV ─── -->
+    <nav style="position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px clamp(18px,4vw,64px);border-bottom:1px solid rgba(255,255,255,.18);background:rgba(5,7,17,.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)">
+      <div style="display:flex;align-items:center;gap:12px">
+        <a href="#" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;font-size:17px;white-space:nowrap">
+          <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+          <span>Steffen Vorholt</span>
+        </a>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+        <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:14px;font-weight:800">Startseite</a>
+        <a href="02 Shows.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Shows</a>
+        <a href="04 Steffen.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Steffen</a>
+        <a href="05 Kontakt.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Booking &amp; Kontakt</a>
+        <a href="06 Angebote.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Angebote</a>
+        <a href="07 Galerie.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Galerie &amp; Gästebuch</a>
+        <a href="02 Shows.dc.html" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:linear-gradient(135deg,#FFD166,#FF9F43);color:#050711;font-size:14px;font-weight:950">🎟 Tickets</a>
+      </div>
+    </nav>
+
+    <!-- ─── HERO (hero-scroll-shell) ─── -->
+    <div style="position:relative">
+      <header ref="{{ heroRef }}" style="position:relative;min-height:calc(100vh - 84px);overflow:hidden;isolation:isolate;transform-origin:50% 20%;background:radial-gradient(circle at 22% 32%,rgba(155,92,255,.3),transparent 32%),radial-gradient(circle at 82% 42%,rgba(66,217,255,.16),transparent 34%)">
+        <span style="position:absolute;z-index:0;top:10%;left:-14%;width:190px;height:2px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(174,235,255,.95));border-radius:999px;opacity:0;animation:sv-comet 13s linear 2.5s infinite"></span>
+        <span style="position:absolute;z-index:0;top:56%;left:-18%;width:130px;height:2px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(174,235,255,.95));border-radius:999px;opacity:0;animation:sv-comet 19s linear 9s infinite"></span>
+
+        <a href="04 Steffen.dc.html" style="position:absolute;z-index:0;bottom:0;right:clamp(12px,3vw,72px);display:block;line-height:0;transform:translateY(22%)">
+          <img src="assets/steffen-hero-cutout.png" alt="Steffen Vorholt" style="display:block;width:clamp(280px,29vw,500px);height:auto;filter:drop-shadow(0 30px 54px rgba(0,0,0,.6));transition:filter .3s ease">
+        </a>
+
+        <div style="position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(95deg,rgba(5,7,17,.78) 0%,rgba(5,7,17,.5) 30%,rgba(5,7,17,.12) 52%,transparent 68%)"></div>
+
+        <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);min-height:calc(100vh - 84px);display:grid;grid-template-columns:1fr;align-items:center;padding-block:clamp(48px,5vw,84px)">
+          <div style="position:relative;z-index:6;max-width:min(52rem,100%)">
+            <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">
+              <span style="width:10px;height:10px;border-radius:50%;background:#7CFF6B;box-shadow:0 0 24px #7CFF6B;animation:sv-pulse 1.8s infinite"></span> WILLKOMMEN – LIVE-COMEDY AUS NRW
+            </div>
+            <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;letter-spacing:-.075em;display:grid;gap:.02em;font-size:clamp(27px,4.6vw,44px);line-height:1.12">
+              <span style="display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em"><span style="display:block;width:max-content;max-width:100%">Wenn du auf der Suche nach</span></span>
+              <span style="display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em"><span style="display:block;width:max-content;max-width:100%">schlechter Laune bist,</span></span>
+              <span style="display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em"><span style="display:block;width:max-content;max-width:100%">bist du hier <em style="background:linear-gradient(100deg,#7CFF6B,#42D9FF,#FF9F43,#FF4FD8);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic">leider falsch.</em> 😉</span></span>
+            </h1>
+            <div style="display:grid;gap:12px;margin-top:18px;font-size:clamp(16px,1.35vw,18px);max-width:38rem;color:rgba(247,247,255,.72);line-height:1.66">
+              <p style="margin:0">Ich bin Steffen Vorholt – Comedian, Veranstalter und hauptberuflicher Lieferant für gute Laune. Ob du mich schon kennst oder gerade erst auf mich aufmerksam geworden bist – ich freue mich, dass du hier bist.</p>
+              <p style="margin:0">Mit meinen Comedy-Shows möchte ich Menschen für ein paar Stunden den Alltag vergessen lassen. Schau dich gerne um, entdecke meine nächsten Termine und erfahre mehr über meine Shows. Vielleicht sehen wir uns schon bald live!</p>
+              <p style="margin:0;color:#AEEBFF;font-weight:850">Bis dahin gilt: Nicht alles im Leben zu ernst nehmen – lachen hilft. 😉</p>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+              <a href="02 Shows.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;transition:.18s ease" style-hover="transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)">Tickets sichern</a>
+              <a href="02 Shows.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;transition:.18s ease" style-hover="transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)">Welche Show passt zu mir?</a>
+            </div>
+          </div>
+
+          <!-- Orbital-System · scrollgebunden (siehe componentDidMount):
+               Scroll dreht die Bahnen weiter, fährt die Kamera ins System hinein
+               und staffelt die drei Planeten in der Tiefe. Ohne Scroll driften
+               sie langsam weiter, damit das System lebt. -->
+          <div ref="{{ systemRef }}" style="position:absolute;top:37%;right:clamp(8px,2vw,56px);translate:0 -50%;z-index:3;width:min(74vh,46vw,760px);aspect-ratio:1;will-change:transform;transform-origin:62% 46%">
+            <div style="position:absolute;inset:26%;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(245,214,138,.32),rgba(155,92,255,.14) 46%,transparent 72%);filter:blur(10px)"></div>
+
+            <div ref="{{ carrierARef }}" style="position:absolute;inset:0;pointer-events:none;will-change:transform;z-index:3">
+              <a href="03 Show-Detail.dc.html" aria-label="Show „Brain Loading“ öffnen" style="position:absolute;left:50%;top:28%;translate:-50% -50%;width:40%;pointer-events:auto;display:block">
+                <span ref="{{ holdARef }}" style="display:block;will-change:transform">
+                  <span style="display:block;animation:sv-float 7s ease-in-out infinite">
+                    <img src="assets/planet-brain-loading.webp" alt="" style="width:100%;height:auto;display:block;border-radius:50%;filter:drop-shadow(0 0 46px rgba(124,255,107,.5));transition:filter .3s ease,transform .3s ease" style-hover="transform:scale(1.06);filter:drop-shadow(0 0 76px rgba(124,255,107,.85))">
+                  </span>
+                </span>
+              </a>
+            </div>
+
+            <div ref="{{ carrierBRef }}" style="position:absolute;inset:0;pointer-events:none;will-change:transform;z-index:2">
+              <a href="03 Show-Detail.dc.html" aria-label="Show „Comedy Eiskalt“ öffnen" style="position:absolute;left:50%;top:33%;translate:-50% -50%;width:29%;pointer-events:auto;display:block">
+                <span ref="{{ holdBRef }}" style="display:block;will-change:transform">
+                  <span style="display:block;animation:sv-float 7s ease-in-out -2.4s infinite">
+                    <img src="assets/planet-comedy-eiskalt.webp" alt="" style="width:100%;height:auto;display:block;border-radius:50%;filter:drop-shadow(0 0 42px rgba(174,235,255,.5));transition:filter .3s ease,transform .3s ease" style-hover="transform:scale(1.06);filter:drop-shadow(0 0 72px rgba(174,235,255,.85))">
+                  </span>
+                </span>
+              </a>
+            </div>
+
+            <div ref="{{ carrierCRef }}" style="position:absolute;inset:0;pointer-events:none;will-change:transform;z-index:1">
+              <a href="03 Show-Detail.dc.html" aria-label="Show „Comedy Check-In“ öffnen" style="position:absolute;left:50%;top:9%;translate:-50% -50%;width:23%;pointer-events:auto;display:block">
+                <span ref="{{ holdCRef }}" style="display:block;will-change:transform">
+                  <span style="display:block;animation:sv-float 7s ease-in-out -4.8s infinite">
+                    <img src="assets/planet-comedy-check-in.webp" alt="" style="width:100%;height:auto;display:block;border-radius:50%;filter:drop-shadow(0 0 40px rgba(255,159,67,.5));transition:filter .3s ease,transform .3s ease" style-hover="transform:scale(1.06);filter:drop-shadow(0 0 70px rgba(255,159,67,.85))">
+                  </span>
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ─── WÄHL DEINE MISSION (home-shows-pin) ─── -->
+      <div style="position:relative;z-index:2;overflow:hidden;margin-top:-64px;border-radius:40px 40px 0 0;background:linear-gradient(180deg,#0b0620 0%,#070a1e 55%,#04050c 100%);box-shadow:0 -70px 130px rgba(0,0,0,.65),0 -1px 0 rgba(255,255,255,.1)">
+        <span style="display:block;width:56px;height:5px;border-radius:999px;background:rgba(255,255,255,.25);margin:20px auto 0"></span>
+        <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+          <div style="display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px;flex-wrap:wrap">
+            <div>
+              <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Wähl deine Mission</div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Finde die Show, die zu deinem Humor passt.</h2>
+            </div>
+            <div style="display:grid;gap:10px;max-width:600px">
+              <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Mit Doppel-Comedy, Brain Loading &amp; Comedy Eiskalt ist für jeden Humor etwas dabei 😉</p>
+              <p style="margin:0;color:#AEEBFF;font-weight:850;font-size:17px;line-height:1.66">Schau dir die Shows einfach in Ruhe mal an.</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+
+            <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate;color:#7CFF6B;transition:transform .42s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease" style-hover="transform:perspective(1100px) translateY(-14px) rotateX(3deg) rotateY(-3deg);border-color:rgba(174,235,255,.45);box-shadow:0 40px 90px rgba(0,0,0,.48),0 0 50px rgba(66,217,255,.1)">
+              <div style="position:absolute;width:270px;height:270px;border-radius:50%;top:92px;left:50%;translate:-50% 0;z-index:-1;box-shadow:0 0 70px currentColor;opacity:.32;filter:blur(10px);background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,#7CFF6B,#42D9FF,#9B5CFF,#7CFF6B)"></div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:start;gap:14px;color:#f7f7ff">
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Brain Loading</span>
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Impro</span>
+                </div>
+                <div style="height:320px;display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;margin:16px -6px 0">
+                  <img src="assets/planet-brain-loading.webp" alt="Planet der Show Brain Loading" style="width:100%;height:100%;object-fit:contain;border-radius:50%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.34));animation:sv-float 7s ease-in-out infinite">
+                </div>
+                <div style="position:relative;z-index:2;margin-top:14px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12)">
+                  <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,3vw,46px);line-height:.98;letter-spacing:-.075em;color:#f7f7ff">Die Comedy-Improshow, bei der du Regie führst.</h3>
+                  <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Hier trifft klassische Stand-up-Comedy auf einen unvorhersehbaren Impro-Teil. In der ersten Hälfte zeigen Comedians ihr Set. In der zweiten Hälfte entscheidet das Publikum per Buzzer, wie oft Ort, Aktion oder Figur wechseln.</p>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="03 Show-Detail.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Show öffnen</a>
+                <a href="02 Shows.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px">Tickets</a>
+              </div>
+            </article>
+
+            <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate;color:#AEEBFF;transition:transform .42s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease" style-hover="transform:perspective(1100px) translateY(-14px) rotateX(3deg) rotateY(-3deg);border-color:rgba(174,235,255,.45);box-shadow:0 40px 90px rgba(0,0,0,.48),0 0 50px rgba(66,217,255,.1)">
+              <div style="position:absolute;width:270px;height:270px;border-radius:50%;top:92px;left:50%;translate:-50% 0;z-index:-1;box-shadow:0 0 70px currentColor;opacity:.32;filter:blur(10px);background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 80deg,#fff,#AEEBFF,#5FF5E8,#4f7dff,#fff)"></div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:start;gap:14px;color:#f7f7ff">
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Comedy Eiskalt</span>
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Open Mic</span>
+                </div>
+                <div style="height:320px;display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;margin:16px -6px 0">
+                  <img src="assets/planet-comedy-eiskalt.webp" alt="Planet der Show Comedy Eiskalt" style="width:100%;height:100%;object-fit:contain;border-radius:50%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.34));animation:sv-float 7s ease-in-out -2.4s infinite">
+                </div>
+                <div style="position:relative;z-index:2;margin-top:14px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12)">
+                  <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,3vw,46px);line-height:.98;letter-spacing:-.075em;color:#f7f7ff">Brich mit uns das Eis.</h3>
+                  <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Das Open-Mic-Format in der Eissportarena Bergisch Gladbach: roh, direkt und fair für Künstler.</p>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="03 Show-Detail.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Show öffnen</a>
+                <a href="02 Shows.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px">Tickets</a>
+              </div>
+            </article>
+
+            <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate;color:#FF9F43;transition:transform .42s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease" style-hover="transform:perspective(1100px) translateY(-14px) rotateX(3deg) rotateY(-3deg);border-color:rgba(174,235,255,.45);box-shadow:0 40px 90px rgba(0,0,0,.48),0 0 50px rgba(66,217,255,.1)">
+              <div style="position:absolute;width:270px;height:270px;border-radius:50%;top:92px;left:50%;translate:-50% 0;z-index:-1;box-shadow:0 0 70px currentColor;opacity:.32;filter:blur(10px);background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 130deg,#FF9F43,#FFD166,#1B4DFF,#FF9F43)"></div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:start;gap:14px;color:#f7f7ff">
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Comedy Check-In</span>
+                  <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Boarding-Show</span>
+                </div>
+                <div style="height:320px;display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;margin:16px -6px 0">
+                  <img src="assets/planet-comedy-check-in.webp" alt="Planet der Show Comedy Check-In" style="width:100%;height:100%;object-fit:contain;border-radius:50%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.34));animation:sv-float 7s ease-in-out -4.8s infinite">
+                </div>
+                <div style="position:relative;z-index:2;margin-top:14px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12)">
+                  <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,3vw,46px);line-height:.98;letter-spacing:-.075em;color:#f7f7ff">Boarding in die Comedy-Galaxie.</h3>
+                  <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Captain Steffen und ein wechselnder Co-Pilot steuern das Publikum durch einen besonderen Comedy-Abend.</p>
+                </div>
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="03 Show-Detail.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Show öffnen</a>
+                <a href="02 Shows.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px">Tickets</a>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ─── NÄCHSTE SHOWS ─── -->
+    <section style="position:relative;width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px;flex-wrap:wrap">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Nicht verpassen</div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Das sind die nächsten Shows.</h2>
+        </div>
+        <p style="max-width:600px;margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Ticketlinks führen direkt zum externen Anbieter.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px">
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:265px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:transform .3s ease,border-color .3s ease" style-hover="transform:translateY(-5px);border-color:rgba(174,235,255,.45)">
+          <div style="display:flex;justify-content:space-between;gap:14px;align-items:start">
+            <div>
+              <h4 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">Brain Loading</h4>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 10px">Oberhausen · Druckluft</p>
+              <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Tickets verfügbar</span>
+            </div>
+            <div style="min-width:76px;text-align:center;border-radius:18px;overflow:hidden;border:1px solid #7CFF6B;background:rgba(0,0,0,.24)">
+              <strong style="display:block;font-size:27px;line-height:1;padding-top:12px;font-family:'Space Grotesk',sans-serif">12</strong>
+              <span style="display:block;font-size:12px;color:rgba(247,247,255,.72);font-weight:950;padding:7px 8px 10px;text-transform:uppercase">Feb</span>
+            </div>
+          </div>
+          <div>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 14px">Showbeginn: 20:00 · Einlass: 19:00<br>Eventbrite</p>
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;position:relative;z-index:2">🎟 Tickets sichern</a>
+          </div>
+        </article>
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:265px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:transform .3s ease,border-color .3s ease" style-hover="transform:translateY(-5px);border-color:rgba(174,235,255,.45)">
+          <div style="display:flex;justify-content:space-between;gap:14px;align-items:start">
+            <div>
+              <h4 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">Brain Loading</h4>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 10px">Neuss · Further Str. 127</p>
+              <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Tickets verfügbar</span>
+            </div>
+            <div style="min-width:76px;text-align:center;border-radius:18px;overflow:hidden;border:1px solid #7CFF6B;background:rgba(0,0,0,.24)">
+              <strong style="display:block;font-size:27px;line-height:1;padding-top:12px;font-family:'Space Grotesk',sans-serif">09</strong>
+              <span style="display:block;font-size:12px;color:rgba(247,247,255,.72);font-weight:950;padding:7px 8px 10px;text-transform:uppercase">Apr</span>
+            </div>
+          </div>
+          <div>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 14px">Showbeginn: 20:00 · Einlass: 19:00<br>Rausgegangen</p>
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;position:relative;z-index:2">🎟 Tickets sichern</a>
+          </div>
+        </article>
+        <div style="padding:22px;border-radius:24px;border:1px dashed rgba(255,255,255,.3);color:rgba(247,247,255,.72);background:rgba(255,255,255,.05);font-size:17px;line-height:1.66">Aktuell keine weiteren Termine geplant — Steffen arbeitet dran.</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+        <a href="02 Shows.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Alle Termine im Kalender</a>
+      </div>
+    </section>
+
+    <!-- ─── AUFTRITTE ─── -->
+    <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px;flex-wrap:wrap">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Steffen als Comedian</div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Hier siehst du mich als Nächstes.</h2>
+        </div>
+        <p style="max-width:600px;margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Open Mics, Mix Shows, Veranstaltungen oder auf dem Platz mit der <strong style="color:#f7f7ff">Komiker 11</strong>. Ein Klick führt dich direkt dort hin.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+        <a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden;border-top:3px solid #42D9FF;color:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5),0 0 46px rgba(66,217,255,.34)">
+          <div style="position:relative;aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,rgba(66,217,255,.26),rgba(5,7,17,.72))">
+            <span style="font-size:58px;opacity:.72">🎤</span>
+            <span style="position:absolute;top:12px;left:12px;display:inline-flex;padding:8px 11px;border-radius:999px;white-space:nowrap;background:#42D9FF;color:#050711;font-size:13px;font-weight:950">Open Mic</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:20px 22px 24px;flex:1">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,1.8vw,26px);line-height:1.15;letter-spacing:-.02em">Open Mic im Rekorder</h3>
+            <p style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px;margin:0">14. August 2026</p>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Rekorder, Recklinghausen</p>
+            <span style="margin-top:auto;font-weight:950;color:#42D9FF">Mehr Infos →</span>
+          </div>
+        </a>
+        <a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden;border-top:3px solid #7CFF6B;color:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5),0 0 46px rgba(124,255,107,.34)">
+          <div style="position:relative;aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,rgba(124,255,107,.26),rgba(5,7,17,.72))">
+            <span style="font-size:58px;opacity:.72">🎤</span>
+            <span style="position:absolute;top:12px;left:12px;display:inline-flex;padding:8px 11px;border-radius:999px;white-space:nowrap;background:#7CFF6B;color:#050711;font-size:13px;font-weight:950">Auftritt</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:20px 22px 24px;flex:1">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,1.8vw,26px);line-height:1.15;letter-spacing:-.02em">Mix Show Dortmund</h3>
+            <p style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px;margin:0">22. August 2026</p>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Subrosa, Dortmund</p>
+            <span style="margin-top:auto;font-weight:950;color:#7CFF6B">Mehr Infos →</span>
+          </div>
+        </a>
+        <a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden;border-top:3px solid #FFD166;color:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5),0 0 46px rgba(255,209,102,.34)">
+          <div style="position:relative;aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,rgba(255,209,102,.26),rgba(5,7,17,.72))">
+            <span style="font-size:58px;opacity:.72">🎤</span>
+            <span style="position:absolute;top:12px;left:12px;display:inline-flex;padding:8px 11px;border-radius:999px;white-space:nowrap;background:#FFD166;color:#050711;font-size:13px;font-weight:950">Gig</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:20px 22px 24px;flex:1">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,1.8vw,26px);line-height:1.15;letter-spacing:-.02em">Komiker 11 – Benefizspiel</h3>
+            <p style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px;margin:0">6. September 2026</p>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Sportplatz, Herne</p>
+            <span style="margin-top:auto;font-weight:950;color:#FFD166">Mehr Infos →</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ─── BUZZER ─── -->
+    <section style="position:relative;width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:flex;justify-content:center;text-align:center;gap:24px;align-items:end;margin-bottom:30px">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Wie bei Brain Loading</div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Du hast das Kommando.</h2>
+        </div>
+      </div>
+      <div style="display:grid;place-items:center;gap:18px;text-align:center;position:relative">
+        <div style="position:relative;display:inline-flex;align-items:center;justify-content:center">
+          <span style="position:absolute;inset:0;margin:auto;width:200px;height:200px;border-radius:50%;pointer-events:none;border:2px solid rgba(124,255,107,.75);box-shadow:0 0 46px rgba(66,217,255,.42),inset 0 0 34px rgba(255,79,216,.28);opacity:0"></span>
+          <button onClick="{{ buzz }}" style="width:150px;height:150px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff7a7a,#e02525 60%,#8f0f0f);color:#fff;font-weight:950;font-size:22px;letter-spacing:.08em;white-space:nowrap;box-shadow:0 14px 0 #7a0c0c,0 26px 60px rgba(224,37,37,.35);transition:transform .08s ease,box-shadow .08s ease;font-family:Inter,sans-serif" style-active="transform:translateY(10px);box-shadow:0 4px 0 #7a0c0c,0 12px 30px rgba(224,37,37,.3)">BUZZ</button>
+        </div>
+        <p style="margin:0;font-size:clamp(18px,2.4vw,26px);font-weight:800;color:#f7f7ff;max-width:640px;min-height:2.4em;line-height:1.3">{{ line }}</p>
+      </div>
+    </section>
+
+    <!-- ─── BEWEISFOTOS ─── -->
+    <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px;flex-wrap:wrap">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Vergangene Missionen</div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Beweisfotos.</h2>
+        </div>
+        <p style="max-width:600px;margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Echte Bühnen, echtes Publikum, echte Lacher.</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px">
+        <figure style="margin:0;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transform:rotate(-1deg);transition:transform .25s ease;cursor:zoom-in;width:340px" style-hover="transform:rotate(0deg) scale(1.03)">
+          <div style="height:260px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px),#000;display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5)">gallery/showfoto 1</span></div>
+          <figcaption style="padding:10px 14px;font-size:13px;color:rgba(247,247,255,.72);background:rgba(255,255,255,.04)">Brain Loading, Oberhausen</figcaption>
+        </figure>
+        <figure style="margin:0;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transition:transform .25s ease;cursor:zoom-in;width:340px" style-hover="transform:rotate(0deg) scale(1.03)">
+          <div style="height:260px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px),#000;display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5)">gallery/showfoto 2</span></div>
+          <figcaption style="padding:10px 14px;font-size:13px;color:rgba(247,247,255,.72);background:rgba(255,255,255,.04)">Comedy Eiskalt, Bergisch Gladbach</figcaption>
+        </figure>
+        <figure style="margin:0;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.18);transform:rotate(1deg);transition:transform .25s ease;cursor:zoom-in;width:340px" style-hover="transform:rotate(0deg) scale(1.03)">
+          <div style="height:260px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px),#000;display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5)">gallery/showfoto 3</span></div>
+          <figcaption style="padding:10px 14px;font-size:13px;color:rgba(247,247,255,.72);background:rgba(255,255,255,.04)">Comedy Check-In</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ─── STEFFEN VORHOLT (feature) ─── -->
+    <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:center">
+        <div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Steffen Vorholt.</h2>
+          <p style="color:rgba(247,247,255,.72);font-size:clamp(18px,2vw,24px);line-height:1.66;max-width:770px;margin:18px 0 0">🎤 Comedian &amp; Moderator – ehrlich, schlagfertig und (fast) immer charmant!</p>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:16px 0 0">Seit 2019 erzähle ich auf den Bühnen Deutschlands von meinem chaotischen Leben: Ausbildung zum Kfz-Mechatroniker, Einsätze im Rettungsdienst, das Leben als ewiger Single – und natürlich von meinen legendären Feiereskapaden in der Jugend.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+            <a href="05 Kontakt.dc.html" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Steffen buchen</a>
+            <a href="04 Steffen.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px">Mehr über mich</a>
+          </div>
+        </div>
+        <div style="overflow:hidden;border-radius:24px;border:1px solid rgba(255,255,255,.18);aspect-ratio:9/16;max-height:min(72vh,600px);margin-inline:auto;background:#000;display:grid;place-items:center;position:relative;width:100%">
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5);text-align:center;align-self:end;padding:0 20px 26px">steffen-stage-loop-hero.mp4<br>9:16 · CaptainVideo</span>
+          <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,7,17,.42);pointer-events:none"><span style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;border:1px solid rgba(255,255,255,.56);background:rgba(5,7,17,.48);backdrop-filter:blur(8px);font-size:28px">▶</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── VIDEOS & REFERENZEN ─── -->
+    <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+      <div style="display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:30px;flex-wrap:wrap">
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">Reingucken</div>
+          <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Videos &amp; Referenzen.</h2>
+        </div>
+        <p style="max-width:600px;margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Ausschnitte von der Bühne – für alle, die kein Social Media haben.</p>
+      </div>
+      <div style="display:grid;gap:20px;align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))">
+        <figure style="margin:0;display:flex;flex-direction:column;gap:10px">
+          <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:#000;box-shadow:0 28px 90px rgba(0,0,0,.38)">
+            <div style="position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;background:linear-gradient(180deg,rgba(155,92,255,.16),rgba(5,7,17,.9))">
+              <div style="display:grid;gap:12px;justify-items:center;max-width:340px">
+                <span style="display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);font-size:19px;padding-left:4px">▶</span>
+                <p style="margin:0;font-size:13.5px;line-height:1.55;color:rgba(247,247,255,.72)">Dieses Video wird von YouTube geladen. Dabei werden Daten an Google übertragen.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:9px;justify-content:center">
+                  <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#f7f7ff;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer">Video laden</button>
+                  <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#f7f7ff;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer">Auf YouTube ansehen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px">Best of Brain Loading 2025</figcaption>
+        </figure>
+        <figure style="margin:0;display:flex;flex-direction:column;gap:10px">
+          <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:#000;box-shadow:0 28px 90px rgba(0,0,0,.38)">
+            <div style="position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;background:linear-gradient(180deg,rgba(155,92,255,.16),rgba(5,7,17,.9))">
+              <div style="display:grid;gap:12px;justify-items:center;max-width:340px">
+                <span style="display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);font-size:19px;padding-left:4px">▶</span>
+                <p style="margin:0;font-size:13.5px;line-height:1.55;color:rgba(247,247,255,.72)">Dieses Video wird von YouTube geladen.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:9px;justify-content:center">
+                  <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#f7f7ff;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer">Video laden</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px">Comedy Eiskalt – Trailer</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer style="border-top:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.22);padding:42px 0">
+      <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);display:grid;grid-template-columns:1.2fr repeat(3,.7fr);gap:24px">
+        <div>
+          <a href="#" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;font-size:17px;white-space:nowrap;margin-bottom:12px">
+            <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+            <span>Comedy-Universum</span>
+          </a>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0">Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Shows</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="03 Show-Detail.dc.html">Brain Loading</a><br><a href="03 Show-Detail.dc.html">Comedy Eiskalt</a><br><a href="03 Show-Detail.dc.html">Comedy Check-In</a></p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Entdecken</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="02 Shows.dc.html">Shows &amp; Termine</a><br><a href="06 Angebote.dc.html">Angebote</a><br><a href="07 Galerie.dc.html">Galerie &amp; Gästebuch</a><br><a href="04 Steffen.dc.html">Über Steffen</a><br><a href="05 Kontakt.dc.html">Booking &amp; Kontakt</a></p>
+        </div>
+        <div>
+          <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Rechtliches</h4>
+          <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="08 Rechtliches.dc.html">Impressum</a><br><a href="08 Rechtliches.dc.html">Datenschutz</a><br><a href="08 Rechtliches.dc.html">AGB</a><br><button style="background:none;border:0;padding:0;margin:0;cursor:pointer;font:inherit;color:rgba(247,247,255,.72);text-align:left" style-hover="color:#f7f7ff;text-decoration:underline">Cookie-Einstellungen</button></p>
+        </div>
+      </div>
+      <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:18px;color:rgba(247,247,255,.72);font-size:13px">© 2026 Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Recklinghausen und Andromeda gebaut.</div>
+    </footer>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LINERS = [
+  "Mein Gehirn lädt noch... 87 %... bitte nicht neu starten.",
+  "Ich bin Comedian geworden, weil mein Plan B noch schlechter war.",
+  "Applaus ist wie WLAN: Man merkt erst, wie wichtig er ist, wenn er weg ist.",
+  "Impro heißt: Wir wissen auch nicht, was gleich passiert. Versprochen.",
+  "In Neuss geboren, auf der Bühne zu Hause, im Weltall gebucht.",
+];
+
+// Scrollgebundenes Orbital-System.
+// Jede Bahn hat einen Startwinkel, einen Scroll-Sweep (wie weit sie über die
+// Scrolldistanz weiterdreht), eine begrenzte Leerlauf-Schwingung (amp/speed –
+// bewusst KEINE Dauerrotation, sonst wandert die Komposition mit der Zeit weg
+// und die Planeten landen über Headline oder Foto) und eine Tiefen-Skalierung.
+const ORBITS = [
+  { start: 28, sweep: 210, amp: 5, speed: 0.16, depth: 0.46, drift: [26, -30] },   // Brain Loading  (vorn)
+  { start: 148, sweep: -150, amp: -4, speed: 0.11, depth: 0.24, drift: [22, 20] }, // Comedy Eiskalt (mitte)
+  { start: 68, sweep: 108, amp: 3.5, speed: 0.09, depth: 0.1, drift: [14, 24] },   // Check-In       (hinten)
+];
+const SCROLL_DISTANCE = 620;
+const NAV_HEIGHT = 84;
+
+class Component extends DCLogic {
+  state = { line: null };
+
+  heroRef = React.createRef();
+  systemRef = React.createRef();
+  carrierARef = React.createRef();
+  carrierBRef = React.createRef();
+  carrierCRef = React.createRef();
+  holdARef = React.createRef();
+  holdBRef = React.createRef();
+  holdCRef = React.createRef();
+
+  componentDidMount() {
+    this.reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.t0 = performance.now();
+    this.frame = requestAnimationFrame(this.tick);
+  }
+
+  componentWillUnmount() {
+    if (this.frame) cancelAnimationFrame(this.frame);
+  }
+
+  tick = (now) => {
+    this.frame = requestAnimationFrame(this.tick);
+    if (document.hidden) return;
+
+    const hero = this.heroRef.current;
+    const system = this.systemRef.current;
+    if (!hero || !system) return;
+
+    // Scroll-Fortschritt 0…1 über SCROLL_DISTANCE ab dem Moment, in dem der
+    // Hero unter die Nav wandert.
+    const top = hero.getBoundingClientRect().top;
+    const p = Math.min(1, Math.max(0, (NAV_HEIGHT - top) / SCROLL_DISTANCE));
+    const ease = p * p * (3 - 2 * p);
+    const secs = this.reduced ? 0 : (now - this.t0) / 1000;
+
+    // Kamera fährt ins System: größer, leicht versetzt, Rand wird dunkler.
+    system.style.transform =
+      "scale(" + (1 + ease * 0.34) + ") translate3d(" + ease * -50 + "px," + ease * 20 + "px,0)";
+    system.style.opacity = String(1 - ease * 0.22);
+
+    const carriers = [this.carrierARef.current, this.carrierBRef.current, this.carrierCRef.current];
+    const holds = [this.holdARef.current, this.holdBRef.current, this.holdCRef.current];
+
+    for (let i = 0; i < 3; i++) {
+      const o = ORBITS[i];
+      const carrier = carriers[i];
+      const hold = holds[i];
+      if (!carrier || !hold) continue;
+      const angle = o.start + ease * o.sweep + Math.sin(secs * o.speed) * o.amp;
+      carrier.style.transform = "rotate(" + angle + "deg)";
+      // Gegenrotation hält Planet und Motiv aufrecht; Tiefe staffelt die Größe.
+      hold.style.transform =
+        "rotate(" + -angle + "deg) scale(" + (1 + ease * o.depth) + ") translate3d(" +
+        ease * o.drift[0] + "px," + ease * o.drift[1] + "px,0)";
+    }
+  };
+
+  renderVals() {
+    return {
+      heroRef: this.heroRef,
+      systemRef: this.systemRef,
+      carrierARef: this.carrierARef,
+      carrierBRef: this.carrierBRef,
+      carrierCRef: this.carrierCRef,
+      holdARef: this.holdARef,
+      holdBRef: this.holdBRef,
+      holdCRef: this.holdCRef,
+      line: this.state.line ?? "Drück den Buzzer. Trau dich.",
+      buzz: () => this.setState({ line: LINERS[Math.floor(Math.random() * LINERS.length)] }),
+    };
+  }
+}
+</script>
+</body>
+</html>

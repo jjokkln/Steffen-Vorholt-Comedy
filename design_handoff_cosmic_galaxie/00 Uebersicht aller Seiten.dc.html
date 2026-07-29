@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#050711;color:#f7f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  *{box-sizing:border-box}
+  img{max-width:100%;display:block}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),radial-gradient(circle at 90% 10%,rgba(66,217,255,.22),transparent 28%),radial-gradient(circle at 70% 72%,rgba(255,79,216,.18),transparent 28%),linear-gradient(180deg,#050711,#0b1026 48%,#050711);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f7f7ff">
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#fff 1px,transparent 1px);background-size:72px 72px,128px 128px;background-position:0 0,34px 48px"></div>
+
+  
+<div style="position:relative;z-index:1;width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:72px 120px;display:flex;flex-direction:column;gap:48px">
+    <header style="display:flex;flex-direction:column;gap:16px;max-width:900px">
+      
+      <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(44px,7vw,96px);letter-spacing:-.075em;line-height:.93">Alle Seiten.</h1>
+      <p style="margin:0;color:rgba(247,247,255,.72);font-size:clamp(18px,2vw,24px);line-height:1.66;max-width:770px">1:1-Abbild des heutigen Programms, aus <code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">app/</code> und <code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">components/</code> abgezogen. Jede Datei ist einzeln editierbar.</p>
+    </header>
+
+    <section style="display:flex;flex-direction:column;gap:20px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3vw,38px);letter-spacing:-.06em;line-height:.98;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">Grundlage</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px">
+        <a href="Design System.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:8px;border-top:3px solid #9B5CFF;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5)">
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:26px;letter-spacing:-.03em;line-height:1.15">Design-System</h3>
+          <p style="margin:0;color:rgba(247,247,255,.72);font-size:16px;line-height:1.6">Farben, Typografie, Radien, Schatten, Buttons, Karten, Kalender, Admin-Bausteine, Overlays.</p>
+        </a>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:20px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3vw,38px);letter-spacing:-.06em;line-height:.98;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">Öffentliche Seiten</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px">
+        <sc-for list="{{ pages }}" as="p" hint-placeholder-count="9">
+          <a href="{{ p.href }}" style="{{ p.style }}" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5)">
+            <span style="color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">{{ p.route }}</span>
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:26px;letter-spacing:-.03em;line-height:1.15">{{ p.title }}</h3>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:16px;line-height:1.6">{{ p.desc }}</p>
+          </a>
+        </sc-for>
+      </div>
+    </section>
+
+    <section style="display:flex;flex-direction:column;gap:20px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,3vw,38px);letter-spacing:-.06em;line-height:.98;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">Mission Control</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px">
+        <a href="10 Mission Control Admin.dc.html" style="border: 1px solid rgba(255,255,255,.18); border-radius: 30px; background: linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04)); box-shadow: 0 28px 90px rgba(0,0,0,.38); padding: 26px; display: flex; flex-direction: column; gap: 8px; border-top: 3px solid #FF4FD8; transition: transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease; width: 994px; height: 213px" style-hover="transform:translateY(-8px);box-shadow:0 34px 80px rgba(0,0,0,.5)">
+          <span style="color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">/admin/login + /admin/*</span>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:26px;letter-spacing:-.03em;line-height:1.15">Admin-Dashboard</h3>
+          <p style="margin:0;color:rgba(247,247,255,.72);font-size:16px;line-height:1.6">Login, Übersicht, Shows, Termine, Comedians, Auftritte, Angebote, Anfragen, Partner, Galerie, YouTube, One-Liner, Rechtliches, Benachrichtigungen — über die Sidebar umschaltbar.</p>
+        </a>
+      </div>
+    </section>
+
+    <section style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));padding:26px;display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.08">Hinweise zum Finetuning</h3>
+      <ul style="margin:0;padding-left:1.2em;display:grid;gap:8px;color:rgba(247,247,255,.72);font-size:16px;line-height:1.6">
+        <li>Show-Detailseiten sind identisch aufgebaut — hier steht Brain Loading als Beispiel, die Farbe (<code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">shows.color</code>) ist der einzige Unterschied.</li>
+        <li>Impressum, Datenschutz und AGB teilen ein Template (<code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">LegalPageView</code>) — beide Zustände liegen auf einer Seite.</li>
+        <li>Der Galaxy-Hintergrund (Three.js) und die GSAP-Scroll-Übergänge sind hier als statischer CSS-Fallback dargestellt; Orbit-Planeten, Kometen und Kalender-Puls laufen als CSS-Animation.</li>
+        <li>Foto-/Videoflächen sind schraffierte Platzhalter — im Programm kommen sie aus Supabase Storage.</li>
+      </ul>
+    </section>
+  </div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CARD = "border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:8px;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease;border-top:3px solid ";
+
+const PAGES = [
+  { href: "01 Startseite.dc.html", route: "/", title: "Startseite", accent: "#7CFF6B", desc: "Hero mit Orbital-System, Wähl deine Mission, nächste Termine, Auftritte, Buzzer, Beweisfotos, Steffen-Feature, Videos." },
+  { href: "02 Shows.dc.html", route: "/shows", title: "Shows & Termine", accent: "#AEEBFF", desc: "Show-Karten, Kalender ⇄ NRW-Karte (umschaltbar), Terminfilter, Archiv." },
+  { href: "03 Show-Detail.dc.html", route: "/shows/[slug]", title: "Show-Detail", accent: "#7CFF6B", desc: "Hero mit A4-Cover, Show-Prinzip, Kalender, Termine, Galerie, Mit dabei." },
+  { href: "04 Steffen.dc.html", route: "/steffen", title: "Über Steffen", accent: "#f5d68a", desc: "Hero mit Kometenbahn, Bio + Video, Bio-Listen, Auftritte, Formate, Referenzen, Partner." },
+  { href: "05 Kontakt.dc.html", route: "/kontakt", title: "Booking & Kontakt", accent: "#42D9FF", desc: "Drei farbcodierte Formularkarten plus Erfolgs-Zustand." },
+  { href: "06 Angebote.dc.html", route: "/angebote", title: "Angebote", accent: "#FF4FD8", desc: "Aktions-Karten mit Code-Chip und Gültigkeit, plus Leer-Zustand." },
+  { href: "07 Galerie.dc.html", route: "/galerie", title: "Galerie & Gästebuch", accent: "#9B5CFF", desc: "Filter-Chips, rotiertes Fotoraster mit Lightbox, Comedian-Karten." },
+  { href: "08 Rechtliches.dc.html", route: "/impressum · /datenschutz · /agb", title: "Rechtliches", accent: "#FFD166", desc: "Ein Template für alle drei Seiten — mit Inhalt und im Leer-Zustand." },
+  { href: "09 404 und Consent.dc.html", route: "/not-found", title: "404 & Cookie-Banner", accent: "#FF9F43", desc: "Fehlerseite und das Consent-Overlay, das vor jeder Seite liegt." },
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return { pages: PAGES.map((p) => ({ ...p, style: CARD + p.accent })) };
+  }
+}
+</script>
+</body>
+</html>

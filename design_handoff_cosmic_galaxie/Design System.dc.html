@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#050711;color:#f7f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:#42D9FF;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  *{box-sizing:border-box}
+  @keyframes ds-stars{to{transform:translateY(320px)}}
+  @keyframes ds-pulse{50%{transform:scale(1.45);opacity:.55}}
+  @keyframes ds-float{50%{transform:translateY(-14px) rotate(3deg)}}
+  @keyframes ds-halo{0%{opacity:.55;transform:scale(.7)}70%,100%{opacity:0;transform:scale(1.8)}}
+  @keyframes ds-eventpulse{50%{filter:brightness(1.2)}}
+</style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),radial-gradient(circle at 90% 10%,rgba(66,217,255,.22),transparent 28%),radial-gradient(circle at 70% 72%,rgba(255,79,216,.18),transparent 28%),linear-gradient(180deg,#050711,#0b1026 48%,#050711);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f7f7ff">
+
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.13;background-image:radial-gradient(#fff 1px,transparent 1px),radial-gradient(#fff 1px,transparent 1px);background-size:72px 72px,128px 128px;background-position:0 0,34px 48px"></div>
+
+  <div style="position:relative;z-index:1;width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:72px 120px;display:flex;flex-direction:column;gap:88px">
+
+    <!-- ══ Kopf ══ -->
+    <header style="display:flex;flex-direction:column;gap:18px;max-width:900px">
+      <div style="display:inline-flex;align-items:center;gap:10px;width:max-content;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap">
+        <span style="width:10px;height:10px;border-radius:50%;background:#7CFF6B;box-shadow:0 0 24px #7CFF6B;animation:ds-pulse 1.8s infinite"></span>
+        Design-System · Stand 29.07.2026
+      </div>
+      <h1 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(44px,7vw,96px);letter-spacing:-.075em;line-height:.93">Cosmic&nbsp;Galaxie.</h1>
+      <p style="margin:0;color:rgba(247,247,255,.72);font-size:clamp(18px,2vw,24px);line-height:1.66;max-width:770px">Alle Tokens und Bausteine, wie sie heute in <code style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;color:#AEEBFF">app/globals.css</code> stehen. 1:1 abgezogen — Grundlage fürs Finetuning.</p>
+    </header>
+
+    <!-- ══ FARBEN ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">01 · Farben</h2>
+        <span style="color:rgba(247,247,255,.5);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase">CSS-Variablen in :root</span>
+      </div>
+
+      <div>
+        <h3 style="margin:0 0 14px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.72)">Grundflächen &amp; Text</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px">
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#050711"></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--space</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">#050711</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#0b1026"></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--deep</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">#0b1026</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#f7f7ff"></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--text</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">#f7f7ff</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:rgba(247,247,255,.72)"></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--muted</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">rgba(247,247,255,.72)</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#0b1026;position:relative"><div style="position:absolute;inset:14px;border-radius:12px;background:rgba(255,255,255,.08)"></div></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--panel</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">rgba(255,255,255,.08)</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#0b1026;position:relative"><div style="position:absolute;inset:14px;border-radius:12px;background:rgba(255,255,255,.13)"></div></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--panel2</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">rgba(255,255,255,.13)</span></div>
+          </div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;overflow:hidden;background:rgba(255,255,255,.04)">
+            <div style="height:84px;background:#0b1026;position:relative"><div style="position:absolute;inset:20px;border:1px solid rgba(255,255,255,.18);border-radius:12px"></div></div>
+            <div style="padding:13px 15px;display:flex;flex-direction:column;gap:3px"><b style="font-size:14px">--line</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72)">rgba(255,255,255,.18)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin:0 0 14px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.72)">Neon-Akzente</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px">
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#7CFF6B"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--green</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#7CFF6B · Brain Loading</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#42D9FF"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--blue</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#42D9FF</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#AEEBFF"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--ice</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#AEEBFF · Eiskalt</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#9B5CFF"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--purple</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#9B5CFF</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#5FF5E8"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--turq</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#5FF5E8</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#FF9F43"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--orange</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#FF9F43 · Check-In</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#FFD166"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--yellow</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#FFD166</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#FF4FD8"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--pink</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#FF4FD8</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#1B4DFF"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--captain</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#1B4DFF</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#ff5577"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--danger</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#ff5577</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:#77ffb7"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">--ok</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#77ffb7</span></div></div>
+          <div style="border:1px solid rgba(255,255,255,.18);border-radius:20px;overflow:hidden"><div style="height:64px;background:linear-gradient(135deg,#f5d68a,#e8a33d)"></div><div style="padding:11px 13px;background:rgba(255,255,255,.04)"><b style="display:block;font-size:13px">Gold-CTA</b><span style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:rgba(247,247,255,.72)">#f5d68a → #e8a33d</span></div></div>
+        </div>
+      </div>
+
+      <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">Spektrum-Verlauf für Headlines</h4>
+        <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Nur für einzelne hervorgehobene Wörter — <code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">.gradient</code>, 100°, background-clip:text.</p>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,5vw,60px);font-weight:700;letter-spacing:-.06em;line-height:1;background:linear-gradient(100deg,#7CFF6B,#42D9FF,#FF9F43,#FF4FD8);-webkit-background-clip:text;background-clip:text;color:transparent">anderen Planeten</span>
+      </div>
+    </section>
+
+    <!-- ══ TYPOGRAFIE ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">02 · Typografie</h2>
+        <span style="color:rgba(247,247,255,.5);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase">Space Grotesk + Inter</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px">
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:6px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">Display — Space Grotesk 700</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-size:76px;line-height:.93;letter-spacing:-.075em">Aa</span>
+          <span style="color:rgba(247,247,255,.72);font-size:14px;line-height:1.6">h1–h4 · letter-spacing −.075em … −.04em · line-height .93</span>
+        </div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:6px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">Body — Inter 400–950</span>
+          <span style="font-size:76px;line-height:.93;letter-spacing:-.04em;font-weight:900">Aa</span>
+          <span style="color:rgba(247,247,255,.72);font-size:14px;line-height:1.6">p 17px/1.66 · Labels 13px/850 · Chips 850–950</span>
+        </div>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">h1 · 54→132</span><span style="font-family:'Space Grotesk',sans-serif;font-size:clamp(54px,9vw,132px);letter-spacing:-.075em;line-height:.93">Beweisfotos.</span></div>
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">h2 · 38→84</span><span style="font-family:'Space Grotesk',sans-serif;font-size:clamp(38px,6vw,84px);letter-spacing:-.075em;line-height:.93">Du hast das Kommando.</span></div>
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">h3 · 27→52</span><span style="font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);letter-spacing:-.075em;line-height:.93">Brich mit uns das Eis.</span></div>
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">h4 · 22</span><span style="font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:-.04em;line-height:1.08">Brain Loading</span></div>
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">.lead · 18→24</span><span style="color:rgba(247,247,255,.72);font-size:clamp(18px,2vw,24px);line-height:1.66;max-width:640px">Drei Shows. Ein Host. Unendlich viele Lacher.</span></div>
+        <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="flex:0 0 130px;color:rgba(247,247,255,.5);font-family:ui-monospace,Menlo,monospace;font-size:12px">p · 17</span><span style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;max-width:640px">Hier trifft klassische Stand-up-Comedy auf einen unvorhersehbaren Impro-Teil.</span></div>
+      </div>
+    </section>
+
+    <!-- ══ RADIEN, SCHATTEN, GLAS ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">03 · Radien, Schatten, Glas</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">999px · Pills</div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:rgba(255,255,255,.08);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">30px · --radius</div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">22px · Medien</div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:18px;background:rgba(255,255,255,.08);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">18px · Listen</div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">16px · Inputs</div>
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:34px;background:rgba(255,255,255,.07);height:110px;display:grid;place-items:center;font-weight:950;font-size:14px">34px · Panels</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+        <div style="border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 28px 90px rgba(0,0,0,.38);padding:22px;display:flex;flex-direction:column;gap:8px">
+          <b style="font-size:15px">--shadow</b>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72);line-height:1.6">0 28px 90px rgba(0,0,0,.38)</span>
+        </div>
+        <div style="border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.18);box-shadow:0 40px 90px rgba(0,0,0,.48),0 0 50px rgba(66,217,255,.1);padding:22px;display:flex;flex-direction:column;gap:8px">
+          <b style="font-size:15px">Karte im Hover</b>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72);line-height:1.6">0 40px 90px rgba(0,0,0,.48) + Eisblau-Glow</span>
+        </div>
+        <div style="border-radius:30px;background:rgba(5,7,17,.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);padding:22px;display:flex;flex-direction:column;gap:8px">
+          <b style="font-size:15px">Frosted Glass (Nav)</b>
+          <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.72);line-height:1.6">rgba(5,7,17,.75) + blur(18px)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ NAVIGATION ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">04 · Navigation</h2>
+        <span style="color:rgba(247,247,255,.5);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase">Nav.tsx · Footer.tsx</span>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;overflow:hidden">
+        <nav style="display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px clamp(18px,4vw,64px);border-bottom:1px solid rgba(255,255,255,.18);background:rgba(5,7,17,.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)">
+          <div style="display:flex;align-items:center;gap:12px">
+            <a href="#" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;color:#f7f7ff;font-size:17px">
+              <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+              <span>Steffen Vorholt</span>
+            </a>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:14px;font-weight:800">Startseite</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Shows</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Steffen</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Booking &amp; Kontakt</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Angebote</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;color:rgba(247,247,255,.72);font-size:14px;font-weight:800" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Galerie &amp; Gästebuch</a>
+            <a href="#" style="padding:10px 12px;border-radius:999px;white-space:nowrap;background:linear-gradient(135deg,#FFD166,#FF9F43);color:#050711;font-size:14px;font-weight:950">🎟 Tickets</a>
+          </div>
+        </nav>
+        <div style="padding:20px clamp(18px,4vw,64px);display:flex;gap:22px;flex-wrap:wrap;align-items:center;background:rgba(0,0,0,.22)">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">Mobile-Burger</span>
+          <button style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.08);cursor:pointer">
+            <span style="position:relative;width:22px;height:16px;display:block">
+              <span style="position:absolute;left:0;top:0;width:100%;height:2px;border-radius:2px;background:#f7f7ff;display:block"></span>
+              <span style="position:absolute;left:0;top:7px;width:100%;height:2px;border-radius:2px;background:#f7f7ff;display:block"></span>
+              <span style="position:absolute;left:0;top:14px;width:100%;height:2px;border-radius:2px;background:#f7f7ff;display:block"></span>
+            </span>
+          </button>
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;margin-left:14px">Offen (X)</span>
+          <button style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border:1px solid rgba(255,255,255,.18);border-radius:14px;background:rgba(255,255,255,.08);cursor:pointer">
+            <span style="position:relative;width:22px;height:16px;display:block">
+              <span style="position:absolute;left:0;top:7px;width:100%;height:2px;border-radius:2px;background:#f7f7ff;display:block;transform:rotate(45deg)"></span>
+              <span style="position:absolute;left:0;top:7px;width:100%;height:2px;border-radius:2px;background:#f7f7ff;display:block;transform:rotate(-45deg)"></span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ BUTTONS & PILLS ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">05 · Buttons &amp; Pillen</h2>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">.btn — 15px/20px, 999px, weight 950</span>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+            <button style="border:0;cursor:pointer;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;justify-content:center;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);transition:.18s ease;font-size:16px" style-hover="transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)">🎟 Tickets sichern</button>
+            <button style="border:1px solid rgba(255,255,255,.18);cursor:pointer;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;justify-content:center;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;transition:.18s ease;font-size:16px" style-hover="transform:translateY(-3px) rotate(-1deg);filter:brightness(1.08)">Welche Show passt zu mir?</button>
+            <button style="border:1px solid rgba(66,217,255,.42);cursor:pointer;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(66,217,255,.12);color:#AEEBFF;font-size:16px">Heute</button>
+            <button disabled style="border:0;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;opacity:.55;cursor:default;font-size:16px">Sendet durchs All...</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">.chip — Filter &amp; Ansichtswechsel</span>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <button style="border:1px solid rgba(255,255,255,.18);background:#f7f7ff;color:#050711;padding:10px 13px;border-radius:999px;font-weight:850;white-space:nowrap;cursor:pointer;box-shadow:0 8px 24px rgba(255,255,255,.13)">Alle</button>
+            <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#f7f7ff;padding:10px 13px;border-radius:999px;font-weight:850;white-space:nowrap;cursor:pointer">📅 Kalender</button>
+            <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#f7f7ff;padding:10px 13px;border-radius:999px;font-weight:850;white-space:nowrap;cursor:pointer">🗺️ Karte</button>
+            <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.045);color:#f7f7ff;padding:9px 12px;border-radius:999px;font-weight:850;white-space:nowrap;font-size:13px;cursor:pointer;transition:transform .2s ease,border-color .2s ease" style-hover="transform:translateY(-2px);border-color:rgba(174,235,255,.42)">Oberhausen</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">.eyebrow · .badge · .status · .sticker</span>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+            <span style="display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(255,255,255,.08);padding:9px 13px;color:rgba(247,247,255,.72);font-size:14px;font-weight:850;white-space:nowrap"><span style="width:10px;height:10px;border-radius:50%;background:#7CFF6B;box-shadow:0 0 24px #7CFF6B;animation:ds-pulse 1.8s infinite"></span>Wähl deine Mission</span>
+            <span style="display:inline-flex;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Brain Loading</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Tickets verfügbar</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#FFD166">Tickets bald verfügbar</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#AEEBFF">Vergangen</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#ff5577">fehlt</span>
+            <span style="display:inline-block;background:#fff;color:#06070f;font-weight:900;font-size:13px;padding:6px 12px;border-radius:12px;transform:rotate(-3deg);box-shadow:4px 4px 0 rgba(124,255,107,.55)">Brain Loading</span>
+            <span style="display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:#ff5577;color:#fff;font-size:11px;font-weight:950">3</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="color:rgba(247,247,255,.5);font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase">.social-chip</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <a href="#" style="display:inline-flex;padding:7px 13px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:900;color:rgba(255,255,255,.9)" style-hover="background:rgba(255,255,255,.13);color:#fff">Instagram</a>
+            <a href="#" style="display:inline-flex;padding:7px 13px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:900;color:rgba(255,255,255,.9)" style-hover="background:rgba(255,255,255,.13);color:#fff">TikTok</a>
+            <a href="#" style="display:inline-flex;padding:7px 13px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:900;color:rgba(255,255,255,.9)" style-hover="background:rgba(255,255,255,.13);color:#fff">YouTube</a>
+            <a href="#" style="display:inline-flex;padding:7px 13px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:900;color:rgba(255,255,255,.9)" style-hover="background:rgba(255,255,255,.13);color:#fff">Website</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FORMULARE ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">06 · Formularfelder</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px">
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:12px">
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+            <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Name<input value="Steffen" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+            <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">E-Mail<input placeholder="du@beispiel.de" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+          </div>
+          <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Show<select style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"><option>Brain Loading</option><option>Comedy Eiskalt</option><option>Comedy Check-In</option></select></label>
+          <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Nachricht<textarea placeholder="Gästezahl, Ablauf, Budget..." style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;min-height:130px;resize:vertical;font:inherit;font-weight:400"></textarea></label>
+          <label style="display:flex;flex-direction:row;gap:10px;align-items:center;color:rgba(255,255,255,.84);font-size:13px;font-weight:850"><input type="checkbox" checked style="width:auto;accent-color:#7CFF6B">Termin veröffentlichen</label>
+          <p style="margin:0;color:#ff5577;font-size:14px;line-height:1.6">Bitte fülle Name, E-Mail und Nachricht aus.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="padding:16px 18px;border-radius:22px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.26);color:rgba(255,255,255,.82);font-size:15px;line-height:1.6">.notice — Für diese Seite ist noch kein Text hinterlegt.</div>
+          <div style="padding:22px;border-radius:24px;border:1px dashed rgba(255,255,255,.3);color:rgba(247,247,255,.72);background:rgba(255,255,255,.05);font-size:15px;line-height:1.6">.booking-empty — Gerade kein Termin geplant.</div>
+          <div style="min-height:150px;border:1px dashed rgba(255,255,255,.36);border-radius:30px;display:grid;place-items:center;text-align:center;padding:28px;background:rgba(255,255,255,.06);color:rgba(247,247,255,.72);font-weight:850">.media-placeholder — Bühnen-Video folgt</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="padding:14px 18px;border-radius:16px;font-weight:850;box-shadow:0 28px 90px rgba(0,0,0,.38);background:rgba(119,255,183,.16);border:1px solid rgba(119,255,183,.42);color:#caffe3">Gespeichert ✓</div>
+            <div style="padding:14px 18px;border-radius:16px;font-weight:850;box-shadow:0 28px 90px rgba(0,0,0,.38);background:rgba(255,85,119,.16);border:1px solid rgba(255,85,119,.42);color:#ffd0da">Upload fehlgeschlagen</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ KARTEN ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">07 · Karten</h2>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start">
+        <!-- show-card -->
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate;color:#7CFF6B">
+          <div style="position:absolute;width:270px;height:270px;border-radius:50%;top:92px;left:50%;translate:-50% 0;z-index:-1;box-shadow:0 0 70px currentColor;opacity:.32;filter:blur(10px);background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,#7CFF6B,#42D9FF,#9B5CFF,#7CFF6B)"></div>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:start;gap:14px;color:#f7f7ff">
+              <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Brain Loading</span>
+              <span style="display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)">Impro</span>
+            </div>
+            <div style="height:320px;display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;margin:16px -6px 0">
+              <img src="assets/planet-brain-loading.webp" alt="" style="width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;border-radius:50%;filter:drop-shadow(0 22px 30px rgba(0,0,0,.34));animation:ds-float 7s ease-in-out infinite">
+            </div>
+            <div style="position:relative;z-index:2;margin-top:14px;padding-top:20px;border-top:1px solid rgba(255,255,255,.12)">
+              <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,3vw,46px);line-height:.98;letter-spacing:-.075em;color:#f7f7ff">Die Comedy-Improshow, bei der du Regie führst.</h3>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Hier trifft klassische Stand-up-Comedy auf einen unvorhersehbaren Impro-Teil.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">Show öffnen</a>
+            <a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px">Tickets</a>
+          </div>
+        </article>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <!-- event-card -->
+          <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;overflow:hidden;min-height:265px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer">
+            <div style="display:flex;justify-content:space-between;gap:14px;align-items:start">
+              <div>
+                <h4 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">Brain Loading</h4>
+                <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 10px">Oberhausen · Druckluft</p>
+                <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Tickets verfügbar</span>
+              </div>
+              <div style="min-width:76px;text-align:center;border-radius:18px;overflow:hidden;border:1px solid #7CFF6B;background:rgba(0,0,0,.24)">
+                <strong style="display:block;font-size:27px;line-height:1;padding-top:12px;font-family:'Space Grotesk',sans-serif">12</strong>
+                <span style="display:block;font-size:12px;color:rgba(247,247,255,.72);font-weight:950;padding:7px 8px 10px;text-transform:uppercase">Feb</span>
+              </div>
+            </div>
+            <div>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0 0 14px">Showbeginn: 20:00 · Einlass: 19:00<br>Eventbrite</p>
+              <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">🎟 Tickets sichern</a>
+            </div>
+          </article>
+
+          <!-- booking-row -->
+          <div style="display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px;border:1px solid rgba(255,255,255,.18);border-radius:24px;background:rgba(255,255,255,.08)">
+            <div style="text-align:center;border-radius:18px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.13);padding:12px">
+              <strong style="display:block;font-size:28px;line-height:1;font-family:'Space Grotesk',sans-serif">09</strong>
+              <span style="display:block;color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase">Apr</span>
+            </div>
+            <div>
+              <h4 style="margin:0 0 4px;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">Neuss</h4>
+              <p style="margin:0;font-size:14px;color:rgba(247,247,255,.72);line-height:1.66">Further Str. 127 · Rausgegangen</p>
+            </div>
+            <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;font-size:16px;white-space:nowrap">🎟 Tickets</a>
+          </div>
+
+          <!-- principle-step -->
+          <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;position:relative;display:flex;flex-direction:column;gap:10px;padding-top:26px;overflow:hidden">
+            <span style="position:absolute;top:0;left:0;width:100%;height:3px;background:#7CFF6B"></span>
+            <span style="font-size:42px;line-height:1;font-weight:950;letter-spacing:-.04em;color:#7CFF6B;font-family:'Space Grotesk',sans-serif">01</span>
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:21px;letter-spacing:-.02em;line-height:1.08">Hälfte 1</h3>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Comedians aus ganz Deutschland zeigen ihr bestes Set.</p>
+          </article>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <!-- appearance-card -->
+          <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden;border-top:3px solid #42D9FF">
+            <div style="position:relative;aspect-ratio:4/3;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,rgba(66,217,255,.26),rgba(5,7,17,.72))">
+              <span style="font-size:58px;opacity:.72">🎤</span>
+              <span style="position:absolute;top:12px;left:12px;display:inline-flex;padding:8px 11px;border-radius:999px;white-space:nowrap;background:#42D9FF;color:#050711;border:0;font-size:13px;font-weight:950">Open Mic</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;padding:20px 22px 24px;flex:1">
+              <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,1.8vw,26px);line-height:1.15;letter-spacing:-.02em">Open Mic im Rekorder</h3>
+              <p style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px;margin:0">14. August 2026</p>
+              <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Rekorder, Recklinghausen</p>
+              <span style="margin-top:auto;font-weight:950;color:#42D9FF">Mehr Infos →</span>
+            </div>
+          </article>
+
+          <!-- comedian-card -->
+          <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+            <div style="width:100%;height:260px;border-radius:22px;border:1px solid rgba(255,255,255,.18);background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px);display:grid;place-items:center">
+              <span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5)">comedian photo 320×320</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Gast-Comedian</h3>
+              <p style="color:rgba(247,247,255,.72);font-weight:850;font-size:14px;margin:0">Support · 29 Jahre</p>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:auto">
+                <a href="#" style="display:inline-flex;padding:7px 13px;border-radius:999px;white-space:nowrap;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.18);font-size:13px;font-weight:900;color:rgba(255,255,255,.9)">Instagram</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start">
+        <!-- contact-card grün -->
+        <form style="border-radius:30px;box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:14px;border:1px solid rgba(124,255,107,.28);background:linear-gradient(180deg,rgba(124,255,107,.07),rgba(255,255,255,.03))">
+          <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-size:20px;margin-bottom:4px;background:conic-gradient(from 20deg,#7CFF6B,#42D9FF,#9B5CFF,#7CFF6B)">🎟️</span>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Eine Show buchen.</h3>
+          <p style="margin:-6px 0 4px;font-size:14px;color:rgba(247,247,255,.72);line-height:1.66">Hol dir Comedy Eiskalt, Doppel Comedy oder Brain Loading auf deine Bühne.</p>
+          <p style="margin:0;font-size:12px;color:rgba(247,247,255,.72);text-align:center">→ Landet direkt im Show-Postfach</p>
+        </form>
+        <!-- contact-card gold -->
+        <form style="border-radius:30px;box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:14px;border:1px solid rgba(255,209,102,.32);background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(255,255,255,.03))">
+          <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-size:20px;margin-bottom:4px;background:conic-gradient(from 130deg,#FF9F43,#FFD166,#1B4DFF,#FF9F43)">🎤</span>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Steffen buchen.</h3>
+          <p style="margin:-6px 0 4px;font-size:14px;color:rgba(247,247,255,.72);line-height:1.66">Comedy, Moderation oder beides – für Firmenfeiern, Galas und Events.</p>
+          <p style="margin:0;font-size:12px;color:rgba(247,247,255,.72);text-align:center">→ Landet direkt im Booking-Postfach</p>
+        </form>
+        <!-- contact-card blau -->
+        <form style="border-radius:30px;box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:14px;border:1px solid rgba(66,217,255,.28);background:linear-gradient(180deg,rgba(66,217,255,.07),rgba(255,255,255,.03))">
+          <span style="display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font-size:20px;margin-bottom:4px;background:conic-gradient(from 80deg,#fff,#AEEBFF,#5FF5E8,#4f7dff,#fff)">💬</span>
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Frage oder Feedback.</h3>
+          <p style="margin:-6px 0 4px;font-size:14px;color:rgba(247,247,255,.72);line-height:1.66">Eine kurze Frage, ein Lob oder Verbesserungsvorschlag?</p>
+          <p style="margin:0;font-size:12px;color:rgba(247,247,255,.72);text-align:center">→ Landet direkt im Show-Postfach</p>
+        </form>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start">
+        <!-- offer-card -->
+        <article style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);display:flex;flex-direction:column;padding:0;overflow:hidden">
+          <div style="position:relative">
+            <span style="position:absolute;top:14px;left:16px;padding:7px 12px;border-radius:999px;white-space:nowrap;background:#FF4FD8;color:#fff;font-size:12px;font-weight:900;z-index:1">Aktion</span>
+            <div style="width:100%;height:200px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 8px,rgba(255,255,255,.02) 8px 16px);display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.5)">offer poster 600×400</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;padding:18px">
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);line-height:.93;letter-spacing:-.075em">Rettember</h3>
+            <p style="font-weight:850;color:#f7f7ff;margin:0">Für alle im Rettungsdienst</p>
+            <p style="margin:0;font-weight:850;color:rgba(247,247,255,.72)">Code: <span style="display:inline-block;background:#f7f7ff;color:#050711;padding:3px 10px;border-radius:8px;letter-spacing:.04em">RETTEMBER</span></p>
+            <p style="margin:0;font-size:13px;color:rgba(247,247,255,.72)">Gültig bis 30.09.2026</p>
+          </div>
+        </article>
+        <!-- partner-card -->
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;justify-content:center;min-height:160px">
+          <span style="font-weight:950;font-size:18px">Komiker 11</span>
+          <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Fußball-Team aus Comedians.</p>
+        </div>
+        <!-- list -->
+        <div style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px">
+          <h4 style="margin:0 0 10px;font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;letter-spacing:-.04em">.list</h4>
+          <ul style="display:grid;gap:12px;list-style:none;padding:0;margin:18px 0 0">
+            <li style="display:flex;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);align-items:baseline"><span style="flex:0 0 auto">🚗</span><span>Ausbildung zum <b style="color:#f7f7ff">Kfz-Mechatroniker</b></span></li>
+            <li style="display:flex;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);align-items:baseline"><span style="flex:0 0 auto">🚑</span><span>Einsätze im <b style="color:#f7f7ff">Rettungsdienst</b></span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ KALENDER & KARTE ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">08 · Kalender &amp; Karte</h2>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);border-radius:34px;padding:clamp(12px,1.2vw,18px);box-shadow:0 28px 90px rgba(0,0,0,.38)">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px">
+          <span style="font-size:12px;font-weight:950;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,247,255,.72)">Legende</span>
+          <div style="display:flex;flex-wrap:wrap;gap:10px">
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:#7CFF6B;color:#050711">Brain Loading</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:#AEEBFF;color:#050711">Comedy Eiskalt</span>
+            <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;border:1px solid rgba(255,255,255,.18);background:#FF9F43;color:#050711">Comedy Check-In</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:10px;flex-wrap:wrap">
+          <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(27px,3.6vw,52px);letter-spacing:-.075em;line-height:.93">Februar 2026</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:14px">
+            <button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;cursor:pointer;font-size:16px">← Vorheriger</button>
+            <button style="border:1px solid rgba(66,217,255,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(66,217,255,.12);color:#AEEBFF;cursor:pointer;font-size:16px">Heute</button>
+            <button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;cursor:pointer;font-size:16px">Nächster →</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,minmax(90px,1fr));gap:clamp(5px,.65vw,9px)">
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Mo</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Di</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Mi</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Do</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Fr</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">Sa</div>
+          <div style="color:rgba(247,247,255,.72);font-size:12px;font-weight:950;text-transform:uppercase;padding:0 6px 2px">So</div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px);opacity:.42"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">&nbsp;</div></div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">10</div></div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">11</div></div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)">
+            <div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">12</div>
+            <a href="#" style="display:block;width:100%;text-align:left;border:0;cursor:pointer;margin-top:4px;padding:6px 7px;border-radius:12px;background:#7CFF6B;color:#050711;font-size:10px;font-weight:900;line-height:1.2;animation:ds-eventpulse 2.6s ease-in-out infinite">Brain Loading<br>Oberhausen</a>
+          </div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">13</div></div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">14</div></div>
+          <div style="min-height:clamp(76px,6.2vw,108px);border:1px solid rgba(255,255,255,.12);border-radius:20px;background:rgba(0,0,0,.18);padding:clamp(7px,.7vw,10px)"><div style="font-weight:950;color:rgba(255,255,255,.78);margin-bottom:5px">15</div></div>
+        </div>
+      </div>
+      <!-- Echte Karte: reale Geografie (OpenStreetMap), Klick-to-Add für Standorte.
+           Ersetzt das 9-Punkt-Polygon aus lib/nrw-geo.ts. -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <span style="color:#42D9FF;font-size:11px;font-weight:950;letter-spacing:.11em;text-transform:uppercase">Spielortkarte · echte Geodaten</span>
+            <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,38px);letter-spacing:-.05em;line-height:.98">Wo Steffen spielt.</h3>
+          </div>
+          <p style="margin:0;max-width:460px;color:rgba(247,247,255,.72);font-size:15px;line-height:1.6">Im Modus <strong style="color:#f7f7ff">Standorte pflegen</strong> setzt der Admin per Klick einen Punkt in die Karte, benennt Ort und Location und wählt die Show — Marker und Terminliste aktualisieren sich sofort.</p>
+        </div>
+        <div style="{{ mapWrap }}">
+          <iframe src="{{ mapSrc }}" title="NRW-Spielortkarte" loading="lazy" style="width:100%;height:100%;border:0;display:block;border-radius:32px"></iframe>
+        </div>
+        <p style="margin:0;color:rgba(247,247,255,.5);font-size:12.5px;line-height:1.6">Kartendaten © OpenStreetMap-Mitwirkende · Marker-Farbe = Show-Farbe (<code style="font-family:ui-monospace,Menlo,monospace;color:#AEEBFF">shows.color</code>), Ringgröße = Anzahl Termine. Angelegte Standorte werden lokal gespeichert, im Programm gehören sie in eine <code style="font-family:ui-monospace,Menlo,monospace;color:#AEEBFF">venues</code>-Tabelle.</p>
+      </div>
+    </section>
+
+    <!-- ══ ADMIN-BAUSTEINE ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">09 · Mission Control</h2>
+        <span style="color:rgba(247,247,255,.5);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase">Admin-Bausteine</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px">
+        <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">3</strong><span style="color:rgba(247,247,255,.72)">neue Anfragen</span></div>
+        <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">2</strong><span style="color:rgba(247,247,255,.72)">kommende Termine</span></div>
+        <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">1</strong><span style="color:rgba(247,247,255,.72)">Shows ohne Termin</span></div>
+        <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">0</strong><span style="color:rgba(247,247,255,.72)">Ticketlinks fehlen</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:start">
+        <aside style="border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(0,0,0,.22);padding:24px;display:flex;flex-direction:column">
+          <nav style="display:flex;flex-direction:column;gap:4px">
+            <a href="#" style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.1);color:#f7f7ff;padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;white-space:nowrap">Übersicht</a>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:20px">
+              <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Programm</span>
+              <a href="#" style="display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(247,247,255,.72);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;white-space:nowrap" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Shows</a>
+              <a href="#" style="display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(247,247,255,.72);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;white-space:nowrap" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Termine</a>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:16px">
+              <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Vertrieb</span>
+              <a href="#" style="display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(247,247,255,.72);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;white-space:nowrap" style-hover="background:rgba(255,255,255,.1);color:#f7f7ff">Anfragen<span style="display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:#ff5577;color:#fff;font-size:11px;font-weight:950">3</span></a>
+            </div>
+          </nav>
+        </aside>
+        <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+          <div style="overflow:auto;border:1px solid rgba(255,255,255,.18);border-radius:22px">
+            <table style="width:100%;border-collapse:collapse;font-size:15px">
+              <thead><tr>
+                <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Datum</th>
+                <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Show</th>
+                <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Stadt</th>
+                <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Tickets</th>
+              </tr></thead>
+              <tbody>
+                <tr><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">12. Februar 2026</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Oberhausen</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">✓</td></tr>
+                <tr><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">09. April 2026</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Neuss</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#ff5577">fehlt</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <details style="border:1px solid rgba(255,255,255,.18);border-radius:24px;background:rgba(255,255,255,.05);overflow:hidden">
+            <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px">
+              <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(18px,1.7vw,22px);letter-spacing:-.02em;color:#f7f7ff">Termine dieser Show (12)</span>
+              <span style="flex:0 0 auto;color:rgba(247,247,255,.72);font-size:13px">▾</span>
+            </summary>
+            <div style="padding:0 24px 28px;color:rgba(247,247,255,.72);font-size:15px;line-height:1.66">.admin-collapsible-body — einklappbare Abschnitte in den Show-Einstellungen.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ OVERLAYS ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">10 · Overlays &amp; Spezialteile</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start">
+        <!-- consent -->
+        <div style="position:relative;isolation:isolate;border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.04)),rgba(5,7,17,.72);box-shadow:0 28px 90px rgba(0,0,0,.38);padding:clamp(24px,4vw,40px);overflow:hidden">
+          <div style="position:absolute;z-index:-1;top:-120px;left:50%;translate:-50% 0;width:320px;height:320px;border-radius:50%;background:conic-gradient(from 40deg,#7CFF6B,#42D9FF,#9B5CFF,#FF4FD8,#7CFF6B);filter:blur(52px);opacity:.34;pointer-events:none"></div>
+          <h3 style="margin:10px 0 14px;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,38px);line-height:1.08;letter-spacing:-.05em">Kurz vor dem Start.</h3>
+          <p style="margin:0;font-size:16px;color:rgba(247,247,255,.72);line-height:1.66">Wir laden YouTube-Videos erst nach deiner Einwilligung.</p>
+          <div style="margin-top:20px;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(255,255,255,.05)">
+            <div style="padding:13px 17px;font-weight:900;font-size:15px;display:flex;align-items:center;gap:9px;cursor:pointer"><span style="color:#42D9FF;font-weight:900">＋</span>Was genau wird geladen?</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px">
+            <button style="border:0;cursor:pointer;border-radius:999px;padding:16px 20px;font-weight:950;white-space:nowrap;font-size:16px;display:inline-flex;align-items:center;justify-content:center;color:#050711;background:linear-gradient(135deg,#AEEBFF,#5FF5E8);box-shadow:0 18px 44px rgba(95,245,232,.24)">Nur Notwendige</button>
+            <button style="border:0;cursor:pointer;border-radius:999px;padding:16px 20px;font-weight:950;white-space:nowrap;font-size:16px;display:inline-flex;align-items:center;justify-content:center;color:#050711;background:linear-gradient(135deg,#f5d68a,#e8a33d);box-shadow:0 18px 44px rgba(232,163,61,.26)">Alle akzeptieren</button>
+          </div>
+          <p style="margin:20px 0 0;text-align:center;font-size:14px;color:rgba(247,247,255,.72)"><a href="#" style="text-decoration:underline;text-underline-offset:3px;color:rgba(247,247,255,.72)">Datenschutz</a> · <a href="#" style="text-decoration:underline;text-underline-offset:3px;color:rgba(247,247,255,.72)">Impressum</a></p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <!-- buzzer -->
+          <div style="display:grid;place-items:center;gap:18px;text-align:center;border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));padding:34px 26px">
+            <button style="width:150px;height:150px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff7a7a,#e02525 60%,#8f0f0f);color:#fff;font-weight:950;font-size:22px;letter-spacing:.08em;white-space:nowrap;box-shadow:0 14px 0 #7a0c0c,0 26px 60px rgba(224,37,37,.35);transition:transform .08s ease,box-shadow .08s ease" style-active="transform:translateY(10px);box-shadow:0 4px 0 #7a0c0c,0 12px 30px rgba(224,37,37,.3)">BUZZ</button>
+            <p style="margin:0;font-size:clamp(18px,2.4vw,26px);font-weight:800;color:#f7f7ff;max-width:640px;min-height:2.4em;line-height:1.3">Mein Gehirn lädt noch... 87 %... bitte nicht neu starten.</p>
+          </div>
+          <!-- yt placeholder -->
+          <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:#000;box-shadow:0 28px 90px rgba(0,0,0,.38)">
+            <div style="position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;background:linear-gradient(180deg,rgba(155,92,255,.16),rgba(5,7,17,.9))">
+              <div style="display:grid;gap:12px;justify-items:center;max-width:340px">
+                <span style="display:grid;place-items:center;width:52px;height:52px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);font-size:19px;padding-left:4px">▶</span>
+                <p style="margin:0;font-size:13.5px;line-height:1.55;color:rgba(247,247,255,.72)">Dieses Video wird von YouTube geladen. Dabei werden Daten an Google übertragen.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:9px;justify-content:center">
+                  <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#f7f7ff;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer">Video laden</button>
+                  <button style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.12);color:#f7f7ff;border-radius:999px;padding:9px 15px;font-size:13px;font-weight:900;white-space:nowrap;cursor:pointer">Auf YouTube ansehen</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <section style="display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px">
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:-.06em;line-height:.98">11 · Footer</h2>
+      </div>
+      <footer style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:rgba(0,0,0,.22);padding:42px 0;overflow:hidden">
+        <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);display:grid;grid-template-columns:1.2fr repeat(3,.7fr);gap:24px">
+          <div>
+            <a href="#" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;color:#f7f7ff;font-size:17px;margin-bottom:12px">
+              <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+              <span>Comedy-Universum</span>
+            </a>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0">Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
+          </div>
+          <div>
+            <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Shows</h4>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="#" style="color:rgba(247,247,255,.72)">Brain Loading</a><br><a href="#" style="color:rgba(247,247,255,.72)">Comedy Eiskalt</a><br><a href="#" style="color:rgba(247,247,255,.72)">Comedy Check-In</a></p>
+          </div>
+          <div>
+            <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Entdecken</h4>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="#" style="color:rgba(247,247,255,.72)">Shows &amp; Termine</a><br><a href="#" style="color:rgba(247,247,255,.72)">Angebote</a><br><a href="#" style="color:rgba(247,247,255,.72)">Galerie &amp; Gästebuch</a><br><a href="#" style="color:rgba(247,247,255,.72)">Über Steffen</a><br><a href="#" style="color:rgba(247,247,255,.72)">Booking &amp; Kontakt</a></p>
+          </div>
+          <div>
+            <h4 style="font-family:'Space Grotesk',sans-serif;font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em">Rechtliches</h4>
+            <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:0"><a href="#" style="color:rgba(247,247,255,.72)">Impressum</a><br><a href="#" style="color:rgba(247,247,255,.72)">Datenschutz</a><br><a href="#" style="color:rgba(247,247,255,.72)">AGB</a><br><button style="background:none;border:0;padding:0;margin:0;cursor:pointer;font:inherit;color:rgba(247,247,255,.72);text-align:left" style-hover="color:#f7f7ff;text-decoration:underline">Cookie-Einstellungen</button></p>
+          </div>
+        </div>
+        <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:18px;color:rgba(247,247,255,.72);font-size:13px">© 2026 Steffen Vorholt · Mit Liebe zur Pointe irgendwo zwischen Recklinghausen und Andromeda gebaut.</div>
+      </footer>
+    </section>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;mapMode&quot;: {
+    &quot;editor&quot;: &quot;enum&quot;,
+    &quot;options&quot;: [&quot;Besucher&quot;, &quot;Standorte pflegen&quot;],
+    &quot;default&quot;: &quot;Besucher&quot;,
+    &quot;tsType&quot;: &quot;string&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  },
+  &quot;mapHeight&quot;: {
+    &quot;editor&quot;: &quot;range&quot;,
+    &quot;min&quot;: 380,
+    &quot;max&quot;: 900,
+    &quot;step&quot;: 20,
+    &quot;default&quot;: 560,
+    &quot;unit&quot;: &quot;px&quot;,
+    &quot;tsType&quot;: &quot;number&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  },
+  &quot;mapTheme&quot;: {
+    &quot;editor&quot;: &quot;enum&quot;,
+    &quot;options&quot;: [&quot;Cosmic&quot;, &quot;Tiefdunkel&quot;, &quot;Neutral&quot;],
+    &quot;default&quot;: &quot;Cosmic&quot;,
+    &quot;tsType&quot;: &quot;string&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  },
+  &quot;mapLabels&quot;: {
+    &quot;editor&quot;: &quot;boolean&quot;,
+    &quot;default&quot;: true,
+    &quot;tsType&quot;: &quot;boolean&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  },
+  &quot;mapLines&quot;: {
+    &quot;editor&quot;: &quot;boolean&quot;,
+    &quot;default&quot;: true,
+    &quot;tsType&quot;: &quot;boolean&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  },
+  &quot;markerScale&quot;: {
+    &quot;editor&quot;: &quot;range&quot;,
+    &quot;min&quot;: 0.6,
+    &quot;max&quot;: 1.8,
+    &quot;step&quot;: 0.1,
+    &quot;default&quot;: 1,
+    &quot;tsType&quot;: &quot;number&quot;,
+    &quot;section&quot;: &quot;NRW-Spielortkarte&quot;
+  }
+}">
+const THEMES = { "Cosmic": "cosmic", "Tiefdunkel": "tief", "Neutral": "neutral" };
+
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const height = p.mapHeight ?? 560;
+    const q = new URLSearchParams({
+      mode: (p.mapMode ?? "Besucher") === "Standorte pflegen" ? "admin" : "besucher",
+      theme: THEMES[p.mapTheme ?? "Cosmic"] ?? "cosmic",
+      labels: (p.mapLabels ?? true) ? "on" : "off",
+      lines: (p.mapLines ?? true) ? "on" : "off",
+      markerScale: String(p.markerScale ?? 1),
+    });
+    return {
+      mapSrc: "nrw-karte.html?" + q.toString(),
+      mapWrap: "width:100%;height:" + height + "px;border-radius:32px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.3)",
+    };
+  }
+}
+</script>
+</body>
+</html>

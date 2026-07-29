@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#050711;color:#f7f7ff;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  a:hover{color:#AEEBFF}
+  *{box-sizing:border-box}
+  img{max-width:100%;display:block}
+  @keyframes sv-toast{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<!-- Der Admin-Bereich läuft bewusst OHNE Galaxy-Canvas und ohne Motion (siehe README). -->
+<div style="position:relative;min-height:100vh;overflow-x:hidden;background:radial-gradient(circle at 16% 8%,rgba(155,92,255,.35),transparent 25%),radial-gradient(circle at 90% 10%,rgba(66,217,255,.22),transparent 28%),radial-gradient(circle at 70% 72%,rgba(255,79,216,.18),transparent 28%),linear-gradient(180deg,#050711,#0b1026 48%,#050711);font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f7f7ff">
+
+  <!-- ═══ 1 · LOGIN (/admin/login) ═══ -->
+  <section style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:clamp(62px,8vw,122px)">
+    <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,.18);padding-bottom:14px;margin-bottom:34px">
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">/admin/login</h2>
+      <span style="color:rgba(247,247,255,.5);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase">Ohne Session leitet die Middleware hierher</span>
+    </div>
+    <form style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:12px;max-width:420px;margin:0 auto">
+      <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,2.6vw,28px);line-height:1.2;letter-spacing:-.02em">Mission Control – Login</h3>
+      <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">E-Mail<input type="email" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+      <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Passwort<input type="password" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+      <p style="color:#ff5577;margin:0;font-size:14px;line-height:1.6">Anmeldung fehlgeschlagen. Bitte prüf E-Mail und Passwort.</p>
+      <button style="border:0;cursor:pointer;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;font-family:Inter,sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:10px">Einloggen</button>
+    </form>
+  </section>
+
+  <!-- ═══ 2 · DASHBOARD-SHELL (/admin/*) ═══ -->
+  <header style="position:sticky;top:0;z-index:30;border-bottom:1px solid rgba(255,255,255,.18);background:rgba(5,7,17,.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)">
+    <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:16px">
+      <a href="#" style="display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.04em;font-size:17px;white-space:nowrap">
+        <span style="width:52px;height:52px;display:grid;place-items:center;flex:0 0 auto"><img src="assets/logo.png" alt="" style="width:100%;height:100%;object-fit:contain"></span>
+        <span>Mission Control</span>
+      </a>
+      <button style="border:1px solid rgba(255,255,255,.18);cursor:pointer;border-radius:999px;padding:11px 18px;font-weight:950;font-size:14px;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-family:Inter,sans-serif">Logout</button>
+    </div>
+  </header>
+
+  <div style="width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px);padding-block:32px clamp(48px,6vw,96px)">
+    <div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;border:1px solid rgba(255,255,255,.18);border-radius:34px;background:rgba(255,255,255,.07);padding:28px;box-shadow:0 28px 90px rgba(0,0,0,.38);min-height:calc(100vh - 220px)">
+
+      <!-- Sidebar -->
+      <aside style="min-width:0;border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(0,0,0,.22);padding:24px;display:flex;flex-direction:column">
+        <nav style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:0">
+          <a onClick="{{ goUebersicht }}" href="#" style="{{ navUebersicht }}">Übersicht</a>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:20px">
+            <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Programm</span>
+            <a onClick="{{ goShows }}" href="#" style="{{ navShows }}">Shows</a>
+            <a onClick="{{ goTermine }}" href="#" style="{{ navTermine }}">Termine</a>
+            <a onClick="{{ goComedians }}" href="#" style="{{ navComedians }}">Comedians</a>
+            <a onClick="{{ goAuftritte }}" href="#" style="{{ navAuftritte }}">Auftritte</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:16px">
+            <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Vertrieb</span>
+            <a onClick="{{ goAngebote }}" href="#" style="{{ navAngebote }}">Angebote</a>
+            <a onClick="{{ goAnfragen }}" href="#" style="{{ navAnfragen }}">Anfragen<span style="display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:#ff5577;color:#fff;font-size:11px;font-weight:950;flex:0 0 auto">3</span></a>
+            <a onClick="{{ goPartner }}" href="#" style="{{ navPartner }}">Partner</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:16px">
+            <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Website</span>
+            <a onClick="{{ goGalerie }}" href="#" style="{{ navGalerie }}">Galerie &amp; Medien</a>
+            <a onClick="{{ goYoutube }}" href="#" style="{{ navYoutube }}">YouTube</a>
+            <a onClick="{{ goOneliner }}" href="#" style="{{ navOneliner }}">One-Liner</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:16px">
+            <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">Rechtliches</span>
+            <a onClick="{{ goImpressum }}" href="#" style="{{ navImpressum }}">Impressum</a>
+            <a onClick="{{ goDatenschutz }}" href="#" style="{{ navDatenschutz }}">Datenschutz</a>
+            <a onClick="{{ goAgb }}" href="#" style="{{ navAgb }}">AGB</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;margin-top:16px">
+            <span style="padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)">System</span>
+            <a onClick="{{ goEinstellungen }}" href="#" style="{{ navEinstellungen }}">Benachrichtigungen</a>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Main -->
+      <main style="display:flex;flex-direction:column;gap:36px;min-width:0">
+
+        <!-- Übersicht -->
+        <sc-if value="{{ isUebersicht }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Übersicht</h2>
+              <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin:32px 0">
+                <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">3</strong><span style="color:rgba(247,247,255,.72)">neue Anfragen</span></div>
+                <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">2</strong><span style="color:rgba(247,247,255,.72)">kommende Termine</span></div>
+                <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">2</strong><span style="color:rgba(247,247,255,.72)">Shows ohne Termin</span></div>
+                <div style="padding:32px 24px;border:1px solid rgba(255,255,255,.18);border-radius:22px;background:rgba(255,255,255,.08)"><strong style="display:block;font-size:52px;line-height:1;margin-bottom:12px;font-family:'Space Grotesk',sans-serif">0</strong><span style="color:rgba(247,247,255,.72)">Ticketlinks fehlen</span></div>
+              </div>
+              <h3 style="margin-top:28px;margin-bottom:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.01em">Nächste Termine</h3>
+            </div>
+            <div style="overflow:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:15px">
+                <thead><tr>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Datum</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Show</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Stadt</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Tickets</th>
+                </tr></thead>
+                <tbody>
+                  <tr><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">12. Februar 2026</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Oberhausen</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">✓</td></tr>
+                  <tr><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">09. April 2026</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Neuss</td><td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">✓</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-top:14px;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">⚠️ Ohne kommenden Termin: Comedy Eiskalt, Comedy Check-In — <a href="#" style="color:#42D9FF;text-decoration:underline;text-underline-offset:3px">jetzt Termin anlegen</a>.</p>
+          </div>
+        </sc-if>
+
+        <!-- Shows -->
+        <sc-if value="{{ isShows }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Shows verwalten</h2>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">+ Neue Show</a>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:15px">
+                <thead><tr>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Name</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Slug</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Status</th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ shows }}" as="s" hint-placeholder-count="3">
+                    <tr>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">{{ s.name }}</td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">{{ s.slug }}</td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Aktiv</span></td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;display:inline-flex;align-items:center;gap:10px;white-space:nowrap">Bearbeiten</a></td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Löschen</button></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">⚠️ Löschen entfernt auch alle Termine der Show – endgültig.</p>
+
+            <!-- Einklappbare Abschnitte in den Show-Einstellungen -->
+            <details style="margin-top:34px;border:1px solid rgba(255,255,255,.18);border-radius:24px;background:rgba(255,255,255,.05);overflow:hidden">
+              <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 24px">
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(18px,1.7vw,22px);letter-spacing:-.02em;color:#f7f7ff">Fotos dieser Show (7)</span>
+                <span style="flex:0 0 auto;color:rgba(247,247,255,.72);font-size:13px">▾</span>
+              </summary>
+              <div style="padding:0 24px 28px;display:grid;gap:10px">
+                <p style="margin:0;color:rgba(247,247,255,.72);font-size:13px;line-height:1.5">Bild hochladen, Ausschnitt per Drag &amp; Zoom setzen, dann speichern.</p>
+                <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Datei<input type="file" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:rgba(247,247,255,.72);padding:9px 10px;font-size:14px;width:100%"></label>
+                <span style="display:block;color:#AEEBFF;font-size:12px;font-weight:700;margin-top:3px">Zielformat 4:3 · 1200×900 px</span>
+                <div style="display:grid;gap:12px;justify-items:center;margin-top:8px">
+                  <div style="position:relative;overflow:hidden;border-radius:16px;border:2px solid #7CFF6B;background:#000;width:320px;height:240px;cursor:grab;display:grid;place-items:center"><span style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:rgba(247,247,255,.45)">Crop-Stage 4:3</span></div>
+                  <input type="range" style="width:100%;max-width:320px;accent-color:#7CFF6B">
+                  <div style="display:flex;gap:10px">
+                    <button style="border:0;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Ausschnitt speichern</button>
+                    <button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Abbrechen</button>
+                  </div>
+                </div>
+              </div>
+            </details>
+          </div>
+        </sc-if>
+
+        <!-- Termine -->
+        <sc-if value="{{ isTermine }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Termine verwalten</h2>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">+ Neuer Termin</a>
+              </div>
+              <h3 style="margin:30px 0 0;font-family:'Space Grotesk',sans-serif;font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.01em">Kommende (2)</h3>
+            </div>
+            <div style="overflow:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:15px">
+                <thead><tr>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Datum</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Show</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Stadt</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Ticketlink</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Status</th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">12. Februar 2026</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Oberhausen</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">✓</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Live</span></td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;display:inline-flex;align-items:center;white-space:nowrap">Bearbeiten</a></td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Löschen</button></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">09. April 2026</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Brain Loading</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">Neuss</td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#ff5577">fehlt</span></td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#FFD166">Entwurf</span></td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;display:inline-flex;align-items:center;white-space:nowrap">Bearbeiten</a></td>
+                    <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Löschen</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <h3 style="margin:28px 0 0;font-family:'Space Grotesk',sans-serif;font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.01em">Vergangene (0)</h3>
+            <p style="margin:0;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66">Noch keine vergangenen Termine.</p>
+          </div>
+        </sc-if>
+
+        <!-- Anfragen -->
+        <sc-if value="{{ isAnfragen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Anfragen (3 neu)</h2>
+            <details open style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:18px;margin-bottom:14px">
+              <summary style="cursor:pointer;font-weight:800;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap">Show-Booking · Kulturbüro Essen · 27.07.2026 <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#ff5577">Neu</span></summary>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0"><b style="color:#f7f7ff">E-Mail:</b> <a href="#" style="color:#42D9FF;text-decoration:underline;text-underline-offset:3px">buero@example.de</a> · <b style="color:#f7f7ff">Telefon:</b> 0201 123456</p>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:8px 0 0"><b style="color:#f7f7ff">Show:</b> Brain Loading</p>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:8px 0 0"><b style="color:#f7f7ff">Wunschdatum:</b> 14.11.2026</p>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:8px 0 0"><b style="color:#f7f7ff">Stadt / Location:</b> Essen, Zeche Carl</p>
+              <p style="white-space:pre-wrap;color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Hallo Steffen, wir planen einen Comedy-Abend für ca. 180 Gäste und würden Brain Loading gern bei uns haben. Wie sind die Konditionen?</p>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Gelesen</button>
+                <button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Beantwortet</button>
+                <button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Löschen</button>
+              </div>
+            </details>
+            <details style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:18px;margin-bottom:14px">
+              <summary style="cursor:pointer;font-weight:800;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap">Steffen-Booking · Mira Hoffmann · 26.07.2026 <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#FFD166">Gelesen</span></summary>
+            </details>
+            <details style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:18px;margin-bottom:14px">
+              <summary style="cursor:pointer;font-weight:800;list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap">Frage / Feedback · Jonas K. · 21.07.2026 <span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Beantwortet</span></summary>
+            </details>
+          </div>
+        </sc-if>
+
+        <!-- One-Liner -->
+        <sc-if value="{{ isOneliner }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Buzzer-One-Liner</h2>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Diese Sprüche spuckt der rote Buzzer auf der Startseite aus.</p>
+              <form style="display:flex;gap:10px;margin-top:30px">
+                <input placeholder="Neuer One-Liner..." style="flex:1;border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;outline:none;font:inherit;font-weight:400">
+                <button style="border:0;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Hinzufügen</button>
+              </form>
+            </div>
+            <div style="overflow:auto;margin-top:18px">
+              <table style="width:100%;border-collapse:collapse;font-size:15px">
+                <tbody>
+                  <sc-for list="{{ liners }}" as="l" hint-placeholder-count="5">
+                    <tr>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">{{ l }}</td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Aktiv ✓</button></td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Löschen</button></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Rechtliches-Editor -->
+        <sc-if value="{{ isLegal }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">{{ legalTitle }}</h2>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">Markdown. Überschriften mit <code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em;color:#AEEBFF">##</code>, Platzhalter in eckigen Klammern werden auf der Seite gelb hervorgehoben.</p>
+            </div>
+            <form style="display:grid;gap:12px">
+              <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Inhalt<textarea style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;min-height:420px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:14px;line-height:1.7">## Angaben gemäß § 5 DDG
+
+[Vor- und Nachname]
+[Straße und Hausnummer]
+[PLZ und Ort]
+Deutschland
+
+## Kontakt
+
+Telefon: [Telefonnummer]
+E-Mail: [E-Mail-Adresse]</textarea></label>
+              <div style="display:flex;flex-wrap:wrap;gap:14px">
+                <button style="border:0;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;cursor:pointer;font-family:Inter,sans-serif">Speichern</button>
+                <a href="08 Rechtliches.dc.html" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;display:inline-flex;align-items:center">Seite ansehen</a>
+              </div>
+            </form>
+          </div>
+        </sc-if>
+
+        <!-- Generische CRUD-Liste (Comedians / Auftritte / Angebote / Partner / Galerie / YouTube) -->
+        <sc-if value="{{ isGeneric }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">{{ genericTitle }}</h2>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">{{ genericHint }}</p>
+              <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:30px">
+                <a href="#" style="border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;display:inline-flex;gap:10px;align-items:center;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px">{{ genericCta }}</a>
+              </div>
+            </div>
+            <div style="overflow:auto">
+              <table style="width:100%;border-collapse:collapse;font-size:15px">
+                <thead><tr>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">{{ genericCol1 }}</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">{{ genericCol2 }}</th>
+                  <th style="padding:18px 16px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);color:#f7f7ff;background:rgba(255,255,255,.08);font-size:13px;text-transform:uppercase;letter-spacing:.04em">Status</th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                  <th style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.08)"></th>
+                </tr></thead>
+                <tbody>
+                  <sc-for list="{{ genericRows }}" as="row" hint-placeholder-count="3">
+                    <tr>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">{{ row.a }}</td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);color:rgba(247,247,255,.72);vertical-align:top">{{ row.b }}</td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><span style="display:inline-flex;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#7CFF6B">Aktiv</span></td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><a href="#" style="border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,255,255,.1);color:#f7f7ff;font-size:16px;display:inline-flex;align-items:center;white-space:nowrap">Bearbeiten</a></td>
+                      <td style="padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top"><button style="border:1px solid rgba(255,85,119,.42);border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:rgba(255,85,119,.16);color:#ffd0da;font-size:16px;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap">Löschen</button></td>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Benachrichtigungen -->
+        <sc-if value="{{ isEinstellungen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:36px">
+            <div>
+              <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em">Benachrichtigungen</h2>
+              <p style="color:rgba(247,247,255,.72);font-size:17px;line-height:1.66;margin:14px 0 0">An welche Postfächer neue Anfragen gehen. Versand läuft über Resend.</p>
+            </div>
+            <form style="border:1px solid rgba(255,255,255,.18);border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));box-shadow:0 28px 90px rgba(0,0,0,.38);padding:26px;display:grid;gap:12px;max-width:640px">
+              <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Show-Postfach<input value="comedyshows@gmail.com" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+              <label style="display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850">Booking-Postfach<input value="comedybooking@gmail.com" style="border:1px solid rgba(255,255,255,.18);border-radius:16px;background:rgba(0,0,0,.24);color:#f7f7ff;padding:13px 14px;width:100%;outline:none;font:inherit;font-weight:400"></label>
+              <label style="display:flex;flex-direction:row;gap:10px;align-items:center;color:rgba(255,255,255,.84);font-size:13px;font-weight:850"><input type="checkbox" checked style="width:auto;accent-color:#7CFF6B">Bei jeder neuen Anfrage eine E-Mail senden</label>
+              <div style="padding:16px 18px;border-radius:22px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.26);color:rgba(255,255,255,.82);margin-top:16px;font-size:15px;line-height:1.6">Ohne <code style="font-family:ui-monospace,Menlo,monospace;font-size:.85em">RESEND_API_KEY</code> landen Anfragen nur in der Datenbank – kein Mailversand.</div>
+              <button style="border:0;border-radius:999px;padding:15px 20px;font-weight:950;white-space:nowrap;background:linear-gradient(135deg,#f5d68a,#e8a33d);color:#050711;box-shadow:0 18px 44px rgba(232,163,61,.28);font-size:16px;cursor:pointer;font-family:Inter,sans-serif;width:max-content">Speichern</button>
+            </form>
+          </div>
+        </sc-if>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast (nach jeder Mutation) -->
+  <div style="position:fixed;right:22px;bottom:22px;z-index:60;padding:14px 18px;border-radius:16px;font-weight:850;box-shadow:0 28px 90px rgba(0,0,0,.38);background:rgba(119,255,183,.16);border:1px solid rgba(119,255,183,.42);color:#caffe3;animation:sv-toast .25s ease">Gespeichert – öffentliche Seiten wurden revalidiert.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GENERIC = {
+  comedians: {
+    title: "Comedians verwalten", cta: "+ Neuer Comedian",
+    hint: "Ensemble & Gäste. Erscheinen im Gästebuch und bei „Mit dabei“ auf den Show-Seiten.",
+    col1: "Name", col2: "Alter / Social",
+    rows: [{ a: "Comedian A", b: "29 · Instagram, TikTok" }, { a: "Comedian B", b: "34 · YouTube, Website" }, { a: "Comedian C", b: "– · Instagram" }],
+  },
+  auftritte: {
+    title: "Auftritte verwalten", cta: "+ Neuer Auftritt",
+    hint: "Steffens eigene Gastauftritte, Open Mics und Gigs — „Hier siehst du mich als Nächstes“.",
+    col1: "Titel", col2: "Datum / Ort",
+    rows: [{ a: "Open Mic im Rekorder", b: "14.08.2026 · Recklinghausen" }, { a: "Mix Show Dortmund", b: "22.08.2026 · Dortmund" }, { a: "Komiker 11 – Benefizspiel", b: "06.09.2026 · Herne" }],
+  },
+  angebote: {
+    title: "Angebote verwalten", cta: "+ Neue Aktion",
+    hint: "Aktionen und Spar-Codes für die Seite /angebote.",
+    col1: "Titel", col2: "Code / Gültigkeit",
+    rows: [{ a: "Rettember", b: "RETTEMBER · 01.–30.09.2026" }, { a: "Missions Pass", b: "MISSION3 · laufende Saison" }],
+  },
+  partner: {
+    title: "Partner verwalten", cta: "+ Neuer Partner",
+    hint: "Veranstalter und Bühnen, die auf /steffen als Partner-Kacheln erscheinen.",
+    col1: "Name", col2: "Link",
+    rows: [{ a: "Komiker 11", b: "komiker11.de" }, { a: "Eissportarena Bergisch Gladbach", b: "–" }],
+  },
+  galerie: {
+    title: "Galerie & Medien", cta: "+ Medien hochladen",
+    hint: "Beweisfotos, Location-Bilder, Show-Videos und das Hero-Video der Startseite. Upload mit Crop-Tool.",
+    col1: "Datei", col2: "Kategorie",
+    rows: [{ a: "showfoto-oberhausen.webp", b: "Shows" }, { a: "druckluft-saal.webp", b: "Locations" }, { a: "steffen-stage-loop-hero.mp4", b: "Hero-Video" }],
+  },
+  youtube: {
+    title: "YouTube verwalten", cta: "+ Video hinzufügen",
+    hint: "Referenz-Videos für Startseite, /steffen und die Show-Seiten. Nur Video-ID + Titel.",
+    col1: "Titel", col2: "Video-ID / Zuordnung",
+    rows: [{ a: "Best of Brain Loading 2025", b: "dQw4w9 · Referenz" }, { a: "Comedy Eiskalt – Trailer", b: "aBc123 · Comedy Eiskalt" }],
+  },
+};
+
+const LEGAL_TITLES = { impressum: "Impressum bearbeiten", datenschutz: "Datenschutz bearbeiten", agb: "AGB bearbeiten" };
+
+class Component extends DCLogic {
+  state = { module: "uebersicht" };
+
+  nav(key) {
+    const base = "display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;white-space:nowrap;cursor:pointer;";
+    return this.state.module === key
+      ? base + "background:rgba(255,255,255,.1);color:#f7f7ff"
+      : base + "color:rgba(247,247,255,.72)";
+  }
+
+  renderVals() {
+    const m = this.state.module;
+    const go = (key) => (e) => { if (e) e.preventDefault(); this.setState({ module: key }); };
+    const g = GENERIC[m];
+    return {
+      isUebersicht: m === "uebersicht",
+      isShows: m === "shows",
+      isTermine: m === "termine",
+      isAnfragen: m === "anfragen",
+      isOneliner: m === "oneliner",
+      isLegal: !!LEGAL_TITLES[m],
+      isGeneric: !!g,
+      isEinstellungen: m === "einstellungen",
+      legalTitle: LEGAL_TITLES[m] ?? "",
+      genericTitle: g ? g.title : "",
+      genericHint: g ? g.hint : "",
+      genericCta: g ? g.cta : "",
+      genericCol1: g ? g.col1 : "",
+      genericCol2: g ? g.col2 : "",
+      genericRows: g ? g.rows : [],
+      shows: [
+        { name: "Brain Loading", slug: "/shows/brain-loading" },
+        { name: "Comedy Eiskalt", slug: "/shows/comedy-eiskalt" },
+        { name: "Comedy Check-In", slug: "/shows/comedy-check-in" },
+      ],
+      liners: [
+        "Mein Gehirn lädt noch... 87 %... bitte nicht neu starten.",
+        "Ich bin Comedian geworden, weil mein Plan B noch schlechter war.",
+        "Applaus ist wie WLAN: Man merkt erst, wie wichtig er ist, wenn er weg ist.",
+        "Impro heißt: Wir wissen auch nicht, was gleich passiert. Versprochen.",
+        "In Neuss geboren, auf der Bühne zu Hause, im Weltall gebucht.",
+      ],
+      navUebersicht: this.nav("uebersicht"), goUebersicht: go("uebersicht"),
+      navShows: this.nav("shows"), goShows: go("shows"),
+      navTermine: this.nav("termine"), goTermine: go("termine"),
+      navComedians: this.nav("comedians"), goComedians: go("comedians"),
+      navAuftritte: this.nav("auftritte"), goAuftritte: go("auftritte"),
+      navAngebote: this.nav("angebote"), goAngebote: go("angebote"),
+      navAnfragen: this.nav("anfragen"), goAnfragen: go("anfragen"),
+      navPartner: this.nav("partner"), goPartner: go("partner"),
+      navGalerie: this.nav("galerie"), goGalerie: go("galerie"),
+      navYoutube: this.nav("youtube"), goYoutube: go("youtube"),
+      navOneliner: this.nav("oneliner"), goOneliner: go("oneliner"),
+      navImpressum: this.nav("impressum"), goImpressum: go("impressum"),
+      navDatenschutz: this.nav("datenschutz"), goDatenschutz: go("datenschutz"),
+      navAgb: this.nav("agb"), goAgb: go("agb"),
+      navEinstellungen: this.nav("einstellungen"), goEinstellungen: go("einstellungen"),
+    };
+  }
+}
+</script>
+</body>
+</html>
