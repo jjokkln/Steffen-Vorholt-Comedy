@@ -32,8 +32,6 @@ export default async function Footer() {
           <p>
             <Link href="/shows">Shows &amp; Termine</Link>
             <br />
-            <Link href="/angebote">Angebote</Link>
-            <br />
             <Link href="/galerie">Galerie &amp; Gästebuch</Link>
             <br />
             <Link href="/steffen">Über Steffen</Link>

@@ -5,7 +5,9 @@ import ShowForm from "@/components/admin/ShowForm";
 import EventForm from "@/components/admin/EventForm";
 import ShowVideoUpload from "@/components/admin/ShowVideoUpload";
 import ShowImageUpload from "@/components/admin/ShowImageUpload";
+import OfferForm from "@/components/admin/OfferForm";
 import { updateShow } from "@/lib/actions/shows";
+import { createShowOffer, deleteOffer, updateOffer } from "@/lib/actions/offers";
 import { createShowEvent, deleteShowEvent } from "@/lib/actions/events";
 import { deleteShowVideo, updateShowVideoOrientation } from "@/lib/actions/show-videos";
 import { deleteShowImage } from "@/lib/actions/show-images";
@@ -16,7 +18,17 @@ import DeleteButton from "@/components/admin/DeleteButton";
 import { partitionEvents, formatDateLong } from "@/lib/event-helpers";
 import { mediaUrl } from "@/lib/media";
 import { youtubeThumbUrl } from "@/lib/youtube";
-import type { Comedian, EventRow, Show, ShowComedian, ShowImage, ShowVideo, Venue, YoutubeVideo } from "@/lib/types";
+import type {
+  Comedian,
+  EventRow,
+  Offer,
+  Show,
+  ShowComedian,
+  ShowImage,
+  ShowVideo,
+  Venue,
+  YoutubeVideo,
+} from "@/lib/types";
 
 function ShowEventTable({
   items,
@@ -68,6 +80,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     { data: youtubeRows },
     { data: eventRows },
     { data: venueRows },
+    { data: offerRows },
   ] = await Promise.all([
     supabase.from("shows").select("*").eq("id", id).maybeSingle(),
     supabase.from("show_videos").select("*").eq("show_id", id).order("sort_order"),
@@ -77,6 +90,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
     supabase.from("youtube_videos").select("*").eq("show_id", id).order("sort_order"),
     supabase.from("events").select("*").eq("show_id", id).order("date"),
     supabase.from("venues").select("id, city, venue, lat, lng, show_id").order("city"),
+    supabase.from("offers").select("*").eq("show_id", id).order("sort_order"),
   ]);
   if (!data) notFound();
   const show = data as Show;
@@ -87,6 +101,7 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
   const youtubeVideos = (youtubeRows ?? []) as YoutubeVideo[];
   const { upcoming: upcomingEvents, past: pastEvents } = partitionEvents((eventRows ?? []) as EventRow[]);
   const venues = (venueRows ?? []) as Venue[];
+  const offers = (offerRows ?? []) as Offer[];
 
   return (
     <>
@@ -110,6 +125,49 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
               <ShowEventTable items={upcomingEvents} showId={show.id} emptyText="Keine kommenden Termine." />
               <h3 style={{ marginTop: 20 }}>Vergangene ({pastEvents.length})</h3>
               <ShowEventTable items={pastEvents} showId={show.id} emptyText="Keine vergangenen Termine." />
+            </>
+          )}
+        </div>
+      </details>
+
+      <details className="admin-collapsible">
+        <summary>
+          <span className="admin-collapsible-title">Angebote &amp; Promo-Codes ({offers.length})</span>
+          <span className="admin-collapsible-chevron">▾</span>
+        </summary>
+        <div className="admin-collapsible-body">
+          <p>
+            Rabatt-Codes zu dieser Show. Sie erscheinen als eigene Sektion auf der Show-Seite und
+            werden von den Gästen beim Ticketkauf beim jeweiligen Anbieter eingelöst.
+          </p>
+          <h3>Neues Angebot</h3>
+          <OfferForm action={createShowOffer.bind(null, show.id)} />
+
+          {offers.length > 0 && (
+            <>
+              <h3 style={{ marginTop: 28 }}>Angelegte Angebote ({offers.length})</h3>
+              {offers.map((o) => (
+                <details className="admin-collapsible is-nested" key={o.id}>
+                  <summary>
+                    <span className="admin-collapsible-title">
+                      {o.title}
+                      {o.code && ` · ${o.code}`}
+                    </span>
+                    <span className={`status ${o.is_active ? "live" : "draft"}`}>
+                      {o.is_active ? "Aktiv" : "Inaktiv"}
+                    </span>
+                    <span className="admin-collapsible-chevron">▾</span>
+                  </summary>
+                  <div className="admin-collapsible-body">
+                    <OfferForm offer={o} action={updateOffer.bind(null, o.id, show.id)} />
+                    <DeleteButton
+                      action={deleteOffer.bind(null, o.id, show.id)}
+                      confirm={`Angebot „${o.title}“ wirklich löschen?`}
+                      style={{ marginTop: 12 }}
+                    />
+                  </div>
+                </details>
+              ))}
             </>
           )}
         </div>

@@ -11,7 +11,6 @@ const LINKS: { href: string; label: string; match?: (p: string) => boolean }[] =
   { href: "/shows", label: "Shows", match: (p) => p === "/shows" || p.startsWith("/shows/") },
   { href: "/steffen", label: "Steffen", match: (p) => p === "/steffen" },
   { href: "/kontakt", label: "Booking & Kontakt", match: (p) => p === "/kontakt" },
-  { href: "/angebote", label: "Angebote", match: (p) => p === "/angebote" },
   { href: "/galerie", label: "Galerie & Gästebuch", match: (p) => p === "/galerie" },
 ];
 

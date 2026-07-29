@@ -13,7 +13,7 @@ Middleware heißt `proxy.ts` im Repo-Root (Next 16) und schützt nur `/admin/*`.
 
 | Bereich | Ort |
 |---|---|
-| Öffentliche Seiten | `app/` (`shows`, `kontakt`, `galerie`, `angebote`, `steffen`, …) |
+| Öffentliche Seiten | `app/` (`shows`, `kontakt`, `galerie`, `steffen`, …) |
 | Admin-Dashboard | `app/admin/(dashboard)/…`, Navigation in `components/admin/AdminSidebar.tsx` |
 | Server Actions | `lib/actions/*.ts` |
 | Supabase-Clients | `lib/supabase/{browser,server,public}.ts` — kein Service-Role-Client vorhanden |
@@ -91,6 +91,27 @@ Verantwortlich: `components/Calendar.tsx` + der Kalenderblock in `app/globals.cs
    liegen an der Rhein-Ruhr-Achse. Unter 820 px sind zusätzlich die `.pin-label` aus, weil
    Neuss/Dormagen/Leverkusen/Bergisch Gladbach sonst zu einem Textklumpen verschmelzen; der
    Ortsname steht im Chip-Band, im Popup und in der Ergebnisliste.
+
+## Angebote gehören zur Show (seit 30.07.2026)
+
+Die frühere eigene Seite `/angebote` **und** der Admin-Bereich `/admin/angebote` sind
+entfallen. `offers` hat jetzt `show_id` (Migration `0016_offers_pro_show.sql`, `on delete
+cascade`):
+
+- **Pflege:** aufklappbare Sektion „Angebote & Promo-Codes" in `/admin/shows/<id>` —
+  Anlege-Formular plus je Angebot ein verschachteltes `<details>` mit
+  `components/admin/OfferForm.tsx` (Actions `createShowOffer` / `updateOffer` /
+  `deleteOffer`, alle mit `showId` für `revalidatePath`).
+- **Öffentlich:** Sektion `#angebote` auf `/shows/<slug>`, direkt über den Terminen —
+  `components/shows/ShowOffers.tsx`, Daten via `getOffersForShowId`. Code ist per Klick
+  kopierbar (`navigator.clipboard`), eingelöst wird er beim Ticketanbieter.
+- **Bildformat wählbar** wie in den Galerien (`FLEXIBLE_ASPECT_OPTIONS`). Das Bild liegt
+  *hinter* dem Inhalt: die Kachel übernimmt das Seitenverhältnis des Bildes (beim Laden
+  gelernt, wie in `StorageImage`), damit der Zuschnitt aus dem Admin nicht erneut
+  beschnitten wird. Hochformate bekommen über `data-orientation="portrait"` eine schmalere
+  Kachel, sonst werden sie bildschirmhoch.
+- **Altbestand:** Angebote mit `show_id IS NULL` stammen aus der alten Seite und erscheinen
+  nirgends mehr — bei Bedarf einer Show zuordnen oder löschen.
 
 ## Hero-Motiv „der Mond" (seit 29.07.2026)
 

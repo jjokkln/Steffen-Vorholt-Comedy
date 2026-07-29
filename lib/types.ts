@@ -186,8 +186,14 @@ export interface OneLiner {
   is_active: boolean;
 }
 
+/**
+ * Angebot / Promo-Code einer Show. Erscheint als Sektion auf der Show-Seite; der Code
+ * wird auf der Ticket-Verkaufsseite des Anbieters eingelöst.
+ * `show_id: null` = Altbestand aus der früheren /angebote-Seite (wird nicht angezeigt).
+ */
 export interface Offer {
   id: string;
+  show_id: string | null;
   title: string;
   subtitle: string;
   description: string;

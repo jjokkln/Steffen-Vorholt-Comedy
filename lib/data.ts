@@ -131,11 +131,13 @@ export async function getGalleryItems(): Promise<GalleryItem[]> {
   return data as GalleryItem[];
 }
 
-export async function getActiveOffers(): Promise<Offer[]> {
+/** Angebote/Promo-Codes einer Show — Sektion auf der Show-Seite. */
+export async function getOffersForShowId(showId: string): Promise<Offer[]> {
   const { data, error } = await createPublicClient()
-    .from("offers").select("*").eq("is_active", true).order("sort_order");
-  if (error?.code === "PGRST205") return [];
-  if (error) throw new Error(`getActiveOffers: ${error.message}`);
+    .from("offers").select("*").eq("is_active", true).eq("show_id", showId).order("sort_order");
+  // Tolerant, solange die Migration 0016 (offers.show_id) in einer Umgebung fehlt.
+  if (error?.code === "PGRST205" || error?.code === "42703") return [];
+  if (error) throw new Error(`getOffersForShowId: ${error.message}`);
   return data as Offer[];
 }
 
@@ -159,7 +161,7 @@ export async function getVenues(): Promise<Venue[]> {
   // PGRST205 = Tabelle im Schema-Cache unbekannt: passiert nur, solange die
   // venues-Migration in einer Umgebung noch nicht gelaufen ist. Die Karte
   // bleibt dann leer statt die ganze Seite zu killen (gleiche Behandlung wie
-  // getActiveOffers).
+  // getOffersForShowId).
   if (error?.code === "PGRST205") return [];
   if (error) throw new Error(`getVenues: ${error.message}`);
   return data as Venue[];
