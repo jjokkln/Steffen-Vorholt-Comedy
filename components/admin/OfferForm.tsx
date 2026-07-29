@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Offer } from "@/lib/types";
+import type { Offer, Show } from "@/lib/types";
 import type { FormState } from "@/lib/actions/offers";
 import { FLEXIBLE_ASPECT_OPTIONS } from "@/lib/aspect";
 import ImageCropUpload from "@/components/admin/ImageCropUpload";
@@ -15,9 +15,15 @@ import Toast from "@/components/admin/Toast";
 export default function OfferForm({
   offer,
   action,
+  shows,
+  currentShowId,
 }: {
   offer?: Offer;
   action: (prev: FormState, formData: FormData) => Promise<FormState>;
+  /** Alle Shows für die Zuordnung. Ohne diese Liste bleibt die Zuordnung, wie sie ist. */
+  shows?: Pick<Show, "id" | "name">[];
+  /** Vorauswahl beim Anlegen: die Show, in der das Formular steht. */
+  currentShowId?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, null);
   const router = useRouter();
@@ -39,6 +45,19 @@ export default function OfferForm({
         Name *
         <input name="title" defaultValue={offer?.title} placeholder="z. B. Rettember" required />
       </label>
+      {shows && (
+        <label>
+          Gehört zur Show
+          <select name="show_id" defaultValue={offer?.show_id ?? currentShowId ?? ""}>
+            <option value="">— keiner Show zugeordnet (nicht sichtbar)</option>
+            {shows.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label>
         Untertitel
         <input name="subtitle" defaultValue={offer?.subtitle} placeholder="z. B. 5 € Eintritt im November" />
