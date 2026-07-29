@@ -22,7 +22,7 @@ import { addYoutubeVideo, deleteYoutubeVideo } from "@/lib/actions/youtube";
 import { createServerSupabase } from "@/lib/supabase/server";
 import DeleteButton from "@/components/admin/DeleteButton";
 import { partitionEvents, formatDateLong } from "@/lib/event-helpers";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 import { youtubeThumbUrl } from "@/lib/youtube";
 import type {
   Comedian,
@@ -301,12 +301,15 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
               {videos.map((v) => {
                 const isPortrait = v.orientation === "portrait";
                 return (
+                  // preload="none" ist Absicht: Diese Seite listet alle Videos einer Show
+                  // gleichzeitig, "metadata" hätte bei jedem Aufruf für jedes Video
+                  // Storage-Egress erzeugt. Das Poster reicht als Vorschau.
                   <div className="card" key={v.id} style={{ padding: 14 }}>
                     <video
                       src={mediaUrl(v.video_path)}
-                      poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
+                      poster={v.poster_path ? optimizedImageUrl(v.poster_path, 640) : undefined}
                       controls
-                      preload={v.poster_path ? "none" : "metadata"}
+                      preload="none"
                       style={{
                         borderRadius: 12,
                         marginBottom: 10,

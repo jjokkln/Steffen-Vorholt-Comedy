@@ -22,7 +22,7 @@ import {
 } from "@/lib/data";
 import { upcomingAppearances } from "@/lib/event-helpers";
 import { personJsonLd } from "@/lib/jsonld";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 import { resolveSiteMedia } from "@/lib/site-media";
 
 export const revalidate = 3600;
@@ -48,6 +48,7 @@ export default async function HomePage() {
   const trailerVideo = resolveSiteMedia(media, "home_trailer_video");
   const trailerPoster = resolveSiteMedia(media, "home_trailer_poster");
   const portraitVideo = resolveSiteMedia(media, "home_portrait_video");
+  const portraitPoster = resolveSiteMedia(media, "home_portrait_poster");
 
   // „Wo Steffen selbst auf der Bühne steht": nur die 3 nächsten Termine, die
   // KEINE eigene Show sind (Gastauftritte, Open Mics, Gigs).
@@ -64,7 +65,9 @@ export default async function HomePage() {
         {/* Der Trailer übernimmt die Rolle, die vorher .home-shows-pin hatte:
             er schiebt sich beim Scrollen über den gepinnten Hero. Die Shows-
             Karte zieht danach über den Trailer. */}
-        <HeroTrailer src={mediaUrl(trailerVideo)} poster={mediaUrl(trailerPoster)} />
+        {/* Poster über den Bild-Optimizer (lib/media.ts): das Standbild liegt vollflächig
+            im Bild und würde als Storage-Original bei jedem Aufruf neu geladen. */}
+        <HeroTrailer src={mediaUrl(trailerVideo)} poster={optimizedImageUrl(trailerPoster, 1920)} />
 
         <SectionTransition variant="cards" className="home-shows-pin">
           <span className="drag-handle" aria-hidden="true" />
@@ -185,7 +188,10 @@ export default async function HomePage() {
             </div>
             <div className="captain-media">
               {portraitVideo ? (
-                <CaptainVideo src={mediaUrl(portraitVideo)} />
+                <CaptainVideo
+                  src={mediaUrl(portraitVideo)}
+                  poster={optimizedImageUrl(portraitPoster, 640)}
+                />
               ) : (
                 <div className="media-placeholder">Bühnen-Video folgt</div>
               )}

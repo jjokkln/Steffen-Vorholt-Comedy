@@ -15,7 +15,7 @@ import {
 } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
 import { comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 
 export const revalidate = 3600;
 
@@ -123,9 +123,9 @@ export default async function ShowsPage() {
                     {/* Mit Poster lädt der Browser die Videodatei erst auf Klick. */}
                     <video
                       src={mediaUrl(v.video_path)}
-                      poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
+                      poster={v.poster_path ? optimizedImageUrl(v.poster_path, 640) : undefined}
                       controls
-                      preload={v.poster_path ? "none" : "metadata"}
+                      preload="none"
                       playsInline
                     />
                     {v.title && <figcaption>{v.title}</figcaption>}

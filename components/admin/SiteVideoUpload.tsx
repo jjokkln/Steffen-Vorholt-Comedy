@@ -122,13 +122,17 @@ export default function SiteVideoUpload({
         )}
       </div>
 
+      {/* preload="none" ist hier Absicht: Diese Seite zeigt ALLE Medien-Plätze
+          gleichzeitig. Mit "metadata" zog jeder Aufruf des Admin-Bereichs für jedes
+          Video einen Teil der Datei aus dem Storage — beim Testen der größte
+          Egress-Posten überhaupt. Wer die Vorschau sehen will, drückt Play. */}
       {effectivePath ? (
         <video
           className="media-slot-preview"
           src={mediaUrl(effectivePath)}
           style={{ aspectRatio: String(slot.aspect) }}
           controls
-          preload="metadata"
+          preload="none"
           playsInline
           muted
         />

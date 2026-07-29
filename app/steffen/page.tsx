@@ -15,7 +15,7 @@ import {
   getSiteMediaMap,
 } from "@/lib/data";
 import { upcomingAppearances } from "@/lib/event-helpers";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 import { resolveSiteMedia } from "@/lib/site-media";
 
 export const revalidate = 3600;
@@ -39,6 +39,7 @@ export default async function SteffenPage() {
   // (lib/site-media.ts) das Video der Startseite — so wie bisher.
   const portraitVideo = resolveSiteMedia(media, "steffen_portrait_video");
   const videoSrc = portraitVideo ? mediaUrl(portraitVideo) : "";
+  const videoPoster = optimizedImageUrl(resolveSiteMedia(media, "steffen_portrait_poster"), 640);
   const steffenAppearances = upcomingAppearances(
     appearances.filter((a) => a.kind !== "show"),
     3,
@@ -101,7 +102,7 @@ export default async function SteffenPage() {
             </div>
           </div>
           <div className="captain-media is-wide">
-            {videoSrc ? <CaptainVideo src={videoSrc} /> : <div className="media-placeholder">Bühnen-Video folgt</div>}
+            {videoSrc ? <CaptainVideo src={videoSrc} poster={videoPoster} /> : <div className="media-placeholder">Bühnen-Video folgt</div>}
           </div>
         </div>
 

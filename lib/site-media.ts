@@ -65,6 +65,14 @@ export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
     localFallback: "/assets/media/steffen/steffen-stage-loop-hero.mp4",
   },
   {
+    key: "home_portrait_poster",
+    label: "Vorschaubild des Bühnen-Videos (Startseite)",
+    where:
+      "Standbild, das vor dem Abspielen des Bühnen-Videos zu sehen ist. Ohne Vorschaubild bleibt die Fläche schwarz, bis das Video geladen ist.",
+    kind: "image",
+    aspect: 4 / 5,
+  },
+  {
     key: "steffen_portrait_video",
     label: "Bühnen-Video (Über Steffen)",
     where: "Seite „Über Steffen“, neben dem Text. Leer = das Video der Startseite wird gezeigt.",
@@ -73,6 +81,15 @@ export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
     targetLongEdge: 1280,
     targetMbps: 2.5,
     fallbackKey: "home_portrait_video",
+  },
+  {
+    key: "steffen_portrait_poster",
+    label: "Vorschaubild des Bühnen-Videos (Über Steffen)",
+    where:
+      "Standbild für das Bühnen-Video auf „Über Steffen“. Leer = das Vorschaubild der Startseite wird gezeigt.",
+    kind: "image",
+    aspect: 4 / 5,
+    fallbackKey: "home_portrait_poster",
   },
 ];
 

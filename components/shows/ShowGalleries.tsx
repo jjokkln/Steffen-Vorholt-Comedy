@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Lightbox, { type LightboxItem } from "@/components/Lightbox";
 import StorageImage from "@/components/media/StorageImage";
-import { mediaUrl } from "@/lib/media";
+import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 import type { ShowImage, ShowVideo } from "@/lib/types";
 
 /** Kacheln sind rund 340 px hoch, in der Breite selten über 520 px. */
@@ -90,13 +90,14 @@ export default function ShowGalleries({
             {videos.map((v, i) => (
               <figure key={v.id} className="show-media-item" onClick={() => setOpenIndex(videoOffset + i)}>
                 <div className="media-thumb">
-                  {/* Mit Poster braucht der Browser die Videodatei erst beim Klick
-                      (16 MB pro Video sonst allein für das Vorschaubild). Ohne Poster
-                      bleibt „metadata", sonst wäre die Kachel schwarz. */}
+                  {/* preload="none" ohne Ausnahme — Begründung in ShowMediaGallery.tsx:
+                      "metadata" war für Videos OHNE Poster gedacht, kostet dort aber am
+                      meisten (das 16-MB-Video von „Comedy Eiskalt" hat keins). Die
+                      Play-Plakette darüber zeigt, dass da ein Video liegt. */}
                   <video
                     src={mediaUrl(v.video_path)}
-                    poster={v.poster_path ? mediaUrl(v.poster_path) : undefined}
-                    preload={v.poster_path ? "none" : "metadata"}
+                    poster={v.poster_path ? optimizedImageUrl(v.poster_path, 640) : undefined}
+                    preload="none"
                     muted
                     playsInline
                   />
