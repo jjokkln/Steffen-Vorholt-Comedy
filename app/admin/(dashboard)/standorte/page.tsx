@@ -15,8 +15,8 @@ export default async function AdminVenuesPage() {
       <h2>Standorte</h2>
       <p>
         Die Spielorte der NRW-Karte auf der Shows-Seite. Auf „Standorte pflegen" umschalten, in die
-        Karte klicken und den Ort eintragen — Termine verknüpfst du anschließend im Termin selbst über
-        das Feld „Spielort auf der Karte".
+        Karte klicken und den Ort eintragen. Über <b>„+ Termine"</b> hängst du dann mehrere Termine
+        auf einmal an einen Ort — einzelne Daten oder gleich eine ganze Serie („monatlich × 6").
       </p>
       <div style={{ marginTop: 20 }}>
         <NRWMap

@@ -50,6 +50,12 @@ Stehen Eyebrow und `<h2>` als direkte Kinder darin, wird die Headline nach recht
 rechts keinen Text gibt. Für zwei Absätze rechts: `<div className="section-head-copy">`, zweite
 Zeile mit `className="kicker"` (eisblau, fett — dieselbe Behandlung wie `.hero-welcome-kicker`).
 
+**Chips zweier Filtergruppen liegen übereinander (war so auf `/shows` unter 900 px).**
+`display:grid` in einer Media-Query setzt `grid-template-columns` **nicht** zurück. `.event-filter-groups`
+hatte deshalb auf dem Handy weiter die drei Desktop-Spalten (`auto .78fr 1.72fr`), und Show- und
+Ort-Chips landeten sichtbar aufeinander. Beim Umstellen auf eine Spalte immer
+`grid-template-columns` explizit überschreiben.
+
 **`p` hat `white-space:pre-line`.** In JSX geschriebene Mehrzeiler sind unkritisch (JSX faltet
 Zeilenumbrüche zu Leerzeichen), aber in Template-Literals und aus der DB gelesenen Texten wird
 jeder `\n` zu einem echten Umbruch.
@@ -90,6 +96,12 @@ geholt wird. Größte Objekte:
 Kein Playwright im Repo. Browser liegen unter `~/Library/Caches/ms-playwright`, das CLI in
 `~/.npm/_npx/*/node_modules/.bin/playwright` — die Versionen passen nicht immer zusammen
 („Executable doesn't exist at …chromium_headless_shell-XXXX"), dann den anderen npx-Cache-Ordner nehmen.
+
+Zwei Stolpersteine im Playwright-Skript: die Browser im Cache können älter sein als jede
+npx-Version (dann `chromium.launch({ executablePath: '~/Library/Caches/ms-playwright/chromium_headless_shell-<rev>/chrome-mac/headless_shell' })`
+setzen statt `playwright install` zu starten), und das **Consent-Overlay fängt jeden Klick ab** —
+vor Interaktionen `.consent-btn-reject` klicken. Bei langen Seiten `fullPage` meiden und
+`locator(sel).screenshot()` nutzen (die Terminseite war vor dem Umbau 24.000 px hoch).
 
 **Admin-Seiten lassen sich nicht ohne Zugangsdaten prüfen.** `/admin/*` hängt an einer echten
 Supabase-Session (User `steffen@123.de`). Für visuelle Abnahme im Dashboard braucht es das Passwort

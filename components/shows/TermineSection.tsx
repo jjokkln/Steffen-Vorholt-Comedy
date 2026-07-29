@@ -84,7 +84,10 @@ export default function TermineSection({
             </div>
             <Calendar events={events} initialYear={initialYear} initialMonth={initialMonth} />
           </div>
-          <div style={{ marginTop: 28 }}>
+          <div className="termine-list-block">
+            {/* Überschrift trennt die Monatsansicht oben von der Gesamtliste –
+                auf Mobile stehen sonst zwei Terminlisten ohne Kontext hintereinander. */}
+            <span className="map-section-label">Alle kommenden Termine</span>
             <TermineFilters events={upcoming} shows={shows} />
           </div>
         </>

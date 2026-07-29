@@ -18,9 +18,8 @@ export default function EventCard({ event }: { event: EventRow }) {
         <div className="event-top">
           <div>
             <h4>{event.shows?.name}</h4>
-            <p>
-              {event.city} · {event.venue}
-            </p>
+            {/* filter(Boolean): ohne Spielort blieb sonst ein nackter „·“ stehen. */}
+            <p>{[event.city, event.venue].filter(Boolean).join(" · ")}</p>
             <span className={`status ${status.cls}`}>{status.label}</span>
           </div>
           <div className="datebox" style={{ borderColor: event.shows?.color }}>

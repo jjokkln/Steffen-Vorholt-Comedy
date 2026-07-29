@@ -46,6 +46,8 @@ export default async function AdminTerminePage() {
       <h2>Termine verwalten</h2>
       <div className="actions">
         <Link className="btn primary" href="/admin/termine/new">+ Neuer Termin</Link>
+        {/* Mehrere Abende am selben Ort legt man schneller direkt am Standort an. */}
+        <Link className="btn secondary" href="/admin/standorte">Mehrere Termine an einem Ort</Link>
       </div>
       <h3>Kommende ({upcoming.length})</h3>
       <EventTable items={upcoming} emptyText="Keine kommenden Termine — Zeit, welche anzulegen!" />

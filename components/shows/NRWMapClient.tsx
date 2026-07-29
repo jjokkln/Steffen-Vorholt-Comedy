@@ -6,6 +6,7 @@ import { useActionState, useEffect, useMemo, useRef, useState, type CSSPropertie
 import L from "leaflet";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import EventCard from "@/components/EventCard";
+import VenueEventsForm from "@/components/admin/VenueEventsForm";
 import { createVenue, deleteVenue, type FormState } from "@/lib/actions/venues";
 import {
   NRW_BOUNDS,
@@ -62,20 +63,20 @@ function draftIcon(): L.DivIcon {
   });
 }
 
-/** Fährt die Karte zum ausgewählten Ort bzw. auf ganz NRW zurück. */
-function MapCamera({ target }: { target: Venue | null }) {
+/** Fährt die Karte zum ausgewählten Ort bzw. auf den Gesamtausschnitt zurück. */
+function MapCamera({ target, home }: { target: Venue | null; home: L.LatLngBounds }) {
   const map = useMap();
   const mounted = useRef(false);
   useEffect(() => {
-    // Beim ersten Lauf nicht animieren: den NRW-Ausschnitt hat MapContainer
-    // schon über `bounds` gesetzt, ein flyToBounds darüber ruckelt nur.
+    // Beim ersten Lauf nicht animieren: den Ausschnitt hat MapContainer schon
+    // über `bounds` gesetzt, ein flyToBounds darüber ruckelt nur.
     if (!mounted.current) {
       mounted.current = true;
       if (!target) return;
     }
     if (target) map.flyTo([target.lat, target.lng], Math.max(map.getZoom(), 9), { duration: 0.7 });
-    else map.flyToBounds(NRW, { padding: FIT_PADDING, duration: 0.7 });
-  }, [map, target]);
+    else map.flyToBounds(home, { padding: FIT_PADDING, duration: 0.7 });
+  }, [map, target, home]);
   return null;
 }
 
@@ -121,10 +122,15 @@ export default function NRWMapClient({
   const markers = useMemo(() => buildVenueMarkers(venues, events, shows), [venues, events, shows]);
   const links = useMemo(() => constellationLinks(venues), [venues]);
 
-  const [mode, setMode] = useState<Mode>("besucher");
+  // Im Admin startet der Pflegemodus – dafür ist die Seite da. Die Besucher-
+  // Ansicht bleibt einen Klick entfernt als Vorschau.
+  const [mode, setMode] = useState<Mode>(admin ? "admin" : "besucher");
   const [selected, setSelected] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ lat: number; lng: number } | null>(null);
   const [city, setCity] = useState("");
+  // Standort, dessen Termin-Formular gerade offen ist — immer nur eins, sonst
+  // wird die Liste im schmalen Panel unlesbar.
+  const [openVenue, setOpenVenue] = useState<string | null>(null);
   const [state, formAction, pending] = useActionState<FormState, FormData>(createVenue, null);
   const lastSaved = useRef(0);
 
@@ -143,6 +149,17 @@ export default function NRWMapClient({
   const sortedEvents = [...shownEvents].sort((a, b) => a.date.localeCompare(b.date));
 
   const adminMode = admin && mode === "admin";
+
+  /**
+   * Startausschnitt: die Spielorte selbst, nicht ganz NRW. Alle Orte liegen an
+   * der Rhein-Ruhr-Achse — auf ganz NRW gezoomt kleben die Punkte auf einem
+   * Drittel der Fläche aufeinander, während Sauerland und Weserbergland leer
+   * bleiben. Im Admin-Modus bleibt NRW, dort wird auch außerhalb geklickt.
+   */
+  const homeBounds = useMemo(() => {
+    if (adminMode || markers.length < 2) return NRW;
+    return L.latLngBounds(markers.map((m) => [m.venue.lat, m.venue.lng] as L.LatLngTuple)).pad(0.22);
+  }, [adminMode, markers]);
 
   if (markers.length === 0 && !admin) {
     return (
@@ -172,7 +189,7 @@ export default function NRWMapClient({
 
         <div className="nrw-map-canvas">
           <MapContainer
-            bounds={NRW}
+            bounds={homeBounds}
             boundsOptions={{ padding: FIT_PADDING }}
             maxBounds={NRW.pad(0.35)}
             maxBoundsViscosity={0.75}
@@ -197,7 +214,7 @@ export default function NRWMapClient({
                   : null
               }
             />
-            <MapCamera target={selectedMarker?.venue ?? null} />
+            <MapCamera target={selectedMarker?.venue ?? null} home={homeBounds} />
 
             {links.map(([a, b]) => (
               <Polyline
@@ -250,8 +267,8 @@ export default function NRWMapClient({
               <span aria-hidden="true">📍</span>
               <span>
                 <b>Klick in die Karte</b>, wo der neue Spielort liegt — dann Namen und Show eintragen
-                und speichern. Der Ort erscheint sofort für Besucher, Termine hängen sich über das
-                Feld „Spielort" im Termin daran.
+                und speichern. Der Ort erscheint sofort für Besucher. Termine legst du unten direkt am
+                Ort an: <b>„+ Termine"</b> nimmt beliebig viele Daten auf einmal.
               </span>
             </div>
 
@@ -321,44 +338,66 @@ export default function NRWMapClient({
                 <p className="map-admin-empty">Noch kein Standort angelegt.</p>
               )}
               {markers.map((m) => (
-                <div className="loc-row" key={m.venue.id} style={{ "--c": m.color } as CSSProperties}>
-                  <span className="chip-dot" />
-                  <div className="loc-name">
-                    <strong>
-                      {m.venue.city} · {m.venue.venue}
-                    </strong>
-                    <span>
-                      {m.venue.lat.toFixed(3)} N, {m.venue.lng.toFixed(3)} E
+                <div className="loc-item" key={m.venue.id} style={{ "--c": m.color } as CSSProperties}>
+                  <div className="loc-row">
+                    <span className="chip-dot" />
+                    <div className="loc-name">
+                      <strong>
+                        {m.venue.city} · {m.venue.venue}
+                      </strong>
+                      <span>
+                        {m.venue.lat.toFixed(3)} N, {m.venue.lng.toFixed(3)} E
+                      </span>
+                    </div>
+                    <span className="loc-badge">
+                      {m.events.length
+                        ? `${m.events.length} ${m.events.length === 1 ? "Termin" : "Termine"}`
+                        : "kein Termin"}
                     </span>
-                  </div>
-                  <span className="loc-badge">
-                    {m.events.length
-                      ? `${m.events.length} ${m.events.length === 1 ? "Termin" : "Termine"}`
-                      : "kein Termin"}
-                  </span>
-                  {/* Orte mit Terminen bleiben stehen – die Server Action lehnt
-                      das Löschen ohnehin ab, hier wird es nur nicht angeboten. */}
-                  <form
-                    action={deleteVenue.bind(null, m.venue.id)}
-                    onSubmit={(event) => {
-                      if (!window.confirm(`Standort „${m.venue.city}" wirklich löschen?`)) {
-                        event.preventDefault();
-                      }
-                    }}
-                  >
+                    {/* Termine hängen sonst nur über das Select im Termin-Formular
+                        am Ort — für eine Reihe gleicher Abende war das ein
+                        Formular pro Datum. */}
                     <button
-                      className="loc-delete"
-                      disabled={m.events.length > 0}
-                      title={
-                        m.events.length
-                          ? "An diesem Ort hängen Termine – erst die Termine umziehen"
-                          : "Standort löschen"
-                      }
-                      aria-label={`Standort ${m.venue.city} löschen`}
+                      type="button"
+                      className="loc-add"
+                      aria-expanded={openVenue === m.venue.id}
+                      onClick={() => setOpenVenue((prev) => (prev === m.venue.id ? null : m.venue.id))}
                     >
-                      ✕
+                      {openVenue === m.venue.id ? "Schließen" : "+ Termine"}
                     </button>
-                  </form>
+                    {/* Orte mit Terminen bleiben stehen – die Server Action lehnt
+                        das Löschen ohnehin ab, hier wird es nur nicht angeboten.
+                        Eigenes <form>, deshalb außerhalb des Termin-Formulars. */}
+                    <form
+                      action={deleteVenue.bind(null, m.venue.id)}
+                      onSubmit={(event) => {
+                        if (!window.confirm(`Standort „${m.venue.city}" wirklich löschen?`)) {
+                          event.preventDefault();
+                        }
+                      }}
+                    >
+                      <button
+                        className="loc-delete"
+                        disabled={m.events.length > 0}
+                        title={
+                          m.events.length
+                            ? "An diesem Ort hängen Termine – erst die Termine umziehen"
+                            : "Standort löschen"
+                        }
+                        aria-label={`Standort ${m.venue.city} löschen`}
+                      >
+                        ✕
+                      </button>
+                    </form>
+                  </div>
+                  {openVenue === m.venue.id && (
+                    <VenueEventsForm
+                      venue={m.venue}
+                      shows={shows}
+                      existing={m.events}
+                      onDone={() => setOpenVenue(null)}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -400,13 +439,13 @@ export default function NRWMapClient({
             </div>
 
             {sortedEvents.length > 0 ? (
-              <div className="map-events-grid" data-events-grid style={{ marginTop: 18 }}>
+              <div className="map-events-grid" data-events-grid>
                 {sortedEvents.map((e) => (
                   <EventCard key={e.id} event={e} />
                 ))}
               </div>
             ) : (
-              <div className="booking-empty" style={{ marginTop: 18 }}>
+              <div className="booking-empty map-empty">
                 {selectedMarker
                   ? `Für ${selectedMarker.venue.city} ist gerade kein Termin geplant.`
                   : "Gerade keine Termine geplant."}

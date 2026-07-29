@@ -43,6 +43,55 @@ Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht meh
 
 Umsetzungsnotiz zum Design-Handoff: [docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md](../docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md).
 
+### Mehrere Termine je Standort (seit 29.07.2026)
+
+`/admin/standorte` startet direkt im Pflegemodus (`NRWMapClient`: `useState(admin ? "admin" : "besucher")`).
+Jede Standort-Zeile hat „+ Termine" und klappt `components/admin/VenueEventsForm.tsx` auf:
+Datumsliste per Einzelfeld **oder** Serie (`lib/bulk-dates.ts`, `seriesDates` — wöchentlich /
+14-tägig / monatlich, gedeckelt auf 52), Uhrzeiten/Ticketlink/Status gelten für alle Termine
+der Serie. Server Action `createVenueEvents` in `lib/actions/events.ts`.
+
+Drei Punkte, die man kennen muss:
+1. **Stadt und Location kommen aus dem Standort**, nicht aus dem Formular — genau das
+   Abtippen war der Zeitfresser, und so kann city/venue nicht von der Karte abweichen.
+2. **Dubletten werden übersprungen**, nicht abgelehnt: `events` hat keinen Unique-Index,
+   ein zweiter Klick würde sonst alles doppelt anlegen. Die Meldung zählt die übersprungenen mit.
+3. **Das Lösch-Formular des Standorts liegt in derselben Zeile** — das Termin-Formular muss
+   deshalb Geschwister-Element von `.loc-row` bleiben (`<form>` in `<form>` ist ungültig).
+   Deshalb der Wrapper `.loc-item`.
+
+Die Datumsliste geht als **ein** kommasepariertes hidden field (`dates`) an die Action,
+damit die Anzahl der Felder nicht am DOM hängt; geparst mit `parseDateList`.
+
+## Termine-Ansicht auf Mobile (seit 29.07.2026)
+
+`/shows#termine` (und der Kalender auf den Show-Detailseiten) hat drei Layout-Stufen, die man
+nicht versehentlich wieder zusammenlegen sollte:
+
+- **> 1050 px:** Monatsraster mit Termin-Pillen in den Zellen.
+- **681–900 px:** dasselbe Raster, nur ohne die 90-px-Mindestbreite je Spalte (7 × 90 px passen
+  bei 768 px nicht in den Container — genau das hat früher den Umbruch ausgelöst).
+- **≤ 680 px:** Raster bleibt 7-spaltig, aber kompakt: Tageszahl + farbige Punkte je Show,
+  Termintexte stehen in der Liste unter dem Raster (`.calendar-daylist`). Tap auf einen Tag
+  filtert die Liste auf diesen Tag, „Ganzer Monat" setzt zurück.
+
+Verantwortlich: `components/Calendar.tsx` + der Kalenderblock in `app/globals.css`. Wichtig:
+
+1. **Nie wieder `grid-template-columns:1fr` fürs Monatsraster.** Aus 31 Tagen wurde eine
+   Kolonne aus 42 leeren Kästen (~10 Wischer bis zum ersten Termin).
+2. **`.calendar-cell-number` ist ein `<button>`** — auf Desktop per `pointer-events:none` reine
+   Anzeige, auf Mobile das Tages-Auswahlziel. Termin-Links bleiben Geschwister, nicht Kinder
+   (kein `<a>` im `<button>`).
+3. **Startmonat** kommt aus `startMonth()`: laufender Monat, wenn dort etwas gespielt wird,
+   sonst der Monat des nächsten Termins. Ohne das landet man im leeren Juli, obwohl die
+   nächste Show im September ist. Rechnet nur aus Props → keine Hydration-Diskrepanz.
+4. **Terminliste lädt portionsweise** (`EventGallery`, `PAGE_SIZE = 9` + „weitere anzeigen“).
+   77 Termine als Karten waren auf dem Handy ~20.000 px Scroll.
+5. **Karte:** Startausschnitt sind die Spielorte (`homeBounds`), nicht ganz NRW — alle Orte
+   liegen an der Rhein-Ruhr-Achse. Unter 820 px sind zusätzlich die `.pin-label` aus, weil
+   Neuss/Dormagen/Leverkusen/Bergisch Gladbach sonst zu einem Textklumpen verschmelzen; der
+   Ortsname steht im Chip-Band, im Popup und in der Ergebnisliste.
+
 ## Hero-Motiv „der Mond" (seit 29.07.2026)
 
 Im Hero steht **ein** Key Visual: `.hero-moon` mit

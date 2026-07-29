@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import EventCard from "@/components/EventCard";
 import type { EventRow } from "@/lib/types";
 
+/** Erste Portion Termine; der Rest kommt per Klick nach. */
+const PAGE_SIZE = 9;
+
 /** Shared event-gallery filtering, used wherever appointments are shown as cards. */
 export default function EventGallery({
   events,
@@ -16,6 +19,9 @@ export default function EventGallery({
 }) {
   const [selectedShows, setSelectedShows] = useState<string[]>([]);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  // 77 Termine als Karten sind auf dem Handy ~20.000 px Scroll – deshalb
+  // portionsweise nachladen, sofern der Aufrufer kein festes Limit setzt.
+  const [visible, setVisible] = useState(PAGE_SIZE);
   const { shows, cities } = useMemo(() => {
     const shows = [...new Map(events.filter((e) => e.shows).map((e) => [e.shows!.slug, e.shows!.name])).entries()];
     const cities = [...new Set(events.map((e) => e.city))].sort();
@@ -26,16 +32,20 @@ export default function EventGallery({
     const matchesCity = selectedCities.length === 0 || selectedCities.includes(event.city);
     return matchesShow && matchesCity;
   });
-  const items = limit ? filtered.slice(0, limit) : filtered;
+  const items = limit ? filtered.slice(0, limit) : filtered.slice(0, visible);
+  const rest = limit ? 0 : filtered.length - items.length;
   const toggle = (value: string, selected: string[], setSelected: (next: string[]) => void) => {
     setSelected(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]);
+    // Nach einem Filterwechsel wieder von vorn zählen, sonst bleibt eine kurze
+    // Ergebnisliste hinter einem längst aufgeklappten Stand versteckt.
+    setVisible(PAGE_SIZE);
   };
 
   return (
     <>
       {showFilters && (
       <div className="event-filter-groups" aria-label="Termine filtern">
-        <button type="button" className={`chip event-filter-reset${selectedShows.length === 0 && selectedCities.length === 0 ? " active" : ""}`} onClick={() => { setSelectedShows([]); setSelectedCities([]); }}>
+        <button type="button" className={`chip event-filter-reset${selectedShows.length === 0 && selectedCities.length === 0 ? " active" : ""}`} onClick={() => { setSelectedShows([]); setSelectedCities([]); setVisible(PAGE_SIZE); }}>
           Alle
         </button>
         <div className="event-filter-group">
@@ -61,6 +71,16 @@ export default function EventGallery({
           </div>
         )}
       </div>
+      {rest > 0 && (
+        <div className="event-more">
+          <button type="button" className="btn secondary" onClick={() => setVisible(visible + PAGE_SIZE)}>
+            {rest} weitere {rest === 1 ? "Termin" : "Termine"} anzeigen
+          </button>
+          <span>
+            {items.length} von {filtered.length}
+          </span>
+        </div>
+      )}
     </>
   );
 }
