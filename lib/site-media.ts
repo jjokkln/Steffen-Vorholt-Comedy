@@ -26,6 +26,20 @@ export interface SiteMediaSlot {
    */
   targetLongEdge?: number;
   targetMbps?: number;
+  /**
+   * Nur `kind: "video"`: der Platz mit dem Standbild dieses Videos.
+   *
+   * **Jedes Video braucht einen.** Seit die Videos mit `preload="none"` laden (Egress,
+   * siehe context/troubleshooting.md) gibt es kein „erstes Videobild" mehr, das der
+   * Browser von allein zeigen könnte — ohne Poster bleibt die Fläche schwarz, bis jemand
+   * auf Play drückt. Die Verknüpfung steht hier explizit und nicht als Namenskonvention,
+   * weil `home_trailer_video` eben `home_trailer_poster` heißt und nicht
+   * `home_trailer_video_poster`.
+   *
+   * Das Admin rendert Video und Poster deshalb als ein Paar in einer Karte; ein Poster-Platz
+   * erscheint nie als eigene Karte (siehe app/admin/(dashboard)/medien/page.tsx).
+   */
+  posterKey?: string;
   /** Wird benutzt, solange dieser Platz leer ist (Kette, endet bei `localFallback`). */
   fallbackKey?: string;
   /** Letzte Reserve: Datei aus public/, damit die Seite nie ohne Video dasteht. */
@@ -35,6 +49,7 @@ export interface SiteMediaSlot {
 export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
   {
     key: "home_trailer_video",
+    posterKey: "home_trailer_poster",
     label: "Trailer (Startseite)",
     where: "Startseite, vollflächig direkt unter dem Hero — mit Ton zum Einschalten.",
     kind: "video",
@@ -54,6 +69,7 @@ export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
   },
   {
     key: "home_portrait_video",
+    posterKey: "home_portrait_poster",
     label: "Bühnen-Video (Startseite)",
     where: "Startseite, im Abschnitt „Steffen Vorholt.“ neben dem Text.",
     kind: "video",
@@ -74,6 +90,7 @@ export const SITE_MEDIA_SLOTS: SiteMediaSlot[] = [
   },
   {
     key: "steffen_portrait_video",
+    posterKey: "steffen_portrait_poster",
     label: "Bühnen-Video (Über Steffen)",
     where: "Seite „Über Steffen“, neben dem Text. Leer = das Video der Startseite wird gezeigt.",
     kind: "video",

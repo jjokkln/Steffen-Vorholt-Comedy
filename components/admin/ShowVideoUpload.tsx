@@ -61,8 +61,17 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
           <option value="portrait">Hochformat (9:16)</option>
         </select>
       </label>
+      {/* Der Zusatz „sonst erstes Videobild" stand hier bis 30.07.2026 und ist seither
+          falsch: Die Video-Kacheln laden mit `preload="none"`, es gibt also kein erstes
+          Videobild mehr, das der Browser von allein zeigen könnte. Ohne Vorschaubild ist
+          die Kachel auf der Show-Seite schwarz. */}
       <ImageCropUpload
-        label="Vorschaubild (optional, sonst erstes Videobild)"
+        label="Vorschaubild"
+        hint={
+          "Wird auf der Show-Seite gezeigt, bis jemand auf Play drückt. Ohne Vorschaubild " +
+          "bleibt die Kachel dort schwarz — das Video selbst wird zum Datensparen erst beim " +
+          "Klick geladen."
+        }
         name="poster_path"
         aspect={orientation === "portrait" ? 9 / 16 : 16 / 9}
         frameLabel={

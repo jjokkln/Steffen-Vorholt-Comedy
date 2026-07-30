@@ -109,18 +109,17 @@ export default function SiteVideoUpload({
   }
 
   return (
-    <form className="card form media-slot" onSubmit={onSubmit}>
-      <div className="media-slot-head">
-        <div>
-          <h3 style={{ margin: 0 }}>{slot.label}</h3>
-          <p className="media-slot-where">{slot.where}</p>
-        </div>
+    // Karten-Hälfte, keine eigene Karte: Die Karte gehört dem Paar aus Video und
+    // Vorschaubild und wird von app/admin/(dashboard)/medien/page.tsx aufgespannt.
+    <form className="form media-slot-part" onSubmit={onSubmit}>
+      <p className="media-slot-part-label">
+        Video
         {ownPath ? (
-          <span className="status live">eigenes Video</span>
+          <span className="status live">eigenes</span>
         ) : (
-          <span className="status draft">Reserve aktiv</span>
+          <span className="status draft">Reserve</span>
         )}
-      </div>
+      </p>
 
       {/* preload="none" ist hier Absicht: Diese Seite zeigt ALLE Medien-Plätze
           gleichzeitig. Mit "metadata" zog jeder Aufruf des Admin-Bereichs für jedes
@@ -143,7 +142,7 @@ export default function SiteVideoUpload({
       <p className="media-slot-path">{effectivePath || "—"}</p>
 
       <label htmlFor={inputId}>
-        Neues Video (MP4){" "}
+        Neues Video (MP4)
         <input id={inputId} name="video" type="file" accept="video/mp4,video/*" required disabled={busy} />
       </label>
 
@@ -151,10 +150,12 @@ export default function SiteVideoUpload({
         <label className="media-slot-check">
           <input name="compress" type="checkbox" defaultChecked disabled={busy} />
           <span>
-            Vor dem Upload verkleinern (max. {longEdge} px lange Kante, ~{mbps} Mbit/s). Läuft in
-            Echtzeit im Browser: Der Tab muss offen bleiben, Videos über{" "}
-            {Math.round(MAX_COMPRESS_SECONDS / 60)} Minuten werden unverändert hochgeladen. Dateien,
-            die schon schlank sind, bleiben wie sie sind.
+            Vor dem Upload verkleinern — max. {longEdge} px lange Kante, ~{mbps} Mbit/s.
+            <span className="field-hint">
+              Läuft in Echtzeit im Browser: Der Tab muss offen bleiben. Videos über{" "}
+              {Math.round(MAX_COMPRESS_SECONDS / 60)} Minuten und Dateien, die schon schlank sind,
+              werden unverändert hochgeladen.
+            </span>
           </span>
         </label>
       ) : (

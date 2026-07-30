@@ -58,30 +58,33 @@ export default function SiteMediaImageUpload({
   }
 
   return (
-    <div className="card form media-slot">
-      <div className="media-slot-head">
-        <div>
-          <h3 style={{ margin: 0 }}>{slot.label}</h3>
-          <p className="media-slot-where">{slot.where}</p>
-        </div>
+    // Karten-Hälfte, keine eigene Karte — die Karte gehört dem Paar aus Video und
+    // Vorschaubild (app/admin/(dashboard)/medien/page.tsx).
+    <div className="form media-slot-part">
+      <p className="media-slot-part-label">
+        Vorschaubild
         {ownPath ? (
-          <span className="status live">eigenes Bild</span>
+          <span className="status live">eigenes</span>
         ) : (
-          <span className="status draft">Reserve aktiv</span>
+          <span className="status draft">Reserve</span>
         )}
-      </div>
+      </p>
 
       <ImageCropUpload
         label="Neues Bild"
         name={slot.key}
         aspect={slot.aspect}
-        frameLabel="Querformat 16:9 — passend zum Trailer"
+        // Aus dem Platz abgeleitet, nicht fest verdrahtet: Hier stand bis 30.07.2026
+        // "Querformat 16:9 — passend zum Trailer", auch über den 4:5-Postern der
+        // Bühnen-Videos. Der Zuschnittrahmen war korrekt, nur die Beschriftung log.
+        frameLabel={`${describeAspect(slot.aspect)} — passend zum Videoformat`}
         currentPath={effectivePath}
         uploadPrefix={slot.key.replace(/_/g, "-")}
         disabled={busy}
         onUploaded={save}
       />
 
+      <p className="media-slot-where">{slot.where}</p>
       <p className="media-slot-path">{effectivePath || "—"}</p>
 
       {ownPath && (
@@ -96,4 +99,21 @@ export default function SiteMediaImageUpload({
       {done > 0 && <Toast key={done} message={`${slot.label} gespeichert!`} />}
     </div>
   );
+}
+
+/**
+ * „Hochformat 4:5" statt „0.8" — benennt das Seitenverhältnis so, wie es im Zuschnitt-
+ * dialog auch dasteht. Nur die im Projekt vorkommenden Formate; alles andere wird als
+ * gerundetes Verhältnis ausgegeben, statt zu raten.
+ */
+function describeAspect(aspect: number): string {
+  const known: [number, string][] = [
+    [16 / 9, "Querformat 16:9"],
+    [4 / 5, "Hochformat 4:5"],
+    [9 / 16, "Hochformat 9:16"],
+    [1, "Quadratisch 1:1"],
+  ];
+  const hit = known.find(([value]) => Math.abs(value - aspect) < 0.01);
+  if (hit) return hit[1];
+  return aspect >= 1 ? `Querformat ${aspect.toFixed(2)}:1` : `Hochformat 1:${(1 / aspect).toFixed(2)}`;
 }

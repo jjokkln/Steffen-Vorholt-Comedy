@@ -35,6 +35,22 @@ Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht meh
 2. **Attribution ist Pflicht.** „© OpenStreetMap contributors" ist Lizenzbedingung, nicht
    Deko. Der dunkle Marken-Look kommt aus dem CSS-Filter auf `.leaflet-tile-pane`, damit
    keine kostenpflichtigen Dark-Tiles nötig sind.
+3. **Das Kartenbild hängt am Einwilligungs-Gate (seit 30.07.2026).** Gegated ist **nur der
+   `TileLayer`**, nicht die Karte: Marker, Verbindungslinien und Popups kommen aus eigenen
+   Daten und lösen keinen Fremd-Request aus. Ohne Einwilligung stehen die Pins also weiter an
+   ihrer geografischen Position — auf dem dunklen Untergrund liest sich das als Sternkarte und
+   ist kein Designbruch (im Browser geprüft: 0 Requests an `openstreetmap.org`, 10 Pins
+   sichtbar). Der Hinweis `.map-consent` sitzt am unteren Rand und deckt die Karte bewusst
+   nicht ab; er teilt die `.yt-placeholder-*`-Optik der Embed-Gates.
+   ⚠️ **`admin` umgeht das Gate absichtlich.** Auf `/admin/standorte` legt Steffen Orte per
+   Klick in die Karte an und muss dafür Straßen sehen — und der Banner wird auf `/admin` gar
+   nicht angezeigt (`UNBLOCKED_ROUTES` in `CookieBanner.tsx`), die Einwilligung bliebe dort also
+   für immer offen und die Karte dauerhaft blind. Wer das Gate anfasst, muss diesen Zweig
+   erhalten.
+4. **Die Karte liegt hinter einem Tab.** `TermineSection` zeigt standardmäßig den Kalender;
+   die Karte rendert erst bei `view === "karte"` (Umschalter oder `?view=karte`). Ein Aufruf
+   von `/shows` allein lädt also nichts von OpenStreetMap — wichtig zu wissen, bevor man in
+   Netzwerk-Mitschnitten nach Tile-Requests sucht und keine findet.
 3. **Positionen kommen aus `venues`, nicht aus dem Stadtnamen.** Ein Termin ohne `venue_id`
    erscheint nicht auf der Karte — nur im Kalender und in der Terminliste. Orte werden unter
    `/admin/standorte` per Klick in die Karte angelegt (Server Action `lib/actions/venues.ts`),
@@ -267,6 +283,17 @@ Jetzt: `/admin/medien` („Videos & Speicher") mit einem Upload-Feld pro Platz.
   die Bühnen-Videos seit dem 30.07.2026 mit `preload="none"` erst beim Hinscrollen laden — ohne
   Standbild bliebe die Fläche bis dahin schwarz. Sie haben bewusst **keinen** `localFallback`:
   solange nichts hochgeladen ist, liefert `resolveSiteMedia` einen Leerstring.
+- **Ein Video und sein Vorschaubild sind eine Karte (seit 30.07.2026).** Die Verknüpfung steht
+  als `posterKey` am Video-Platz — explizit, nicht als Namenskonvention, weil zu
+  `home_trailer_video` eben `home_trailer_poster` gehört und nicht `home_trailer_video_poster`.
+  `medien/page.tsx` iteriert nur über die **Video**-Plätze und zieht den Poster über `posterKey`
+  dazu; ein Poster-Platz erscheint nie als eigene Karte. Vorher lagen beide als gleichrangige
+  Kacheln im Raster und man musste erraten, was zusammengehört.
+  **Jedes Video braucht ein Vorschaubild** — mit `preload="none"` gibt es kein erstes Videobild
+  mehr, das der Browser von allein zeigen könnte. `tests/site-media.test.ts` erzwingt das: jeder
+  Video-Platz muss ein `posterKey` auf einen vorhandenen Bild-Platz **mit gleichem
+  Seitenverhältnis** haben, und kein Poster darf zwei Videos zugeordnet sein (sonst würde ein
+  Upload still das andere Video mitändern — dafür ist die `fallbackKey`-Kette da).
 - **Aufräumen:** `lib/actions/site-media.ts` löscht beim Ersetzen die vorherige Datei aus dem
   Storage — aber nur, wenn kein anderer Datensatz (`site_media`, `gallery_items`,
   `show_videos`, `show_images`) noch auf sie zeigt. Bei endlichem Kontingent wäre die
@@ -400,10 +427,9 @@ Daten in der EU (Supabase Frankfurt), Security-Header in `next.config.ts`.
 
 | Punkt | Kern |
 |---|---|
-| Ein Satz in Ziffer 8 ist noch falsch | „Inhalte von Instagram, TikTok … werden **nicht** eingebettet." Ziffer 12 stellt es datiert richtig, aber der Satz selbst gehört gestrichen — Anhängen allein konnte ihn nicht beseitigen. |
-| AGB ist ein Entwurf und live verlinkt | Fachliche Prüfung der Klauseln steht aus, Befund im Bericht vom 30.07.2026. Bis dahin: prüfen lassen oder Footer-Link entfernen. |
+| AGB juristisch ungeprüft | Der Entwurfs-Kopf ist auf Lennys Freigabe raus (steht jetzt „*Stand: Juli 2026*"), die fachliche Prüfung der Klauseln steht weiter aus. Anwalts-Auftragsliste im Bericht vom 30.07.2026. Wichtigster Punkt ist kein Klauselproblem: Nach § 305 Abs. 2 BGB werden im Footer verlinkte AGB **nicht** Vertragsbestandteil — sie müssen in Steffens Auftragsbestätigung genannt und verlinkt/angehängt werden, sonst sind sie wirkungslos. |
 | Admin-Adresse ist ein Platzhalter | `steffen@123.de` gehört Steffen nicht — Passwort-Reset läuft ins Leere. Lenny stellt um. |
-| Karte ohne Einwilligungs-Gate | Informationspflicht ist mit Ziffer 13 erfüllt, die Karte lädt aber weiterhin automatisch. Wer ganz sicher gehen will, hängt sie an dasselbe Gate wie die Embeds (`SocialEmbed` ist die Vorlage). |
+*(Das Karten-Gate ist am 30.07.2026 umgesetzt — siehe „NRW-Karte & Spielorte".)*
 
 BFSG (Barrierefreiheit) greift hier nach derzeitiger Einschätzung **nicht**: Steffen ist
 Kleinstunternehmen (§ 3 Abs. 3 BFSG), und es wird kein Vertrag auf der Seite geschlossen —

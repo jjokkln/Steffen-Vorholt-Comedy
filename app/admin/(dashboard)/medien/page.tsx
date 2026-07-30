@@ -1,5 +1,5 @@
 import { createServerSupabase } from "@/lib/supabase/server";
-import { SITE_MEDIA_SLOTS, resolveSiteMedia } from "@/lib/site-media";
+import { SITE_MEDIA_SLOTS, resolveSiteMedia, siteMediaSlot } from "@/lib/site-media";
 import { getStorageUsage } from "@/lib/storage-usage";
 import { formatBytes, usageLevel } from "@/lib/storage-format";
 import SiteVideoUpload from "@/components/admin/SiteVideoUpload";
@@ -88,30 +88,53 @@ export default async function AdminMedienPage() {
       </section>
 
       <p className="media-slot-hint" style={{ marginTop: 8 }}>
-        Jeder Platz unten gehört zu genau einer Stelle auf der Website. Neue Videos werden vor
+        Jede Karte unten gehört zu genau einer Stelle auf der Website und enthält beides: das
+        Video und sein Vorschaubild. Das Vorschaubild ist kein Beiwerk — die Videos laden erst,
+        wenn jemand auf Play drückt (das hält den Datenverbrauch klein), und bis dahin ist genau
+        dieses Standbild zu sehen. Fehlt es, bleibt die Fläche schwarz. Neue Videos werden vor
         dem Upload im Browser verkleinert; die vorher hinterlegte Datei wird dabei aus dem
         Speicher gelöscht, damit das Kontingent nicht zuläuft. „Leeren" setzt einen Platz auf
         die mitgelieferte Reserve-Datei zurück.
       </p>
 
       <div className="media-slot-grid">
-        {SITE_MEDIA_SLOTS.map((slot) => {
-          const ownPath = (values[slot.key] ?? "").trim();
-          const effectivePath = resolveSiteMedia(values, slot.key);
-          return slot.kind === "video" ? (
-            <SiteVideoUpload
-              key={slot.key}
-              slot={slot}
-              ownPath={ownPath}
-              effectivePath={effectivePath}
-            />
-          ) : (
-            <SiteMediaImageUpload
-              key={slot.key}
-              slot={slot}
-              ownPath={ownPath}
-              effectivePath={effectivePath}
-            />
+        {/* Nur die Video-Plätze tragen eine Karte. Der zugehörige Poster-Platz steckt über
+            `posterKey` (lib/site-media.ts) mit drin und erscheint nie als eigene Karte —
+            vorher lagen Video und Vorschaubild als zwei gleichrangige Kacheln irgendwo im
+            Raster und man musste erraten, was zusammengehört. */}
+        {SITE_MEDIA_SLOTS.filter((slot) => slot.kind === "video").map((slot) => {
+          const posterSlot = slot.posterKey ? siteMediaSlot(slot.posterKey) : undefined;
+          return (
+            <section className="card media-slot" key={slot.key}>
+              <div className="media-slot-head">
+                <div>
+                  <h3 style={{ margin: 0 }}>{slot.label}</h3>
+                  <p className="media-slot-where">{slot.where}</p>
+                </div>
+              </div>
+
+              <div className="media-slot-pair">
+                <SiteVideoUpload
+                  slot={slot}
+                  ownPath={(values[slot.key] ?? "").trim()}
+                  effectivePath={resolveSiteMedia(values, slot.key)}
+                />
+                {posterSlot ? (
+                  <SiteMediaImageUpload
+                    slot={posterSlot}
+                    ownPath={(values[posterSlot.key] ?? "").trim()}
+                    effectivePath={resolveSiteMedia(values, posterSlot.key)}
+                  />
+                ) : (
+                  // Kann nur passieren, wenn jemand ein Video ohne `posterKey` einträgt.
+                  // Sichtbar meckern statt still eine halbe Karte rendern.
+                  <p className="media-slot-part" style={{ color: "var(--danger)" }}>
+                    Kein Vorschaubild-Platz verknüpft. In <code>lib/site-media.ts</code> braucht
+                    dieses Video ein <code>posterKey</code>.
+                  </p>
+                )}
+              </div>
+            </section>
           );
         })}
       </div>

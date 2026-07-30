@@ -233,7 +233,25 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
    Ersetzt das frühere 9-Punkt-<polygon> aus lib/nrw-geo.ts. Leaflet bringt
    eigene Basis-Styles mit (leaflet.css wird in NRWMapClient.tsx importiert) —
    hier steht nur die Anpassung an das dunkle Marken-Design. */
-.nrw-map-canvas{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:var(--deep)}
+.nrw-map-canvas{border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.1);background:var(--deep);position:relative}
+/* Einwilligungs-Hinweis über der Karte, solange kein Kartenbild geladen werden darf.
+   Bewusst KEINE deckende Sperrfläche: Die Pins liegen darunter an ihrer geografischen
+   Position und bleiben anklickbar — geblockt ist nur das Kachelbild von OpenStreetMap.
+   Sitzt deshalb unten und lässt die Kartenmitte frei. z-index 500 liegt über den
+   Leaflet-Panes (400er-Bereich), aber unter dessen Popups (700). */
+.map-consent{
+  position:absolute;left:14px;right:14px;bottom:14px;z-index:500;
+  display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;
+  padding:14px 16px;border-radius:16px;
+  background:rgba(5,7,17,.82);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.12)
+}
+.map-consent-text{margin:0;font-size:12.5px;line-height:1.5;color:var(--muted);max-width:56ch}
+.map-consent-text strong{color:var(--text)}
+@media (max-width:560px){
+  .map-consent{left:8px;right:8px;bottom:8px;padding:11px 12px}
+  .map-consent-text{font-size:11.5px}
+}
 .nrw-map-canvas .leaflet-container{
   height:clamp(360px,52vh,560px);width:100%;
   background:var(--deep);font-family:inherit;outline:none
@@ -545,6 +563,10 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .form{display:grid;gap:12px}
 .form.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 label{display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850}
+/* Erklärender Zusatz unter einer Feldbeschriftung. `label` ist global `display:grid`, der
+   span wird also automatisch eine eigene Zeile — braucht nur Gewicht und Größe zurückgesetzt,
+   sonst liest er sich wie eine zweite Beschriftung. */
+.field-hint{font-size:11.5px;font-weight:500;line-height:1.45;color:var(--muted);margin-top:-2px}
 input,select,textarea{border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.24);color:var(--text);padding:13px 14px;width:100%;outline:none}
 textarea{min-height:130px;resize:vertical}
 /* Admin-Topbar ersetzt die öffentliche Marketing-Nav unter /admin (die bleibt
@@ -574,6 +596,18 @@ textarea{min-height:130px;resize:vertical}
 .sidebar-group:first-of-type{margin-top:20px}
 .sidebar-group-label{padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)}
 .sidebar-badge{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:950;flex:0 0 auto}
+/* Checkboxen und Radios sind KEINE Textfelder und dürfen die Regel oben nicht erben.
+   `input,select,textarea{width:100%;padding:13px 14px;border:…;border-radius:16px}` traf
+   bis 30.07.2026 auch sie: In einer Flex-Zeile (.media-slot-check, .checkbox-row) nahm die
+   Box dadurch die volle Breite und quetschte die Beschriftung daneben auf eine Spalte von
+   einem Zeichen — im Prüfstand gemessen: 289 px Checkbox gegen 73 px Text, der Hinweis lief
+   senkrecht durchs Bild. Erst `width`/`padding` zurücksetzen, dann feste Größe. */
+input[type="checkbox"],input[type="radio"]{
+  width:18px;height:18px;min-width:18px;flex:0 0 auto;padding:0;margin:0;
+  border-radius:5px;accent-color:var(--accent);cursor:pointer
+}
+input[type="radio"]{border-radius:50%}
+input[type="checkbox"]:disabled,input[type="radio"]:disabled{cursor:not-allowed;opacity:.5}
 /* Checkbox-Zeile: label ist global display:grid (Stack aus Text/Input für normale
    Felder) – für Checkboxen brauchen wir stattdessen eine Reihe, Checkbox + Text nebeneinander. */
 .checkbox-row{display:flex;flex-direction:row;gap:10px;align-items:center}
@@ -642,14 +676,43 @@ input[type="file"]::file-selector-button:hover{background:rgba(255,255,255,.22)}
 .storage-panel-track{height:14px}
 .storage-panel-percent{margin:0;color:var(--muted);font-size:14px}
 /* Ein Upload-Feld je Platz auf der Website. */
-.media-slot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:22px;margin-top:18px}
+/* Eine Karte je Video — und in der Karte steht das Video NEBEN seinem Vorschaubild.
+   Vorher war jeder Platz eine eigene Karte, Video und Poster standen dadurch irgendwo im
+   Raster verstreut und man musste raten, was zusammengehört. Die Karte braucht mehr Breite
+   als vorher, weil sie jetzt zwei Spalten trägt. */
+.media-slot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:22px;margin-top:18px}
 .media-slot{align-content:start}
+.media-slot-pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:22px;align-items:start}
+/* `min-width:0` ist Pflicht: Grid-Spalten haben `min-width:auto`, und der Storage-Pfad in
+   .media-slot-path ist ein langer Token ohne Leerzeichen — ohne das schiebt er die Spalte
+   auf und das Paar bricht aus der Karte. */
+.media-slot-part{display:grid;gap:12px;align-content:start;min-width:0}
+.media-slot-part-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(247,247,255,.45)
+}
+/* Trennlinie zwischen Video- und Poster-Spalte, aber nur wenn sie wirklich nebeneinander
+   stehen (umbrochen wäre eine linke Kante sinnlos). */
+@media(min-width:721px){
+  .media-slot-pair>.media-slot-part+.media-slot-part{
+    border-left:1px solid var(--line);padding-left:22px
+  }
+}
 .media-slot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
 .media-slot-where{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
 .media-slot-preview{display:block;width:100%;border-radius:14px;border:1px solid var(--line);background:#000;object-fit:contain}
 .media-slot-path{margin:0;color:rgba(247,247,255,.42);font-size:11px;word-break:break-all}
 .media-slot-check{display:flex;align-items:flex-start;gap:10px;color:var(--muted);font-size:13px;line-height:1.5;font-weight:600;letter-spacing:0;text-transform:none}
-.media-slot-check input{margin-top:3px;flex:0 0 auto;accent-color:var(--accent,#7CFF6B)}
+.media-slot-check input{margin-top:2px;flex:0 0 auto;accent-color:var(--accent,#7CFF6B)}
+/* Der Zusatz steckt hier in einem <span> im <span> und wäre sonst inline mitten im Satz —
+   in einem <label> (display:grid) bekommt .field-hint seine eigene Zeile geschenkt, hier nicht. */
+.media-slot-check .field-hint{display:block;margin-top:5px}
+/* In der Paar-Karte stehen Video und Vorschaubild direkt nebeneinander und sollen dieselbe
+   Größe haben. `.image-crop-current` ist sonst auf 220 px gedeckelt (sinnvoll, wo das Feld
+   allein in einem breiten Formular steht) — hier sähe das Standbild dadurch wie ein
+   Briefmarken-Anhängsel neben dem großen Video aus. */
+.media-slot-part .image-crop-current{max-width:none;width:100%}
 .media-slot-hint{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
 .media-slot-note{margin:0;color:var(--ice);font-size:13px}
 .media-slot-progress{display:grid;gap:8px;font-size:13px;color:var(--muted)}
@@ -1673,6 +1736,10 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 }
 .contact-card-desc{margin:-6px 0 4px;font-size:14px}
 .contact-card-hint{margin:0;font-size:12px;color:var(--muted);text-align:center}
+/* Pflichthinweis nach Art. 13 DSGVO unter dem Absenden-Button. Kleiner als die Copy, aber
+   bewusst nicht ausgegraut — er muss lesbar sein, sonst erfüllt er seinen Zweck nicht. */
+.contact-card-privacy{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted);text-align:center}
+.contact-card-privacy a{color:var(--ice);text-decoration:underline}
 .contact-card.is-green{border-color:rgba(124,255,107,.28);background:linear-gradient(180deg,rgba(124,255,107,.07),rgba(255,255,255,.03))}
 .contact-card.is-green .contact-card-icon{background:conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
 .contact-card.is-gold{border-color:rgba(255,209,102,.32);background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(255,255,255,.03))}

@@ -56,6 +56,26 @@ darum steht im `test`-Skript das Glob `"tests/**/*.test.*"`.
 
 ## Layout
 
+**Beschriftung neben einer Checkbox läuft senkrecht als Ein-Zeichen-Spalte (behoben 30.07.2026).**
+`input,select,textarea{width:100%;padding:13px 14px;border:…;border-radius:16px}` in
+`globals.css` traf auch `input[type="checkbox"]` und `[type="radio"]` — es gab keinen Reset.
+In einer Flex-Zeile (`.media-slot-check`, `.checkbox-row`) nahm die Checkbox dadurch die volle
+Breite und quetschte den Text daneben auf ~70 px: im Prüfstand gemessen **289 px Checkbox
+gegen 73 px Text**. Sichtbar wurde es als senkrechter Buchstabenstrang mitten in der Karte.
+`flex:0 0 auto` allein reicht **nicht** — `flex-basis:auto` liest die `width`, also erst
+`width`/`padding` zurücksetzen, dann feste Größe. Wer neue Feldtypen einführt (`range`,
+`color`, `file`), prüft dasselbe.
+
+**Admin-Oberflächen ohne Login prüfen.** `/admin/*` hängt an Supabase-Auth, und
+`/api/admin/storage-usage` antwortet ohne Session mit 401 — von außen ist da nichts zu sehen.
+Weg, der funktioniert: eine statische HTML-Seite im Scratchpad, die das **echte**
+`app/globals.css` per `<link>` einbindet und das Markup der Komponente 1:1 enthält, dann per
+Playwright bei mehreren Viewport-Breiten Maße auslesen (`getBoundingClientRect`) und
+Screenshots schießen. Maße statt Augenmaß ist hier der Punkt: Der Checkbox-Fehler oben ist als
+Zahl sofort eindeutig, im Bild dagegen leicht als „komisches Rendering" abzutun. Zusätzlich
+lohnt eine Überlauf-Prüfung (Kinder, deren `right` über den Kartenrand hinausgeht) — sie findet
+gesprengte Grid-Spalten, bevor jemand das Fenster verkleinert.
+
 **Headline klebt am rechten Rand.** `.section-head` ist `display:flex; justify-content:space-between`
 und erwartet **zwei** Kinder: einen `<div>` mit Eyebrow + `<h2>` und daneben die Begleit-Copy.
 Stehen Eyebrow und `<h2>` als direkte Kinder darin, wird die Headline nach rechts geschoben
