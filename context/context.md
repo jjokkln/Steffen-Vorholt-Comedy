@@ -26,7 +26,7 @@ Middleware heißt `proxy.ts` im Repo-Root (Next 16) und schützt nur `/admin/*`.
 ## NRW-Karte & Spielorte (seit 29.07.2026)
 
 Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht mehr über das
-9-Punkt-`<polygon>` aus dem gelöschten `lib/nrw-geo.ts`. Drei Regeln, die man kennen muss:
+9-Punkt-`<polygon>` aus dem gelöschten `lib/nrw-geo.ts`. Fünf Regeln, die man kennen muss:
 
 1. **Client-only.** Leaflet fasst beim Import `window` an. `components/shows/NRWMap.tsx` ist
    deshalb nur der `dynamic(..., { ssr:false })`-Wrapper; die Karte selbst steckt in
@@ -35,7 +35,12 @@ Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht meh
 2. **Attribution ist Pflicht.** „© OpenStreetMap contributors" ist Lizenzbedingung, nicht
    Deko. Der dunkle Marken-Look kommt aus dem CSS-Filter auf `.leaflet-tile-pane`, damit
    keine kostenpflichtigen Dark-Tiles nötig sind.
-3. **Das Kartenbild hängt am Einwilligungs-Gate (seit 30.07.2026).** Gegated ist **nur der
+3. **Positionen kommen aus `venues`, nicht aus dem Stadtnamen.** Ein Termin ohne `venue_id`
+   erscheint nicht auf der Karte — nur im Kalender und in der Terminliste. Orte werden unter
+   `/admin/standorte` per Klick in die Karte angelegt (Server Action `lib/actions/venues.ts`),
+   die Verknüpfung setzt das Feld „Spielort auf der Karte" im Termin-Formular. Markerfarbe:
+   `venues.show_id` → Show des nächsten Termins → Fallback `--ice`.
+4. **Das Kartenbild hängt am Einwilligungs-Gate (seit 30.07.2026).** Gegated ist **nur der
    `TileLayer`**, nicht die Karte: Marker, Verbindungslinien und Popups kommen aus eigenen
    Daten und lösen keinen Fremd-Request aus. Ohne Einwilligung stehen die Pins also weiter an
    ihrer geografischen Position — auf dem dunklen Untergrund liest sich das als Sternkarte und
@@ -47,15 +52,10 @@ Die Karte auf `/shows` läuft über **Leaflet + OpenStreetMap-Tiles**, nicht meh
    nicht angezeigt (`UNBLOCKED_ROUTES` in `CookieBanner.tsx`), die Einwilligung bliebe dort also
    für immer offen und die Karte dauerhaft blind. Wer das Gate anfasst, muss diesen Zweig
    erhalten.
-4. **Die Karte liegt hinter einem Tab.** `TermineSection` zeigt standardmäßig den Kalender;
+5. **Die Karte liegt hinter einem Tab.** `TermineSection` zeigt standardmäßig den Kalender;
    die Karte rendert erst bei `view === "karte"` (Umschalter oder `?view=karte`). Ein Aufruf
    von `/shows` allein lädt also nichts von OpenStreetMap — wichtig zu wissen, bevor man in
    Netzwerk-Mitschnitten nach Tile-Requests sucht und keine findet.
-3. **Positionen kommen aus `venues`, nicht aus dem Stadtnamen.** Ein Termin ohne `venue_id`
-   erscheint nicht auf der Karte — nur im Kalender und in der Terminliste. Orte werden unter
-   `/admin/standorte` per Klick in die Karte angelegt (Server Action `lib/actions/venues.ts`),
-   die Verknüpfung setzt das Feld „Spielort auf der Karte" im Termin-Formular. Markerfarbe:
-   `venues.show_id` → Show des nächsten Termins → Fallback `--ice`.
 
 Umsetzungsnotiz zum Design-Handoff: [docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md](../docs/2026-07-29-handoff-cosmic-galaxie-umsetzung.md).
 

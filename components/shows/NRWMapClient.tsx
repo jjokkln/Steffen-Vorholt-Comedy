@@ -7,6 +7,7 @@ import L from "leaflet";
 import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import EventCard from "@/components/EventCard";
 import VenueEventsForm from "@/components/admin/VenueEventsForm";
+import { useCookieConsent } from "@/components/consent/CookieConsentProvider";
 import { createVenue, deleteVenue, type FormState } from "@/lib/actions/venues";
 import {
   NRW_BOUNDS,
@@ -151,6 +152,26 @@ export default function NRWMapClient({
   const adminMode = admin && mode === "admin";
 
   /**
+   * Einwilligungs-Gate für das Kartenmaterial (§ 25 TDDDG / Art. 6 DSGVO).
+   *
+   * Gegated wird **nur der `TileLayer`**, nicht die ganze Karte: Marker, Verbindungslinien,
+   * Popups und im Admin das Klicken zum Anlegen laufen aus eigenen Daten und lösen keinen
+   * Fremd-Request aus. Ohne Kartenbild bleiben die Pins also an ihrer geografischen Position
+   * — auf dem dunklen Untergrund liest sich das wie eine Sternkarte und ist damit nicht
+   * einmal ein Bruch im Design.
+   *
+   * `admin` umgeht das Gate bewusst: Dort ist der Betreiber selbst unterwegs, von dem keine
+   * Einwilligung einzuholen ist. Vor allem aber wird der Banner auf `/admin` gar nicht
+   * angezeigt (`UNBLOCKED_ROUTES` in CookieBanner.tsx) — die Einwilligung bliebe dort für
+   * immer offen und die Pflege-Karte damit dauerhaft blind, obwohl man zum Anlegen eines
+   * Standorts die Straßen sehen muss.
+   */
+  const { categories, save, hydrated } = useCookieConsent();
+  const [tilesOnce, setTilesOnce] = useState(false);
+  // Vor der Hydration ist der Consent unbekannt → nichts von OpenStreetMap laden.
+  const tilesAllowed = admin || ((hydrated && categories?.externalMedia === true) || tilesOnce);
+
+  /**
    * Startausschnitt: die Spielorte selbst, nicht ganz NRW. Alle Orte liegen an
    * der Rhein-Ruhr-Achse — auf ganz NRW gezoomt kleben die Punkte auf einem
    * Drittel der Fläche aufeinander, während Sauerland und Weserbergland leer
@@ -199,13 +220,16 @@ export default function NRWMapClient({
             scrollWheelZoom={false}
             zoomControl={false}
           >
-            {/* Attribution ist Lizenzbedingung von OpenStreetMap – nie entfernen. */}
-            <TileLayer
-              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution="© OpenStreetMap contributors"
-              maxZoom={19}
-              detectRetina
-            />
+            {/* Attribution ist Lizenzbedingung von OpenStreetMap – nie entfernen.
+                Erst nach Einwilligung eingehängt, siehe `tilesAllowed` oben. */}
+            {tilesAllowed && (
+              <TileLayer
+                url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution="© OpenStreetMap contributors"
+                maxZoom={19}
+                detectRetina
+              />
+            )}
             <ZoomControl position="bottomright" />
             <MapInteractions
               onPick={
@@ -257,6 +281,40 @@ export default function NRWMapClient({
 
             {draft && <Marker position={[draft.lat, draft.lng]} icon={draftIcon()} interactive={false} />}
           </MapContainer>
+
+          {/*
+            Liegt bewusst NEBEN dem MapContainer, nicht darin: Leaflet verwaltet seinen
+            Container selbst und würde fremde Kinder beim Neuzeichnen verlieren. Die Pins
+            bleiben darunter sichtbar und bedienbar — deshalb ist das ein Hinweis am Rand
+            und keine deckende Sperrfläche.
+          */}
+          {!tilesAllowed && (
+            <div className="map-consent">
+              <p className="map-consent-text">
+                Das Kartenbild kommt von <strong>OpenStreetMap</strong>. Beim Laden wird deine
+                IP-Adresse an die OpenStreetMap Foundation übertragen. Die Spielorte siehst du
+                auch ohne Kartenbild — als Punkte hier und in der Liste darunter.
+              </p>
+              {/* `.yt-placeholder-*` bewusst geteilt: identische Optik wie die Embed-Gates
+                  auf /galerie — ein Consent-Hinweis soll überall gleich aussehen. */}
+              <div className="yt-placeholder-actions">
+                <button
+                  type="button"
+                  className="yt-placeholder-btn"
+                  onClick={() => setTilesOnce(true)}
+                >
+                  Kartenbild laden
+                </button>
+                <button
+                  type="button"
+                  className="yt-placeholder-btn"
+                  onClick={() => save({ externalMedia: true })}
+                >
+                  Externe Medien immer erlauben
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

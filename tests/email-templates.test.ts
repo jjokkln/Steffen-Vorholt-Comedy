@@ -14,7 +14,10 @@ test("booking_show: Platzhalter werden ersetzt, video_note optional", () => {
   assert.ok(html.includes("Comedy Eiskalt"));
   assert.ok(html.includes("15.03.2027"));
   assert.ok(html.includes("Neuss"));
-  assert.ok(html.includes("Du bekommst zusätzlich ein Video"));
+  // Der Hinweis muss ein Video AUS DER SHOW versprechen, nicht eine Aufnahme der
+  // Veranstaltung des Anfragenden — siehe Kommentar in lib/email-templates.ts.
+  assert.ok(html.includes("Videoausschnitt aus der Show"));
+  assert.ok(!/Video von deiner Show/.test(html));
   assert.ok(!html.includes("{{"));
 });
 
@@ -26,7 +29,7 @@ test("booking_show: video_requested leer → video_note-Zeile bleibt leer, kein 
     payload: { show: "", event_date: "", city: "", video_requested: "" },
   });
   assert.ok(!html.includes("{{"));
-  assert.ok(!html.includes("Du bekommst zusätzlich ein Video"));
+  assert.ok(!html.includes("Videoausschnitt"));
   assert.ok(html.includes("nach Absprache")); // event_date-Fallback
 });
 

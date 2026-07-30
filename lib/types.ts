@@ -91,7 +91,7 @@ export const INQUIRY_FIELD_LABELS: Record<string, string> = {
   show: "Show",
   event_date: "Wunschdatum",
   city: "Stadt / Location",
-  video_requested: "Video gewünscht",
+  video_requested: "Beispielvideo gewünscht",
   company: "Firma / Veranstalter",
   event_type: "Art der Veranstaltung",
 };

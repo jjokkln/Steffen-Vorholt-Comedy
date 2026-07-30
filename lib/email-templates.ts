@@ -1,10 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Inquiry, InquiryType } from "@/lib/types";
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
+// Relativ und mit Endung: wird von tests/email-templates.test.ts über `node --test` geladen.
+import { escapeHtml } from "./html.ts";
 
 const TEMPLATE_FILES: Record<InquiryType, string> = {
   booking_show: "booking-show.html",
@@ -40,9 +38,12 @@ function variablesFor(inquiry: ConfirmationInput): Record<string, string> {
         show: field("show"),
         event_date: field("event_date", "nach Absprache"),
         city: field("city"),
+        // „Video" heißt: Steffen schickt dem Interessenten vorab einen Ausschnitt aus SEINER
+        // Show, damit klar ist, was gebucht wird. Es ist KEINE Aufnahme der Veranstaltung des
+        // Anfragenden — der alte Text („ein Video von deiner Show") hat genau das versprochen.
         video_note:
           inquiry.payload.video_requested === "ja"
-            ? "🎥 Du bekommst zusätzlich ein Video von deiner Show."
+            ? "🎥 Steffen schickt dir vorab einen Videoausschnitt aus der Show, damit du vor der Buchung siehst, was dich erwartet."
             : "",
       };
     case "booking_steffen":

@@ -55,7 +55,8 @@ test("buildVenueMarkers sortiert Orte alphabetisch", () => {
 });
 
 test("constellationLinks verbindet jeden Ort mit dem nächsten Nachbarn, ohne Doppelkanten", () => {
-  // @ts-expect-error – Testdaten enthalten nur die genutzten Felder
+  // Kein @ts-expect-error nötig: `constellationLinks` braucht nur id/lat/lon, und genau die
+  // haben die Testdaten. Bei `buildVenueMarkers` ist das anders — dort bleibt die Direktive.
   const links = constellationLinks(venues);
   const keys = links.map(([a, b]) => [a.id, b.id].sort().join("~")).sort();
   // Bochum↔Dortmund liegen sich gegenseitig am nächsten → nur EINE Kante.
@@ -64,7 +65,6 @@ test("constellationLinks verbindet jeden Ort mit dem nächsten Nachbarn, ohne Do
 });
 
 test("constellationLinks bleibt bei weniger als zwei Orten leer", () => {
-  // @ts-expect-error – Testdaten enthalten nur die genutzten Felder
   assert.deepEqual(constellationLinks(venues.slice(0, 1)), []);
   assert.deepEqual(constellationLinks([]), []);
 });

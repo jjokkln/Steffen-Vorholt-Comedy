@@ -1,6 +1,6 @@
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
+// Relativ und mit Endung importiert: `npm test` läuft über `node --test` mit Type-Stripping
+// und kennt den `@/`-Alias nicht (siehe context/troubleshooting.md).
+import { escapeHtml } from "./html.ts";
 
 /**
  * Erlaubte Ziele für `[Text](Ziel)`. Alles andere (insbesondere `javascript:`) bleibt

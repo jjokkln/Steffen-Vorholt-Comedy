@@ -194,6 +194,14 @@ Durchgang, wichtig: **alle** Pfad-Spalten aufzählen, sonst gelten benutzte Date
 
 ## Supabase-Sicherheit & Migrationen
 
+**Rechtstext per SQL geändert, die Seite zeigt weiter den alten Stand.** `/impressum`,
+`/datenschutz` und `/agb` sind statisch mit `revalidate = 3600`. Die Revalidierung hängt an
+`revalidatePath` in der Server Action `saveLegalPage` — wer den Text direkt per `execute_sql`
+oder im SQL-Editor ändert, löst sie nicht aus. Die Änderung erscheint dann erst, wenn das
+ISR-Fenster abläuft (bis zu einer Stunde). Sofort sichtbar wird sie, indem man den Text im
+Dashboard unter `/admin/rechtliches/<slug>` einmal ohne Änderung speichert — das geht durch die
+Action und revalidiert. Gilt genauso für jede andere per SQL geänderte Inhaltstabelle.
+
 **Ein 204 beim RLS-Test bedeutet NICHT, dass der Schreibzugriff erlaubt war.** Wer mit dem
 anon-Key prüft, ob RLS hält, bekommt bei `PATCH`/`DELETE` ein `HTTP 204 No Content` — und zwar in
 *beiden* Fällen: wenn geschrieben wurde **und** wenn RLS alle Zeilen weggefiltert hat (dann

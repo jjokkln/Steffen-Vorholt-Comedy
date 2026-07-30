@@ -32,7 +32,7 @@ export default async function KontaktPage() {
             icon="🎟️"
             accent="green"
             title="Eine Show buchen."
-            description="Hol dir Comedy Eiskalt, Doppel Comedy oder Brain Loading auf deine Bühne. Video auf Anfrage."
+            description="Hol dir Comedy Eiskalt, Doppel Comedy oder Brain Loading auf deine Bühne. Auf Wunsch schickt Steffen dir vorab einen Videoausschnitt."
             submitLabel="Anfrage senden"
             successMessage="Deine Show-Anfrage ist gelandet. Steffen meldet sich, sobald er das Mikro aus der Hand legt."
             hint="→ Landet direkt im Show-Postfach"
@@ -40,17 +40,17 @@ export default async function KontaktPage() {
             <div className="form two">
               <label>
                 Name
-                <input name="name" required />
+                <input name="name" required maxLength={120} />
               </label>
               <label>
                 E-Mail
-                <input name="email" type="email" required />
+                <input name="email" type="email" required maxLength={254} />
               </label>
             </div>
             <div className="form two">
               <label>
                 Telefon
-                <input name="phone" />
+                <input name="phone" maxLength={40} />
               </label>
               <label>
                 Show
@@ -64,23 +64,33 @@ export default async function KontaktPage() {
             <div className="form two">
               <label>
                 Wunschdatum
-                <input name="event_date" />
+                <input name="event_date" maxLength={200} />
               </label>
               <label>
                 Stadt / Location
-                <input name="city" />
+                <input name="city" maxLength={200} />
               </label>
             </div>
             <label>
-              Video auf Anfrage?
+              Vorab ein Beispielvideo?
+              {/*
+                Klarstellung vom 30.07.2026: Gemeint ist ein Ausschnitt aus Steffens Show, den er
+                dem Interessenten vor der Buchung schickt — KEINE Aufnahme der Veranstaltung des
+                Anfragenden. „Video auf Anfrage" war in beide Richtungen lesbar, und die
+                Bestätigungsmail versprach sogar „ein Video von deiner Show".
+              */}
+              <span className="field-hint">
+                Steffen schickt dir per E-Mail einen Ausschnitt aus der Show, damit du vor der
+                Buchung siehst, was auf deine Bühne kommt.
+              </span>
               <select name="video_requested">
                 <option value="">Nein, danke</option>
-                <option value="ja">Ja, bitte ein Video schicken</option>
+                <option value="ja">Ja, bitte einen Ausschnitt schicken</option>
               </select>
             </label>
             <label>
               Nachricht
-              <textarea name="message" placeholder="Gästezahl, Ablauf, Budget, gewünschte Leistung..." />
+              <textarea name="message" placeholder="Gästezahl, Ablauf, Budget, gewünschte Leistung..." maxLength={5000} />
             </label>
           </ContactForm>
         </div>
@@ -100,21 +110,21 @@ export default async function KontaktPage() {
             <div className="form two">
               <label>
                 Name
-                <input name="name" required />
+                <input name="name" required maxLength={120} />
               </label>
               <label>
                 Firma
-                <input name="company" />
+                <input name="company" maxLength={200} />
               </label>
             </div>
             <div className="form two">
               <label>
                 E-Mail
-                <input name="email" type="email" required />
+                <input name="email" type="email" required maxLength={254} />
               </label>
               <label>
                 Telefon
-                <input name="phone" />
+                <input name="phone" maxLength={40} />
               </label>
             </div>
             <div className="form two">
@@ -130,12 +140,12 @@ export default async function KontaktPage() {
               </label>
               <label>
                 Datum
-                <input name="event_date" />
+                <input name="event_date" maxLength={200} />
               </label>
             </div>
             <label>
               Nachricht
-              <textarea name="message" placeholder="Ort, Gästezahl, Ablauf, gewünschte Leistung..." />
+              <textarea name="message" placeholder="Ort, Gästezahl, Ablauf, gewünschte Leistung..." maxLength={5000} />
             </label>
           </ContactForm>
         </div>
@@ -155,16 +165,16 @@ export default async function KontaktPage() {
             <div className="form two">
               <label>
                 Name
-                <input name="name" required />
+                <input name="name" required maxLength={120} />
               </label>
               <label>
                 E-Mail
-                <input name="email" type="email" required />
+                <input name="email" type="email" required maxLength={254} />
               </label>
             </div>
             <label>
               Nachricht
-              <textarea name="message" placeholder="Deine Frage oder dein Feedback..." />
+              <textarea name="message" placeholder="Deine Frage oder dein Feedback..." maxLength={5000} />
             </label>
           </ContactForm>
         </div>

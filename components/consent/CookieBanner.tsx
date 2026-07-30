@@ -134,6 +134,19 @@ export default function CookieBanner() {
               werden von unserem eigenen Server geladen. Keine Cookies, kein Profil, kein Tracking.
             </li>
             <li>
+              {/*
+                Die Karte auf /shows lädt Kartenausschnitte von tile.openstreetmap.org und
+                überträgt dabei die IP-Adresse. Das gehört hier genannt, sonst ist die Liste
+                unvollständig — und die Aussage „nur Vercel und Supabase" wäre unwahr.
+                Ausführlich in der Datenschutzerklärung, Ziffer 13.
+              */}
+              <strong>Karte der Spielorte.</strong> Auf „Shows &amp; Termine" kommt das
+              Kartenmaterial von der OpenStreetMap Foundation (Vereinigtes Königreich). Dabei wird
+              deine IP-Adresse übertragen — Cookies setzt der Dienst nicht, Profile bildet er
+              nicht. Wer keine Karte laden will: Alle Termine stehen auf derselben Seite auch als
+              Liste und im Kalender.
+            </li>
+            <li>
               <strong>Externe Medien — nur mit deiner Zustimmung.</strong> Eingebettete Videos und
               Beiträge von YouTube (Google Ireland Ltd. / Google LLC, USA), Instagram und Facebook
               (Meta Platforms Ireland Ltd.) sowie TikTok (TikTok Technology Ltd., Irland). Beim Laden
