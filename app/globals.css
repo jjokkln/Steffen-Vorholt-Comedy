@@ -153,13 +153,27 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   box-shadow:var(--shadow);padding:26px;position:relative;overflow:hidden
 }
 .show-card{min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
-.show-card:before{
-  content:"";position:absolute;width:270px;height:270px;border-radius:50%;top:92px;left:50%;translate:-50% 0;z-index:-1;
+/* Der Schein sitzt an einem Rahmen um die Planetenfläche und damit IMMER in deren Mitte.
+   Vorher hing er als `.show-card:before` an einem festen `top:92px`, während der Planet
+   unter dem Tag-Block steht — seit die Tags zweizeilig stapeln, klaffte das 43–55 px
+   auseinander (gemessen am 30.07.2026). Eine berechnete Konstante hätte nicht gereicht:
+   der Tag-Block ist je Karte 80, 83 oder 86 px hoch, je nachdem wie die Labels umbrechen.
+   Warum ein eigener Rahmen und nicht `.show-art:before`: `.show-art` hat `overflow:hidden`
+   (beschneidet den Planeten beim Hover-Zoom) und würde den weichen Rand des Scheins
+   abschneiden. Das `margin-top` liegt am Rahmen statt an `.show-art`, damit der Rahmen
+   nicht durch Margin-Collapsing über dem Planeten sitzt. */
+.show-art-frame{position:relative;margin-top:var(--show-art-mt,16px)}
+.show-art-frame:before{
+  content:"";position:absolute;width:var(--show-halo,270px);height:var(--show-halo,270px);border-radius:50%;
+  top:50%;left:50%;translate:-50% -50%;z-index:-1;
   box-shadow:0 0 70px currentColor;opacity:.32;filter:blur(10px)
 }
-.brain{color:var(--green)}.brain:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
-.ice{color:var(--ice)}.ice:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 80deg,#fff,var(--ice),var(--turq),#4f7dff,#fff)}
-.checkin{color:var(--orange)}.checkin:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 130deg,var(--orange),var(--yellow),var(--captain),var(--orange))}
+/* Farbvarianten des Scheins. Werden derzeit von keiner Seite gesetzt (der Schein ist
+   neutral, die Farbe je Show kommt aus `--planet-glow` in components/Planet.tsx) — bleiben
+   aber am Rahmen hängen, damit sie beim Setzen der Klasse weiterhin greifen. */
+.brain{color:var(--green)}.brain .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
+.ice{color:var(--ice)}.ice .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 80deg,#fff,var(--ice),var(--turq),#4f7dff,#fff)}
+.checkin{color:var(--orange)}.checkin .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 130deg,var(--orange),var(--yellow),var(--captain),var(--orange))}
 /* Tags IMMER untereinander, auf jeder Breite: nebeneinander passten kurze
    Labels („Brain Loading" + „Impro") in eine Zeile, lange („Open MIC mit
    Publikumsspiel") brauchten zwei — dadurch starteten Planet, Headline und
@@ -178,9 +192,11 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-card .top .badge{white-space:normal;max-width:100%;line-height:18px}
 .badge{display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.34);border:1px solid var(--line);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)}
 .show-card .spacer{height:240px}
+/* `margin-top` sitzt am .show-art-frame, hier bleiben nur die negativen Seitenränder
+   (Planet darf 6 px über die Kartenpolsterung hinausragen). */
 .show-art{
-  height:320px;display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;
-  margin:16px -6px 0;
+  height:var(--show-art-h,320px);display:grid;place-items:center;position:relative;z-index:1;overflow:hidden;
+  margin:0 -6px;
 }
 .show-art img{
   width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;
@@ -194,6 +210,19 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 }
 .show-card h3{font-size:clamp(30px,3vw,46px);line-height:.98}
 .show-card-copy p{margin-bottom:0}
+/* Die ganze Karte ist ein Link — vorher musste man bis zu „Show öffnen" scrollen.
+   Umgesetzt als unsichtbare Fläche und NICHT als <Link> um die Karte: In der Karte steckt
+   mit „Tickets" ein zweiter Link, und <a> in <a> ist ungültiges HTML.
+   Auch nicht als `::after` am Button: `.show-card::after` ist schon die Glanz-Animation, und
+   `.btn:hover` setzt ein `transform` — das macht den Button zum Bezugsrahmen für absolut
+   positionierte Kinder, die Fläche würde beim Überfahren des Buttons auf Buttongröße
+   zusammenschnappen.
+   z-index 3 liegt über .show-art (1) und .show-card-copy (2); die Glanzfläche ist
+   `pointer-events:none` und stört nicht. */
+.show-card-overlay{position:absolute;inset:0;z-index:3;border-radius:inherit}
+/* Die echten Buttons liegen darüber, sonst würde die Fläche „Tickets" verschlucken und
+   dessen eigener Hover-Effekt nie auslösen. */
+.show-card .actions{position:relative;z-index:4}
 .list{display:grid;gap:12px;list-style:none;padding:0;margin:18px 0 0}
 .list li{display:flex;gap:12px;padding:14px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:var(--muted)}
 .list b{color:var(--text)}
@@ -818,8 +847,8 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .section-head p,.section-head-copy{max-width:100%}
   .grid-3:has(.show-card){padding-top:2px}
   /* Tag-Block (Spalte + reservierte Höhe) steht global in .show-card .top. */
-  .show-card:before{width:200px;height:200px;top:64px}
-  .show-art{height:186px;margin-top:12px}
+  /* Nur die Maße ändern — Position des Scheins folgt weiter automatisch der Fläche. */
+  .show-card{--show-halo:200px;--show-art-h:186px;--show-art-mt:12px}
   .show-card-copy{margin-top:12px;padding-top:14px}
   .show-card h3{font-size:23px;line-height:1.08}
   /* Kein line-clamp: die Beschreibung wird vollständig gezeigt. Die Karten im

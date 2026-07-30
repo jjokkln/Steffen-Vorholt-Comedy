@@ -88,18 +88,29 @@ export default async function HomePage() {
             <div className="grid-3">
               {shows.map((show) => (
                 <article className="card show-card" key={show.id}>
+                  {/* Macht die ganze Karte klickbar — siehe .show-card-overlay in globals.css. */}
+                  <Link
+                    className="show-card-overlay"
+                    href={`/shows/${show.slug}`}
+                    aria-hidden="true"
+                    tabIndex={-1}
+                  />
                   <div>
                     <div className="top">
                       <span className="badge">{show.name}</span>
                       <span className="badge">{show.format_label}</span>
                     </div>
-                    <div className="show-art">
-                      <Planet
-                        src={show.planet_image_path}
-                        alt={`Planet der Show ${show.name}`}
-                        size={280}
-                        color={show.color}
-                      />
+                    {/* .show-art-frame trägt den Schein und hält ihn mittig auf dem
+                        Planeten — siehe globals.css. */}
+                    <div className="show-art-frame">
+                      <div className="show-art">
+                        <Planet
+                          src={show.planet_image_path}
+                          alt={`Planet der Show ${show.name}`}
+                          size={280}
+                          color={show.color}
+                        />
+                      </div>
                     </div>
                     <div className="show-card-copy">
                       <h3>{show.tagline}</h3>

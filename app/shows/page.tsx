@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import Footer from "@/components/Footer";
+import Planet from "@/components/Planet";
 import YoutubeGallery from "@/components/YoutubeGallery";
 import JsonLd from "@/components/JsonLd";
 import TermineSection from "@/components/shows/TermineSection";
@@ -52,21 +52,34 @@ export default async function ShowsPage() {
         <div className="grid-3">
           {shows.map((show) => (
             <article className="card show-card" key={show.id}>
+              {/* Macht die ganze Karte klickbar. `aria-hidden` + `tabIndex={-1}`, weil
+                  „Show öffnen“ unten schon derselbe Link ist: ohne das hätte jede Karte
+                  zwei Tab-Stopps und Screenreader lesen dasselbe Ziel doppelt vor. */}
+              <Link
+                className="show-card-overlay"
+                href={`/shows/${show.slug}`}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
               <div>
                 <div className="top">
                   <span className="badge">{show.name}</span>
                   <span className="badge">{show.format_label}</span>
                 </div>
-                <div className="show-art">
-                  {show.planet_image_path && (
-                    <Image
-                      src={mediaUrl(show.planet_image_path)}
+                {/* Gleiche Darstellung wie auf der Startseite: über <Planet>, nicht als
+                    rohes <Image>. Als <Image> zog `.show-art img{width:100%;height:100%}`
+                    den Planeten auf die volle Flächenhöhe — gemessen 386 px gegen 294 px
+                    auf der Startseite, und ohne den Schwebe-Effekt und den Farbschein aus
+                    components/Planet.tsx. */}
+                <div className="show-art-frame">
+                  <div className="show-art">
+                    <Planet
+                      src={show.planet_image_path}
                       alt={`Planet der Show ${show.name}`}
-                      width={300}
-                      height={300}
-                      sizes="(max-width: 900px) 45vw, 300px"
+                      size={280}
+                      color={show.color}
                     />
-                  )}
+                  </div>
                 </div>
                 <div className="show-card-copy">
                   <h3>{show.tagline}</h3>
