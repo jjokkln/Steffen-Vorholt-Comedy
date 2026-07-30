@@ -58,11 +58,26 @@ export default function ShowForm({
           <input name="sort_order" type="number" defaultValue={show?.sort_order ?? 0} />
         </label>
       </div>
+      {/* Die Zahlen im Hinweis sind hergeleitet, nicht geschätzt (30.07.2026):
+          – 1024 px ist die Obergrenze, die der Zuschnitt selbst erzeugt
+            (EXPORT_LONG_EDGE_TRANSPARENT in ImageCropUpload.tsx).
+          – 640 px ist das Maximum, das je an einen Besucher geht: Die Karte zeigt den
+            Planeten 280 px breit (`<Planet size={280}>` → `sizes="280px"`), next/image
+            wählt daraus 384 px für normale und 640 px für scharfe Displays. Größere
+            Uploads kosten nur Speicherplatz.
+          – Quadratisch, weil alle drei Bestandsplaneten 1300 × 1300 px sind und die
+            Karte ein 1:1-Feld zeigt.
+          Wer eine dieser Stellen ändert, muss den Hinweis mitziehen. */}
       <ImageCropUpload
         label="Planet-Bild (rund, transparenter Hintergrund)"
         name="planet_image_path"
         aspectOptions={TRANSPARENT_ASPECT_OPTIONS}
-        hint="Empfehlung: quadratisch (1:1), mind. 800 × 800 px, PNG mit transparentem Hintergrund. „Original“ lädt die Datei unverändert hoch."
+        hint={
+          "Quadratisch (1:1), PNG mit transparentem Hintergrund, 1024 × 1024 px. " +
+          "Größere Bilder werden beim Zuschneiden automatisch auf 1024 px verkleinert. " +
+          "Unter 640 × 640 px wirkt der Planet auf scharfen Displays unscharf, denn genau " +
+          "640 px liefert die Website dort aus — mehr nie, auch nicht bei „Original“."
+        }
         currentPath={show?.planet_image_path}
         bucket="planets"
         uploadPrefix="planet"
