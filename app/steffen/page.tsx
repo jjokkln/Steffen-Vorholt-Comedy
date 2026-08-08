@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import AiLabel from "@/components/AiLabel";
 import Footer from "@/components/Footer";
 import Planet from "@/components/Planet";
 import CaptainVideo from "@/components/CaptainVideo";
@@ -66,6 +67,11 @@ export default async function SteffenPage() {
           sizes="(max-width: 1024px) 60vw, 560px"
           priority
         />
+        {/* Art. 50 EU AI Act: der Freisteller ist ein echtes Foto von Steffen,
+            per KI freigestellt und nachbearbeitet — teilweise verändert, also
+            `modified`. Steht direkt am Bild, nicht in der Fußzeile: die
+            Kennzeichnung muss beim ersten Kontakt mit dem Inhalt erkennbar sein. */}
+        <AiLabel className="steffen-hero-ai-label" text="Bild mit KI bearbeitet" />
         {/* Kometenbahn als Hero-Abschluss: Horizontlinie + streifende Kometen
             (Tiefenstaffelung über nth-child in globals.css). */}
         <div className="steffen-comet-divider" aria-hidden="true">

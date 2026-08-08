@@ -7,6 +7,10 @@
   342 KB. Rundes Key Visual (Steffen + alle drei Show-Planeten), Motiv des Startseiten-Heros
   (`.hero-moon`). Quelle war ein 2000×2000-PNG mit 6,1 MB — für den Hero zu schwer, daher
   als WebP q86 abgelegt.
+  🤖 **Mit KI bearbeitet** (echtes Foto von Steffen, per KI in die Kugel gesetzt). Trägt seit
+  dem 08.08.2026 die Kennzeichnung nach Art. 50 Abs. 4 EU AI Act — wer das Motiv austauscht,
+  muss die Kennzeichnung mit austauschen oder entfernen. Details: `context/context.md`,
+  Abschnitt „KI-Kennzeichnung".
 - `assets/media/brand/steffen-vorholt-logo-primary.svg`
 - `assets/media/brand/steffen-vorholt-logo-white.svg`
 - `assets/media/brand/favicon.svg`
@@ -19,6 +23,11 @@
   6,5 MB. Vollflächiger Trailer unter dem Hero (`components/home/HeroTrailer.tsx`).
 - `assets/media/steffen/steffen-trailer-poster.webp` — **vorhanden**, 1600×899, 20 KB.
   Erstes Bild des Trailers, dient als `poster`, damit vor dem Laden kein schwarzer Block steht.
+- `assets/media/steffen/steffen-hero-right.png` — **vorhanden**, 1122×1402 mit Alpha, 888 KB.
+  Freisteller, der auf `/steffen` von rechts ins Bild schaut (`.steffen-hero-photo`).
+  🤖 **Mit KI bearbeitet** (echtes Foto, per KI freigestellt und nachbearbeitet). Trägt seit
+  dem 08.08.2026 die Kennzeichnung nach Art. 50 Abs. 4 EU AI Act — beim Austausch des Motivs
+  mit austauschen oder entfernen. Details: `context/context.md`, Abschnitt „KI-Kennzeichnung".
 - `assets/media/steffen/steffen-hero-fallback.webp`
 - `assets/media/steffen/steffen-portrait-main.webp`
 - `assets/media/steffen/steffen-portrait-booking.webp`

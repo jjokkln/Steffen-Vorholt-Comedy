@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import AiLabel from "@/components/AiLabel";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -300,21 +301,30 @@ export default function HeroScrollExperience() {
           </div>
         </div>
 
-        <Link
-          href="/shows"
-          className="hero-moon"
-          data-hero-moon
-          aria-label="Steffens Comedyuniversum – alle Shows ansehen"
-        >
-          <Image
-            src={MOON_SRC}
-            alt="Steffens Comedyuniversum: Steffen Vorholt mit den Planeten Brain Loading, Comedy Eiskalt und Doppel-Comedy"
-            width={1400}
-            height={1400}
-            sizes="(max-width: 900px) 86vw, 620px"
-            priority
-          />
-        </Link>
+        {/* Wrapper statt Link als Animationsziel: die KI-Kennzeichnung muss die
+            Kamerafahrt mitmachen, darf aber nicht IN den Link — dessen
+            `aria-label` würde den Alt-Text des Zeichens verschlucken. Warum das
+            so gebaut ist, steht ausführlich an `.hero-moon-wrap` in globals.css. */}
+        <div className="hero-moon-wrap" data-hero-moon>
+          <Link
+            href="/shows"
+            className="hero-moon"
+            aria-label="Steffens Comedyuniversum – alle Shows ansehen"
+          >
+            <Image
+              src={MOON_SRC}
+              alt="Steffens Comedyuniversum: Steffen Vorholt mit den Planeten Brain Loading, Comedy Eiskalt und Doppel-Comedy"
+              width={1400}
+              height={1400}
+              sizes="(max-width: 900px) 86vw, 620px"
+              priority
+            />
+          </Link>
+          {/* Art. 50 EU AI Act: das Key Visual ist eine KI-Bearbeitung — Steffens
+              echtes Foto, per KI in die Kugel mit den drei Show-Planeten gesetzt.
+              Teilweise verändert, also `modified`, nicht `generated`. */}
+          <AiLabel className="hero-moon-ai-label" text="Bild mit KI bearbeitet" />
+        </div>
       </div>
     </header>
   );

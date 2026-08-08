@@ -1409,12 +1409,45 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    kleben, sondern sichtbar Richtung Bildmitte sitzen. Die Untergrenze (20px)
    greift nur bei sehr schmalen Desktop-Fenstern — der Mond ist mit 44vw
    gedeckelt, ein größerer Einzug würde ihn dort in die Copy schieben. */
-.hero-moon{
+/* ── KI-Kennzeichnung (Art. 50 EU AI Act) ─────────────────────────────────
+   Chip aus offiziellem EU-Zeichen + deutschem Klartext, siehe
+   components/AiLabel.tsx. Eigener dunkler Grund, weil das Zeichen direkt am
+   Bild sitzt und nicht auf dessen Motiv verschwinden darf. Über allem, was
+   sonst im Hero liegt (Scrim, Kometenbahn): über die Kennzeichnung darf sich
+   nichts legen. `pointer-events:none` — sie ist Information, kein Bedienelement,
+   und soll dem Link darunter nicht die Klickfläche wegnehmen. */
+.ai-label{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:5px 11px 5px 8px;border-radius:999px;
+  background:rgba(6,8,24,.74);border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  font-size:12px;line-height:1.3;color:rgba(255,255,255,.84);
+  white-space:nowrap;pointer-events:none;
+}
+/* Höhe hier und `SIGN_HEIGHT` in components/AiLabel.tsx zusammen ändern. */
+.ai-label img{display:block;height:20px;width:auto;flex:none}
+
+/* Der Wrapper existiert aus zwei Gründen, nicht aus Layout-Laune:
+   1. Die Kennzeichnung darf NICHT in den Link: dessen `aria-label` ersetzt den
+      gesamten Inhalt als Accessible Name, der Alt-Text des Zeichens käme beim
+      Screenreader nie an.
+   2. Sie muss die Kamerafahrt trotzdem mitmachen. Deshalb trägt der Wrapper das
+      `data-hero-moon` und damit den transform/opacity aus dem rAF-Tick — Bild
+      und Kennzeichnung ziehen zusammen weg, statt dass ein Label ohne Motiv
+      stehen bleibt. */
+.hero-moon-wrap{
   position:absolute;top:0;bottom:0;right:clamp(20px,7vw,200px);margin-block:auto;
   z-index:1;width:min(72vh,44vw,620px);height:min(72vh,44vw,620px);
-  display:block;line-height:0;text-decoration:none;cursor:pointer;
   transform-origin:50% 50%;will-change:transform,opacity;
 }
+.hero-moon{
+  position:relative;display:block;width:100%;height:100%;
+  line-height:0;text-decoration:none;cursor:pointer;
+}
+/* Rechts unten in der Ecke des quadratischen Bildrahmens: die Kugel ist dort
+   einbeschrieben, der Chip liegt also fast vollständig neben dem Motiv und
+   verdeckt nichts Wesentliches. Beim ersten Kontakt mit dem Bild sichtbar. */
+.hero-moon-ai-label{position:absolute;z-index:3;right:0;bottom:1%}
 /* Weiches Leuchten hinter der Kugel, damit sie nicht als Sticker auf dem
    Sternenhimmel klebt. Liegt hinter dem Bild und wächst mit. */
 .hero-moon::before{
@@ -1435,7 +1468,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   /* Auf Mobile sichtbar (das frühere Freisteller-Foto war hier ausgeblendet):
      der Mond rutscht unter die Copy in den normalen Fluss. Größe bleibt konstant
      — die mobile Kamerafahrt bewegt ihn nur nach oben, sie skaliert nicht. */
-  .hero-moon{
+  .hero-moon-wrap{
     position:relative;top:auto;bottom:auto;right:auto;
     width:min(86vw,420px);height:auto;aspect-ratio:1;margin:14px auto 0;
   }
@@ -1458,6 +1491,12 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.4) 95%,transparent);
   -webkit-mask-image:linear-gradient(180deg,#000 86%,rgba(0,0,0,.4) 95%,transparent);
 }
+/* KI-Kennzeichnung des Freistellers: unten rechts, auf Höhe des Fotos und über
+   der Kometenbahn (z-index 3 gegen deren 0). Nicht in die Copy-Spalte gerückt —
+   sie gehört an das Bild, das sie kennzeichnet. Unterhalb von 900 px ist das
+   Foto ausgeblendet, dann verschwindet die Kennzeichnung mit ihm: ein Label
+   ohne Inhalt kennzeichnet nichts (Regel dazu weiter unten im Media-Query). */
+.steffen-hero-ai-label{position:absolute;z-index:3;right:clamp(12px,3vw,44px);bottom:104px}
 /* ── Kometenbahn: Abschluss des /steffen-Heros ─────────────────────────────
    Vorgänger war ein opakes Felsband (clip-path-Bergkette + graue „Meteoriten"),
    das als schwarzer Balken über dem Nebel-Gradient lag und Steffens Arm
@@ -1539,6 +1578,11 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
      padding kommen, sonst liegt sie über dem Text. */
   .steffen-hero{min-height:auto;padding-bottom:104px}
   .steffen-hero-photo{display:none}
+  /* Foto weg → Kennzeichnung weg. Sie bezieht sich ausschließlich auf dieses
+     Bild; stehen bliebe sonst ein Hinweis auf einen Inhalt, den hier niemand
+     sieht. Die Kennzeichnung des Startseiten-Monds bleibt davon unberührt,
+     der Mond ist auf Mobile sichtbar. */
+  .steffen-hero-ai-label{display:none}
   .steffen-comet-divider{--comet-scale:.66;height:124px}
   /* Die zwei schwächsten Kometen fallen weg: auf schmalem Viewport wird aus
      Tiefenstaffelung Gedränge. */
@@ -1599,7 +1643,8 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .pin-halo,
   .hero-comet,
   .steffen-hero-copy>*,
-  .steffen-hero-photo{
+  .steffen-hero-photo,
+  .steffen-hero-ai-label{
     animation:none!important
   }
   .galaxy-bg{display:none}
@@ -1617,7 +1662,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   /* Kein Kamera-Zoom: der rAF-Loop startet hier gar nicht, die Regel fängt nur
      einen Rest-Inline-Style ab, falls die Media-Query mitten im Betrieb kippt.
      Der Mond steht damit in seiner Ruhegröße. */
-  .hero-moon{transform:none!important}
+  .hero-moon-wrap{transform:none!important}
   .hero-moon:hover img,.hero-moon:focus-visible img{transform:none}
   /* Kometenbahn friert als Langzeitbelichtung ein: Kometen stehen sichtbar
      verteilt auf der Bahn, statt unsichtbar zu verschwinden. */
@@ -1864,7 +1909,11 @@ html.galaxy-live body:before{opacity:0;transition:opacity 1.2s ease}
 .steffen-hero-copy>*{animation:rise-in .85s cubic-bezier(.22,1,.36,1) both}
 .steffen-hero-copy>*:nth-child(2){animation-delay:.14s}
 .steffen-hero-copy>*:nth-child(3){animation-delay:.26s}
-.steffen-hero-photo{animation:drift-in-right 1.05s cubic-bezier(.22,1,.36,1) both;animation-delay:.1s}
+/* Kennzeichnung fährt mit demselben Tween ein wie das Foto, das sie kennzeichnet
+   — sonst schwebt für eine Sekunde ein Chip ohne Bild daneben. Sie kommt nicht
+   SPÄTER: gleiche Dauer, gleiche Verzögerung, gleiche Kurve. */
+.steffen-hero-photo,
+.steffen-hero-ai-label{animation:drift-in-right 1.05s cubic-bezier(.22,1,.36,1) both;animation-delay:.1s}
 @keyframes rise-in{from{opacity:0;transform:translateY(28px)}}
 @keyframes drift-in-right{from{opacity:0;transform:translateX(70px)}}
 

@@ -131,7 +131,7 @@ cascade`):
 
 ## Hero-Motiv „der Mond" (seit 29.07.2026)
 
-Im Hero steht **ein** Key Visual: `.hero-moon` mit
+Im Hero steht **ein** Key Visual: `.hero-moon-wrap` > `.hero-moon` mit
 `public/assets/media/brand/steffens-comedyuniversum.webp` (Steffen + alle drei
 Show-Planeten in einer Kugel). Es hat das frühere Orbital-System aus drei Einzelplaneten
 **und** das Freisteller-Foto (`.hero-captain`) ersetzt; `components/home/hero-types.ts` ist
@@ -148,9 +148,16 @@ direkter Style-Mutation — kein React-State pro Frame und **kein `ScrollTrigger
 
 ⚠️ **Nicht per `translate`/`transform` zentrieren.** GSAP setzt beim Entrance-Tween
 `translate:none` (es normalisiert die Einzel-Transform-Properties), und eine
-`translate:0 -50%`-Zentrierung kippt dabei weg — der Mond hing so 300 px zu tief. `.hero-moon`
-zentriert deshalb über `top:0;bottom:0;margin-block:auto` + fester `height`. Dieselbe Falle
-stand schon im Kommentar des alten Orbit-CSS.
+`translate:0 -50%`-Zentrierung kippt dabei weg — der Mond hing so 300 px zu tief.
+`.hero-moon-wrap` zentriert deshalb über `top:0;bottom:0;margin-block:auto` + fester
+`height`. Dieselbe Falle stand schon im Kommentar des alten Orbit-CSS.
+
+⚠️ **Animationsziel ist der Wrapper, nicht der Link.** `data-hero-moon` sitzt seit dem
+08.08.2026 auf `.hero-moon-wrap`; darin liegen der Link mit dem Bild **und** die
+KI-Kennzeichnung. Grund ist nicht Layout, sondern Barrierefreiheit: das `aria-label` des
+Links ersetzt dessen kompletten Inhalt als Accessible Name, eine Kennzeichnung im Link wäre
+für Screenreader unsichtbar gewesen. Über den Wrapper macht sie die Kamerafahrt trotzdem mit
+— Bild und Kennzeichnung ziehen zusammen weg, statt dass ein Label ohne Motiv stehen bleibt.
 
 `prefers-reduced-motion`: kein Loop, der Mond steht in Ruhegröße.
 
@@ -435,6 +442,52 @@ BFSG (Barrierefreiheit) greift hier nach derzeitiger Einschätzung **nicht**: St
 Kleinstunternehmen (§ 3 Abs. 3 BFSG), und es wird kein Vertrag auf der Seite geschlossen —
 Tickets laufen über externe Anbieter. Die Grundlagen sitzen ohnehin (`lang="de"`,
 Labels an allen Formularfeldern, `alt` an allen Bildern, Fokus-Falle im Consent-Dialog).
+
+## KI-Kennzeichnung nach Art. 50 EU AI Act (seit 08.08.2026)
+
+**Im Produkt läuft keine KI** — kein Modell, kein Chatbot, keine generierten Texte zur
+Laufzeit. Damit greift weder eine Risikoeinstufung nach Anhang III noch die
+Chatbot-Offenlegung nach Art. 50 Abs. 1. Was greift, ist Art. 50 Abs. 4: Steffen ist
+**Betreiber**, der zwei mit KI bearbeitete Abbildungen einer realen Person veröffentlicht,
+und muss das offenlegen.
+
+Betroffen sind genau zwei Medien, beide **teilweise** verändert (`modified`, nicht
+`generated` — beides sind echte Fotos von Steffen):
+
+| Medium | Wo | Kennzeichnung |
+|---|---|---|
+| `brand/steffens-comedyuniversum.webp` | Hero der Startseite, `.hero-moon` | `.hero-moon-ai-label`, unten rechts im Bildrahmen |
+| `steffen/steffen-hero-right.png` | Hero auf `/steffen`, `.steffen-hero-photo` | `.steffen-hero-ai-label`, unten rechts am Foto |
+
+Umgesetzt über `components/AiLabel.tsx` mit den **offiziellen EU-Zeichen** aus
+`public/assets/ai/` (Kopien aus `AI-OS/30_Knowledge/Referenzen/assets/`, nur die
+`-white`-Fassung — die Seite ist durchgehend dunkel). Die Zeichen sind unverändert zu
+verwenden: nicht umfärben, nicht neu setzen, die englische Bildschrift nicht übersetzen.
+Der deutsche Klartext daneben ist Pflicht, nicht Deko — das EU-Nutzertesting zeigt, dass die
+Zeichen allein schlecht verstanden werden.
+
+Drei Punkte, die beim Anfassen leicht kaputtgehen:
+
+- **Kennzeichnung nie in einen Link mit `aria-label` legen.** Der Accessible Name des Links
+  ersetzt seinen kompletten Inhalt; der Alt-Text des Zeichens käme beim Screenreader nie an.
+  Deshalb der Wrapper im Startseiten-Hero (siehe „Hero-Motiv").
+- **Foto weg → Kennzeichnung weg.** Unter 900 px ist `.steffen-hero-photo` ausgeblendet,
+  `.steffen-hero-ai-label` deshalb auch. Ein Hinweis auf einen Inhalt, den niemand sieht,
+  kennzeichnet nichts. Der Mond ist auf Mobile sichtbar, seine Kennzeichnung bleibt.
+- **Nichts darf sich darüberlegen** und die Kennzeichnung darf nicht *später* kommen als das
+  Bild — auf `/steffen` läuft sie deshalb im selben Tween wie das Foto.
+
+**Offen (bewusst, nicht vergessen):** die maschinenlesbare Markierung in der Datei
+(C2PA/IPTC). Sie trifft nach Art. 50 Abs. 2 den *Anbieter des erzeugenden Systems*, nicht
+den Betreiber — und beide Bilder laufen ohnehin durch den next/image-Optimizer, der beim
+Neucodieren jede Metadate verwirft. Eine Markierung in der Quelldatei erreicht den Besucher
+also gar nicht. Falls das je gefordert wird, ist der Weg `unoptimized` plus eine
+vorkomprimierte Datei, nicht ein Metadaten-Schreiber auf der Quelle.
+
+**Nicht gekennzeichnet, mit Begründung:** `lib/jsonld.ts` verweist auf
+`steffen/steffen-hero-cutout.png` als `image` der Person — strukturierte Daten sind keine
+sichtbare Veröffentlichung, Art. 50 Abs. 4 verlangt dort nichts. Das Logo in Kopf- und
+Fußbereich ist eine Marke, kein publizierter Inhalt.
 
 ## Domain & Deployment
 
