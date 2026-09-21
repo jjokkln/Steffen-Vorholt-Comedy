@@ -3,6 +3,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 /** Speichert ein bereits per Direkt-Upload (mit Zuschnitt) hochgeladenes Galeriefoto. */
 export async function addGalleryItem(input: {
@@ -38,8 +39,12 @@ export async function updateGalleryItem(id: string, formData: FormData) {
 
 export async function deleteGalleryItem(id: string) {
   const supabase = await createServerSupabase();
+  // Pfad VOR dem Löschen holen — danach ist die Zeile weg und mit ihr die Spur zur Datei.
+  const { data: row } = await supabase
+    .from("gallery_items").select("image_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("gallery_items").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.image_path]);
   revalidatePublic();
   revalidatePath("/admin/galerie");
 }

@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
 import type { VideoOrientation } from "@/lib/types";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 /** Speichert ein bereits per Direkt-Upload hochgeladenes Show-Video (nur Metadaten/Pfade). */
 export async function addShowVideo(
@@ -36,8 +37,12 @@ export async function addShowVideo(
 export async function setShowVideoPoster(id: string, showId: string, posterPath: string) {
   if (!posterPath) throw new Error("Poster-Pfad fehlt.");
   const supabase = await createServerSupabase();
+  const { data: previous } = await supabase
+    .from("show_videos").select("poster_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("show_videos").update({ poster_path: posterPath }).eq("id", id);
   if (error) throw new Error(`Vorschaubild speichern fehlgeschlagen: ${error.message}`);
+  const old = (previous?.poster_path ?? "").trim();
+  if (old && old !== posterPath) await deleteFilesIfUnused(supabase, [old]);
   revalidatePublic();
   revalidatePath(`/admin/shows/${showId}`);
 }
@@ -54,8 +59,12 @@ export async function updateShowVideoOrientation(id: string, showId: string, for
 
 export async function deleteShowVideo(id: string, showId: string) {
   const supabase = await createServerSupabase();
+  // Video UND Vorschaubild — das Poster hängt an nichts anderem mehr.
+  const { data: row } = await supabase
+    .from("show_videos").select("video_path, poster_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("show_videos").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.video_path, row?.poster_path]);
   revalidatePublic();
   revalidatePath(`/admin/shows/${showId}`);
 }

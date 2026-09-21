@@ -3,6 +3,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 export async function addShowImage(
   showId: string,
@@ -25,8 +26,11 @@ export async function addShowImage(
 
 export async function deleteShowImage(id: string, showId: string) {
   const supabase = await createServerSupabase();
+  const { data: row } = await supabase
+    .from("show_images").select("image_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("show_images").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.image_path]);
   revalidatePublic();
   revalidatePath(`/admin/shows/${showId}`);
 }

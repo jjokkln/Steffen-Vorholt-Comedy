@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -35,6 +36,10 @@ export async function createPartner(_prev: FormState, formData: FormData): Promi
 
 export async function updatePartner(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  // Ersetztes Bild hinterher wegräumen — `deleteFilesIfUnused` prüft vorher, ob noch
+  // jemand darauf zeigt, ein unverändertes Bild bleibt damit unangetastet.
+  const { data: previous } = await supabase
+    .from("partners").select("logo_path").eq("id", id).maybeSingle();
   try {
     const fields = partnerFields(formData);
     const { error } = await supabase.from("partners").update(fields).eq("id", id);
@@ -42,6 +47,7 @@ export async function updatePartner(id: string, _prev: FormState, formData: Form
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await deleteFilesIfUnused(supabase, [previous?.logo_path]);
   revalidatePublic();
   revalidatePath("/admin/partner");
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -49,8 +55,11 @@ export async function updatePartner(id: string, _prev: FormState, formData: Form
 
 export async function deletePartner(id: string) {
   const supabase = await createServerSupabase();
+  const { data: row } = await supabase
+    .from("partners").select("logo_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("partners").delete().eq("id", id);
   if (error) throw new Error(`Partner löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.logo_path]);
   revalidatePublic();
   revalidatePath("/admin/partner");
 }

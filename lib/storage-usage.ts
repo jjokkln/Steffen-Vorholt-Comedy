@@ -1,4 +1,5 @@
 import { createServerSupabase } from "@/lib/supabase/server";
+import { STORAGE_BUCKETS } from "@/lib/media-refs";
 
 /**
  * Belegter Storage-Platz, aufgeschlüsselt pro Bucket.
@@ -10,9 +11,9 @@ import { createServerSupabase } from "@/lib/supabase/server";
  * PostgREST-Schema, die Tabelle ist von der Anwendung aus nur über die API erreichbar.
  */
 
-/** Buckets aus Migration 0001. Feste Liste statt `listBuckets()` — dafür bräuchte die
- *  authentifizierte Rolle zusätzlich Leserechte auf `storage.buckets`. */
-export const STORAGE_BUCKETS = ["media", "gallery", "planets"] as const;
+// Die Bucket-Liste steht in lib/media-refs.ts (Begründung dort) und wird hier nur
+// weitergereicht, damit bestehende Importe unverändert weiterlaufen.
+export { STORAGE_BUCKETS } from "@/lib/media-refs";
 
 /**
  * Kontingent in GB, überschreibbar per `STORAGE_QUOTA_GB`.

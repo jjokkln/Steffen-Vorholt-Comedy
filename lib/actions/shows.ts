@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -66,6 +67,14 @@ export async function createShow(_prev: FormState, formData: FormData): Promise<
 
 export async function updateShow(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  // Alte Pfade vor dem Schreiben merken. Danach dürfen ALLE drei in die Aufräumrunde:
+  // `deleteFilesIfUnused` zählt vorher die Verweise, ein unverändert gebliebenes Bild
+  // wird also gefunden und bleibt liegen.
+  const { data: previous } = await supabase
+    .from("shows")
+    .select("planet_image_path, header_image_path, background_image_path")
+    .eq("id", id)
+    .maybeSingle();
   try {
     const fields = showFields(formData);
     const { error } = await supabase.from("shows").update(fields).eq("id", id);
@@ -73,6 +82,11 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await deleteFilesIfUnused(supabase, [
+    previous?.planet_image_path,
+    previous?.header_image_path,
+    previous?.background_image_path,
+  ]);
   revalidatePublic();
   revalidatePath(`/admin/shows/${id}`);
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -80,8 +94,23 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
 
 export async function deleteShow(id: string) {
   const supabase = await createServerSupabase();
+  // Eine Show zieht per ON DELETE CASCADE ihre Bilder und Videos mit. Deren Dateien
+  // kennt hinterher niemand mehr — also jetzt einsammeln.
+  const [{ data: show }, { data: images }, { data: videos }] = await Promise.all([
+    supabase.from("shows")
+      .select("planet_image_path, header_image_path, background_image_path").eq("id", id).maybeSingle(),
+    supabase.from("show_images").select("image_path").eq("show_id", id),
+    supabase.from("show_videos").select("video_path, poster_path").eq("show_id", id),
+  ]);
   const { error } = await supabase.from("shows").delete().eq("id", id);
   if (error) throw new Error(`Show löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [
+    show?.planet_image_path,
+    show?.header_image_path,
+    show?.background_image_path,
+    ...(images ?? []).map((row) => row.image_path as string),
+    ...(videos ?? []).flatMap((row) => [row.video_path as string, row.poster_path as string]),
+  ]);
   revalidatePublic();
   redirect("/admin/shows");
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -43,12 +44,17 @@ export async function createAppearance(_prev: FormState, formData: FormData): Pr
 
 export async function updateAppearance(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  // Ersetztes Bild hinterher wegräumen — `deleteFilesIfUnused` prüft vorher, ob noch
+  // jemand darauf zeigt, ein unverändertes Bild bleibt damit unangetastet.
+  const { data: previous } = await supabase
+    .from("appearances").select("flyer_path").eq("id", id).maybeSingle();
   try {
     const { error } = await supabase.from("appearances").update(appearanceFields(formData)).eq("id", id);
     if (error) throw new Error(error.message);
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await deleteFilesIfUnused(supabase, [previous?.flyer_path]);
   revalidatePublic();
   revalidatePath("/admin/auftritte");
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -56,8 +62,11 @@ export async function updateAppearance(id: string, _prev: FormState, formData: F
 
 export async function deleteAppearance(id: string) {
   const supabase = await createServerSupabase();
+  const { data: row } = await supabase
+    .from("appearances").select("flyer_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("appearances").delete().eq("id", id);
   if (error) throw new Error(`Auftritt löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.flyer_path]);
   revalidatePublic();
   revalidatePath("/admin/auftritte");
 }

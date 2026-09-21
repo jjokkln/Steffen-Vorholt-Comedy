@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { SITE_MEDIA_SLOTS, resolveSiteMedia, siteMediaSlot } from "@/lib/site-media";
 import { getStorageUsage } from "@/lib/storage-usage";
+import { auditMedia } from "@/lib/media-refs";
 import { formatBytes, usageLevel } from "@/lib/storage-format";
 import SiteVideoUpload from "@/components/admin/SiteVideoUpload";
 import SiteMediaImageUpload from "@/components/admin/SiteMediaImageUpload";
@@ -10,10 +11,12 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminMedienPage() {
   const supabase = await createServerSupabase();
-  const [{ data: rows }, usage] = await Promise.all([
+  const [{ data: rows }, usage, audit] = await Promise.all([
     supabase.from("site_media").select("key, file_path"),
     getStorageUsage(),
+    auditMedia(supabase),
   ]);
+  const orphanBytes = audit.orphans.reduce((sum, file) => sum + file.bytes, 0);
 
   const values: Record<string, string> = Object.fromEntries(
     (rows ?? []).map((row) => [row.key as string, (row.file_path as string) ?? ""]),
@@ -84,6 +87,89 @@ export default async function AdminMedienPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+
+      {/* Medien-Check — siehe lib/media-refs.ts. Bewusst nur lesend: Die Tafel meldet,
+          was zwischen Datenbank und Speicher auseinandergelaufen ist; geräumt wird an
+          der Stelle, an der der Datensatz gepflegt wird. Ein Löschknopf hier wäre ein
+          Schreibweg ohne Spur, und ein Protokoll hat dieses Projekt noch nicht. */}
+      <section className={`card storage-panel is-${audit.dead.length ? "full" : orphanBytes > 0 ? "warn" : "ok"}`}>
+        <div className="storage-panel-head">
+          <div>
+            <h3 style={{ margin: 0 }}>Medien-Check</h3>
+            <p className="media-slot-where">
+              Datenbank und Speicher sind zwei getrennte Systeme. Wird eine Datei im
+              Supabase-Dashboard gelöscht, bleibt ihr Eintrag stehen und die Website zeigt
+              an dieser Stelle eine leere Fläche — sichtbar sonst nur als roter 400er in
+              der Browser-Konsole. Diese Tafel zeigt beide Richtungen.
+            </p>
+          </div>
+        </div>
+
+        {audit.failed.length > 0 && (
+          <p style={{ color: "var(--danger)", margin: 0 }}>
+            Nicht prüfbar: {audit.failed.join(", ")} — das Ergebnis unten ist unvollständig.
+          </p>
+        )}
+
+        <div>
+          <h4 style={{ margin: "0 0 6px" }}>
+            {audit.dead.length === 0
+              ? "✅ Kein Eintrag zeigt ins Leere."
+              : `⚠️ ${audit.dead.length} ${audit.dead.length === 1 ? "Eintrag zeigt" : "Einträge zeigen"} auf eine Datei, die es nicht mehr gibt`}
+          </h4>
+          {audit.dead.length > 0 && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Bereich</th><th>Eintrag</th><th>Fehlende Datei</th><th>Zu finden unter</th></tr>
+                </thead>
+                <tbody>
+                  {audit.dead.map((ref) => (
+                    <tr key={`${ref.table}.${ref.column}.${ref.path}`}>
+                      <td>{ref.area}</td>
+                      <td>{ref.label}</td>
+                      <td><code>{ref.path}</code></td>
+                      <td>{ref.adminPath}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <h4 style={{ margin: "0 0 6px" }}>
+            {audit.orphans.length === 0
+              ? "✅ Keine Datei ohne Eintrag."
+              : `${audit.orphans.length} ${audit.orphans.length === 1 ? "Datei gehört" : "Dateien gehören"} zu keinem Eintrag (${formatBytes(orphanBytes)})`}
+          </h4>
+          {audit.orphans.length > 0 && (
+            <>
+              <p className="media-slot-where">
+                Belegt Platz, ohne irgendwo aufzutauchen. Löschen im Supabase-Dashboard
+                unter Storage. Neu Gelöschtes räumt die Website inzwischen selbst weg —
+                das hier ist der Altbestand.
+              </p>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Bereich</th><th>Datei</th><th>Größe</th></tr></thead>
+                  <tbody>
+                    {audit.orphans.map((file) => (
+                      <tr key={`${file.bucket}/${file.file}`}>
+                        <td>{BUCKET_LABELS[file.bucket] ?? file.bucket}</td>
+                        <td><code>{file.file}</code></td>
+                        <td>{formatBytes(file.bytes)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </section>
 

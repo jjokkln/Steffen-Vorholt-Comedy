@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 import type { SocialItemKind, VideoOrientation } from "@/lib/types";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
@@ -60,6 +61,8 @@ export async function updateSocialItem(
   formData: FormData
 ): Promise<FormState> {
   const supabase = await createServerSupabase();
+  const { data: previous } = await supabase
+    .from("social_media_items").select("thumbnail_path").eq("id", id).maybeSingle();
   try {
     const { error } = await supabase
       .from("social_media_items")
@@ -69,6 +72,7 @@ export async function updateSocialItem(
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await deleteFilesIfUnused(supabase, [previous?.thumbnail_path]);
   revalidatePublic();
   revalidatePath("/admin/social");
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -76,8 +80,11 @@ export async function updateSocialItem(
 
 export async function deleteSocialItem(id: string) {
   const supabase = await createServerSupabase();
+  const { data: row } = await supabase
+    .from("social_media_items").select("thumbnail_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("social_media_items").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.thumbnail_path]);
   revalidatePublic();
   revalidatePath("/admin/social");
 }

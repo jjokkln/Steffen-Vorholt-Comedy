@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { deleteFilesIfUnused } from "@/lib/media-refs";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -42,6 +43,10 @@ export async function createComedian(_prev: FormState, formData: FormData): Prom
 
 export async function updateComedian(id: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  // Ersetztes Bild hinterher wegräumen — `deleteFilesIfUnused` prüft vorher, ob noch
+  // jemand darauf zeigt, ein unverändertes Bild bleibt damit unangetastet.
+  const { data: previous } = await supabase
+    .from("comedians").select("photo_path").eq("id", id).maybeSingle();
   try {
     const fields = comedianFields(formData);
     const { error } = await supabase.from("comedians").update(fields).eq("id", id);
@@ -49,6 +54,7 @@ export async function updateComedian(id: string, _prev: FormState, formData: For
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await deleteFilesIfUnused(supabase, [previous?.photo_path]);
   revalidatePublic();
   revalidatePath(`/admin/comedians/${id}`);
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -56,8 +62,11 @@ export async function updateComedian(id: string, _prev: FormState, formData: For
 
 export async function deleteComedian(id: string) {
   const supabase = await createServerSupabase();
+  const { data: row } = await supabase
+    .from("comedians").select("photo_path").eq("id", id).maybeSingle();
   const { error } = await supabase.from("comedians").delete().eq("id", id);
   if (error) throw new Error(`Comedian löschen fehlgeschlagen: ${error.message}`);
+  await deleteFilesIfUnused(supabase, [row?.photo_path]);
   revalidatePublic();
   redirect("/admin/comedians");
 }
