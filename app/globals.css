@@ -642,16 +642,39 @@ textarea{min-height:130px;resize:vertical}
    (Tabelle/Formular/Karten) auf jeder Admin-Seite — vorher berührten sich die Elemente
    fast, weil einzelne Margins nicht zuverlässig kollabierten. */
 .admin-layout main{display:flex;flex-direction:column;gap:36px;min-width:0}
-.sidebar{min-width:0;border:1px solid rgba(255,255,255,.12);border-radius:26px;background:rgba(0,0,0,.22);padding:24px;display:flex;flex-direction:column}
+/* Kontraste am 21.09.2026 angehoben (Lenny: „härtere Kontraste in der Navigations-
+   leiste links"). Gerechnet gegen den tatsächlichen Sidebar-Grund — rgba(0,0,0,.34)
+   über dem Panel rgba(255,255,255,.07) über --space ergibt ~rgb(15,16,23):
+     Gruppenlabel  .40 → .78 …  3,6:1 → 11,4:1   (vorher UNTER der 4,5:1-Grenze,
+                                                   bei 11 px echter Mangel)
+     Nav-Link      muted → .90 …  9,3:1 → 15,1:1
+     aktiver Link  text  → #fff … 17,4:1 → 18,4:1 + 3 px Kante in --green
+   Die Kante ist wichtiger als die Farbe: „aktiv" ist damit nicht nur heller,
+   sondern anders geformt — das sieht man auch bei Farbfehlsichtigkeit. */
+.sidebar{min-width:0;border:1px solid rgba(255,255,255,.22);border-radius:26px;background:rgba(0,0,0,.34);padding:24px;display:flex;flex-direction:column}
 .sidebar nav{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
-.sidebar a{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;transition:background .15s,color .15s}
-.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.1);color:var(--text)}
-.sidebar a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sidebar a{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(247,247,255,.9);padding:14px 18px;border-radius:16px;font-weight:850;font-size:15px;transition:background .15s,color .15s}
+.sidebar a:hover{background:rgba(255,255,255,.16);color:#fff}
+.sidebar a.active{background:rgba(255,255,255,.2);color:#fff}
+.sidebar a.active::before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--green)}
+/* Fallback ergänzt: --accent ist NIRGENDS in :root definiert. Ohne ihn fiel die
+   ganze outline-Deklaration aus, der Fokusring war unsichtbar — eine Seite ohne
+   sichtbaren Fokus ist ohne Maus nicht bedienbar (Pflichtkern Punkt 7). */
+.sidebar a:focus-visible,.sidebar-group-toggle:focus-visible{outline:2px solid var(--accent,#7CFF6B);outline-offset:2px}
 /* Gruppierte Nav-Bereiche (Programm/Vertrieb/Website) statt 12 flacher Links —
    Label rein visuell, kein eigenes Nav-Landmark. */
-.sidebar-group{display:flex;flex-direction:column;gap:4px;margin-top:16px}
+.sidebar-group{display:flex;flex-direction:column;gap:4px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.14)}
 .sidebar-group:first-of-type{margin-top:20px}
-.sidebar-group-label{padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.4)}
+.sidebar-group-label{padding:0 18px;margin-bottom:2px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.78)}
+/* Aufklappbare Gruppe („Rechtliches"). Die Höhe animiert über grid-template-rows
+   0fr → 1fr — animiert die echte Höhe ohne JS-Messung. */
+.sidebar-group-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:0 18px;margin-bottom:2px;background:none;border:0;cursor:pointer;border-radius:10px}
+.sidebar-group-toggle .sidebar-group-label{padding:0;margin:0}
+.sidebar-chevron{font-size:11px;color:rgba(247,247,255,.78)}
+.sidebar-collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
+.sidebar-collapse.offen{grid-template-rows:1fr}
+.sidebar-collapse-inner{overflow:hidden;display:flex;flex-direction:column;gap:4px;min-height:0}
+@media (prefers-reduced-motion:reduce){.sidebar-collapse{transition:none}}
 .sidebar-badge{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:21px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:11px;font-weight:950;flex:0 0 auto}
 /* Checkboxen und Radios sind KEINE Textfelder und dürfen die Regel oben nicht erben.
    `input,select,textarea{width:100%;padding:13px 14px;border:…;border-radius:16px}` traf
@@ -2071,3 +2094,57 @@ html.galaxy-live body:before{opacity:0;transition:opacity 1.2s ease}
    das eingebaute hidden-Verhalten überschreiben würde. */
 .admin-tabpanel[hidden]{display:none}
 .form-footer{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--line)}
+
+/* ── Filterleiste ─────────────────────────────────────────────────────────── */
+.admin-filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(0,0,0,.2)}
+.admin-filterbar label{margin:0}
+.admin-filterbar select,.filterbar input[type="search"]{width:auto;min-width:150px;padding:10px 12px;font-size:14px}
+.admin-filterbar-search{flex:1 1 220px}
+.admin-filterbar-search input{width:100%}
+.admin-filterbar-check{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:rgba(247,247,255,.9);white-space:nowrap}
+.admin-filterbar .btn{padding:10px 16px;font-size:14px}
+.admin-filter-result{margin:0;font-size:14px;color:var(--muted)}
+
+/* ── Orte-Ansicht ─────────────────────────────────────────────────────────── */
+.hinweis-box{padding:16px 18px;border:1px solid var(--line);border-left:3px solid var(--green);border-radius:16px;background:rgba(124,255,107,.07)}
+.hinweis-box p{font-size:15px}
+.orte-tabelle{width:100%;border-collapse:collapse}
+.orte-tabelle thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.orte-tabelle tr{display:block;margin-bottom:10px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.05);overflow:hidden}
+.orte-tabelle tr.offen{border-color:rgba(124,255,107,.45)}
+.ort-zeile{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px}
+.ort-toggle{flex:1 1 220px;display:flex;align-items:center;gap:10px;padding:0;border:0;background:none;color:var(--text);font-size:16px;font-weight:850;text-align:left;cursor:pointer}
+.ort-toggle:focus-visible{outline:2px solid var(--accent,#7CFF6B);outline-offset:3px;border-radius:8px}
+.ort-zahl{font-size:13px;font-weight:850;color:rgba(247,247,255,.9);white-space:nowrap}
+.ort-naechster{font-size:14px;color:var(--muted);white-space:nowrap}
+.ort-zeile .btn{padding:10px 16px;font-size:14px}
+.ort-inhalt{display:flex;flex-direction:column;gap:16px;padding:0 18px 18px;border-top:1px solid var(--line);padding-top:16px}
+.ort-termine{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ort-termine li{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.24);font-size:14px}
+.ort-termine li > span:first-child{flex:1 1 220px}
+.ort-termine .btn{padding:8px 14px;font-size:13px}
+.ort-termine .vergangen{color:var(--muted);text-decoration:line-through}
+.ohne-standort{padding:18px;border:1px solid rgba(255,85,119,.45);border-radius:18px;background:rgba(255,85,119,.08)}
+.ohne-standort h3{margin:0 0 8px;color:var(--danger)}
+.ohne-standort p{margin:0 0 14px;font-size:15px}
+
+/* ── Suchleiste in der Topbar ─────────────────────────────────────────────── */
+.admin-search{position:relative;flex:1 1 260px;max-width:440px;min-width:0}
+.admin-search > input{width:100%;padding:11px 15px;font-size:14px;border-radius:14px}
+.admin-search-panel{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:40;max-height:min(70vh,520px);overflow-y:auto;padding:8px;border:1px solid var(--line);border-radius:18px;background:rgba(11,16,38,.98);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:var(--shadow)}
+.admin-search-gruppe{margin:10px 12px 4px;font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,247,255,.78)}
+.admin-search-treffer{display:flex;align-items:baseline;justify-content:space-between;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:12px;background:none;color:var(--text);font-size:14px;font-weight:800;text-align:left;cursor:pointer}
+.admin-search-treffer.aktiv{background:rgba(255,255,255,.16)}
+.admin-search-treffer:focus-visible{outline:2px solid var(--accent,#7CFF6B);outline-offset:-2px}
+.admin-search-zusatz{flex:0 1 auto;font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-search-leer{margin:0;padding:12px;font-size:14px;color:var(--muted)}
+
+@media (max-width:900px){
+  /* Auf dem Handy steht die Suche unter der Markenzeile statt daneben —
+     drei Dinge nebeneinander passen in 360 px nicht. */
+  .admin-topbar-inner{flex-wrap:wrap}
+  .admin-search{order:3;flex-basis:100%;max-width:none}
+  .admin-filterbar select,.filterbar input[type="search"]{min-width:0;flex:1 1 140px}
+  .ort-zeile{gap:10px}
+  .ort-naechster{flex-basis:100%}
+}

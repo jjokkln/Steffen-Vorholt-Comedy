@@ -1,20 +1,36 @@
 import Link from "next/link";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { deleteSocialItem, toggleSocialItem } from "@/lib/actions/social";
+import { addYoutubeVideo, deleteYoutubeVideo } from "@/lib/actions/youtube";
 import { socialEmbedUrl, socialPlatform } from "@/lib/social";
-import type { SocialMediaItem } from "@/lib/types";
+import { youtubeThumbUrl } from "@/lib/youtube";
+import type { SocialMediaItem, YoutubeVideo } from "@/lib/types";
 import DeleteButton from "@/components/admin/DeleteButton";
 import SocialIcon from "@/components/SocialIcon";
+import Tabs from "@/components/admin/Tabs";
+
+/**
+ * „Social & YouTube" — am 21.09.2026 aus den beiden Bereichen /admin/social und
+ * /admin/youtube zusammengelegt. Beide pflegen fremde Videos für dieselbe Seite,
+ * standen aber an zwei Stellen. /admin/youtube leitet jetzt hierher um.
+ *
+ * Die Tabellen bleiben getrennt: `social_media_items` beschreibt Beiträge und
+ * Kanäle mit Plattform und Ausrichtung, `youtube_videos` sind die Referenzvideos
+ * der Startseite. Zusammengelegt ist die Oberfläche, nicht das Datenmodell.
+ */
 
 export default async function AdminSocialPage() {
   const supabase = await createServerSupabase();
-  const { data } = await supabase.from("social_media_items").select("*").order("sort_order");
-  const items = (data ?? []) as SocialMediaItem[];
+  const [{ data: socialData }, { data: videoData }] = await Promise.all([
+    supabase.from("social_media_items").select("*").order("sort_order"),
+    supabase.from("youtube_videos").select("*").is("show_id", null).order("sort_order"),
+  ]);
+  const items = (socialData ?? []) as SocialMediaItem[];
+  const videos = (videoData ?? []) as YoutubeVideo[];
   const visible = items.filter((i) => i.is_active).length;
 
-  return (
+  const socialTab = (
     <>
-      <h2>Social Media</h2>
       <p>
         Diese Einträge bilden den Abschnitt „Social Media“ auf der{" "}
         <Link href="/galerie#social-media" style={{ textDecoration: "underline" }}>
@@ -118,6 +134,68 @@ export default async function AdminSocialPage() {
           </table>
         </div>
       )}
+    </>
+  );
+
+  const youtubeTab = (
+    <>
+      <p>
+        Diese Videos erscheinen als 4er-Galerie auf der Startseite und der Comedian-Seite sowie im
+        Archiv unten auf der Shows-Seite. Videos einzelner Shows pflegst du direkt auf der jeweiligen
+        Show-Bearbeiten-Seite.
+      </p>
+
+      <form className="card form" action={addYoutubeVideo.bind(null, null)}>
+        <h3>Neues Video</h3>
+        <label>
+          YouTube-URL oder Video-ID *
+          <input name="url" placeholder="https://www.youtube.com/watch?v=…" required />
+        </label>
+        <div className="form two">
+          <label>
+            Titel
+            <input name="title" placeholder="z. B. Best of 2025" />
+          </label>
+          <label>
+            Sortierung
+            <input name="sort_order" type="number" defaultValue={0} />
+          </label>
+        </div>
+        <button className="btn primary">Video hinzufügen</button>
+      </form>
+
+      {videos.length > 0 && (
+        <div className="grid-3" style={{ marginTop: 24 }}>
+          {videos.map((v) => (
+            <div className="card" key={v.id} style={{ padding: 14 }}>
+              <img
+                src={youtubeThumbUrl(v.youtube_id)}
+                alt={v.title || v.youtube_id}
+                style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 12, marginBottom: 10 }}
+              />
+              {v.title && <p style={{ margin: "0 0 8px", fontWeight: 850, fontSize: 13 }}>{v.title}</p>}
+              <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--muted)" }}>ID: {v.youtube_id}</p>
+              <DeleteButton
+                action={deleteYoutubeVideo.bind(null, v.id, null)}
+                confirm={`Video „${v.title || v.youtube_id}" wirklich löschen?`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <>
+      <h2>Social &amp; YouTube</h2>
+      <Tabs
+        ariaLabel="Social Media und YouTube"
+        tabs={[
+          { id: "social", label: "Social Media", count: items.length, content: socialTab },
+          { id: "youtube", label: "YouTube-Referenzen", count: videos.length, content: youtubeTab },
+        ]}
+      />
     </>
   );
 }

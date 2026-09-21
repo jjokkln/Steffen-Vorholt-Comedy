@@ -19,10 +19,10 @@ export default async function AdminAppearancesPage() {
 
   return (
     <>
-      <h2>Auftritte verwalten</h2>
+      <h2>Gastauftritte verwalten</h2>
       <p>Open Mics, Gastauftritte und Gigs für die Comedian-Seite.</p>
       <div className="actions">
-        <Link className="btn primary" href="/admin/auftritte/new">+ Neuer Auftritt</Link>
+        <Link className="btn primary" href="/admin/auftritte/new">+ Neuer Gastauftritt</Link>
       </div>
       <div className="table-wrap">
         <table>

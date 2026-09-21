@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { logout } from "@/lib/actions/auth";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import StorageUsageBar from "@/components/admin/StorageUsageBar";
+import AdminSearch from "@/components/admin/AdminSearch";
 import { createServerSupabase } from "@/lib/supabase/server";
 import BrandLogo from "@/components/BrandLogo";
 
@@ -31,6 +32,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
             <BrandLogo />
             <span>Mission Control</span>
           </Link>
+          <AdminSearch />
           <div className="admin-topbar-actions">
             {/* Speicherstand auf jeder Admin-Seite sichtbar: Das Kontingent ist der
                 Engpass beim Hochladen von Videos, und niemand soll das erst merken,
