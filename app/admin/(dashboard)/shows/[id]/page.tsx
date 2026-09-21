@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import ShowForm from "@/components/admin/ShowForm";
 import EventForm from "@/components/admin/EventForm";
 import ShowVideoUpload from "@/components/admin/ShowVideoUpload";
+import ShowVideoPosterFix from "@/components/admin/ShowVideoPosterFix";
 import ShowImageUpload from "@/components/admin/ShowImageUpload";
 import OfferForm from "@/components/admin/OfferForm";
 import { updateShow } from "@/lib/actions/shows";
@@ -321,6 +322,12 @@ export default async function EditShowPage({ params }: { params: Promise<{ id: s
                       }}
                     />
                     {v.title && <p style={{ margin: "0 0 8px", fontWeight: 850 }}>{v.title}</p>}
+                    {/* Ohne Vorschaubild ist die Vorschau oben schwarz und die Kachel auf
+                        der Show-Seite leer — hier steht der einzige Hinweis darauf, dass
+                        etwas fehlt, plus der Knopf, der es nachholt. */}
+                    {!v.poster_path && (
+                      <ShowVideoPosterFix videoId={v.id} showId={show.id} videoPath={v.video_path} />
+                    )}
                     <form className="form" action={updateShowVideoOrientation.bind(null, v.id, show.id)}>
                       <label>
                         Format

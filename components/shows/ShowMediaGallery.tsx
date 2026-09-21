@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Lightbox, { type LightboxItem } from "@/components/Lightbox";
 import StorageImage from "@/components/media/StorageImage";
-import { mediaUrl, optimizedImageUrl } from "@/lib/media";
+import VideoThumb from "@/components/shows/VideoThumb";
+import { mediaUrl } from "@/lib/media";
 import type { ShowImage, ShowVideo } from "@/lib/types";
 
 /** Kacheln sind rund 340 px hoch, in der Breite selten über 520 px. */
@@ -51,23 +52,11 @@ export default function ShowMediaGallery({
             className="show-media-item"
             onClick={() => setOpenIndex(images.length + i)}
           >
-            <div className="media-thumb">
-              {/* preload="none" ohne Ausnahme: "metadata" war für Videos OHNE Poster gedacht,
-                  kostet dort aber am meisten. Belegt am 30.07.2026 — das Video von
-                  „Comedy Eiskalt" hat kein Poster und ist 16 MB groß, jeder Aufruf der
-                  Show-Seite fasste es an. Die Play-Plakette darüber zeigt, dass da ein
-                  Video liegt; geladen wird erst beim Klick. */}
-              <video
-                src={mediaUrl(v.video_path)}
-                poster={v.poster_path ? optimizedImageUrl(v.poster_path, 640) : undefined}
-                preload="none"
-                muted
-                playsInline
-              />
-              <span className="media-play-badge" aria-hidden="true">
-                <span>▶</span>
-              </span>
-            </div>
+            <VideoThumb
+              videoPath={v.video_path}
+              posterPath={v.poster_path}
+              orientation={v.orientation ?? "landscape"}
+            />
             {v.title && <figcaption>{v.title}</figcaption>}
           </figure>
         ))}

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { uploadToStorage } from "@/lib/upload";
+import { isTooLarge, tooLargeMessage, uploadToStorage } from "@/lib/upload";
+import { captureVideoPoster } from "@/lib/video-poster";
 import { addShowVideo } from "@/lib/actions/show-videos";
 import ImageCropUpload from "@/components/admin/ImageCropUpload";
 import Toast from "@/components/admin/Toast";
@@ -11,9 +12,19 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [note, setNote] = useState("");
   const [done, setDone] = useState(0);
   const [orientation, setOrientation] = useState<"landscape" | "portrait">("landscape");
   const [posterPath, setPosterPath] = useState("");
+
+  /**
+   * Sofort bei der Auswahl melden, nicht erst nach dem Upload-Versuch: Eine zu große
+   * Datei läuft sonst erst minutenlang durchs Netz und scheitert dann.
+   */
+  function onFilePicked(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    setError(file && isTooLarge(file) ? tooLargeMessage(file.size) : "");
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -27,9 +38,31 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
 
     setBusy(true);
     setError("");
+    setNote("");
     try {
+      // Standbild VOR dem Video besorgen: Ohne Vorschaubild bleibt die Kachel auf der
+      // Show-Seite eine unsichtbare schwarze Fläche (Begründung in lib/video-poster.ts).
+      // Bis zum 21.09.2026 war das Feld einfach optional — genau so ist „Brain Loading
+      // Trailer" ohne Vorschaubild in der Datenbank gelandet.
+      let poster = posterPath;
+      let posterFromVideo = false;
+      if (!poster) {
+        const frame = await captureVideoPoster(videoFile);
+        if (frame) {
+          poster = await uploadToStorage("media", "show-poster", frame);
+          posterFromVideo = true;
+        }
+      }
+
       const videoPath = await uploadToStorage("media", "show-video", videoFile);
-      await addShowVideo(showId, { videoPath, posterPath, title, orientation, sortOrder });
+      await addShowVideo(showId, { videoPath, posterPath: poster, title, orientation, sortOrder });
+      setNote(
+        poster
+          ? posterFromVideo
+            ? "Vorschaubild automatisch aus dem Video erzeugt — du kannst es jederzeit durch ein eigenes ersetzen."
+            : ""
+          : "Achtung: Es konnte kein Vorschaubild erzeugt werden. Lade eins hoch, sonst bleibt die Kachel auf der Show-Seite leer.",
+      );
       setDone(Date.now());
       setPosterPath("");
       setOrientation("landscape");
@@ -47,7 +80,14 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
       <h3>Neues Video</h3>
       <label>
         Video * (MP4){" "}
-        <input name="video" type="file" accept="video/mp4,video/*" required disabled={busy} />
+        <input
+          name="video"
+          type="file"
+          accept="video/mp4,video/*"
+          required
+          disabled={busy}
+          onChange={onFilePicked}
+        />
       </label>
       <label>
         Format{" "}
@@ -61,16 +101,17 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
           <option value="portrait">Hochformat (9:16)</option>
         </select>
       </label>
-      {/* Der Zusatz „sonst erstes Videobild" stand hier bis 30.07.2026 und ist seither
-          falsch: Die Video-Kacheln laden mit `preload="none"`, es gibt also kein erstes
-          Videobild mehr, das der Browser von allein zeigen könnte. Ohne Vorschaubild ist
-          die Kachel auf der Show-Seite schwarz. */}
+      {/* Das Feld bleibt optional, aber nicht mehr folgenlos: Bleibt es leer, greift
+          `captureVideoPoster()` beim Absenden ein Bild aus dem Video. Grund ist der
+          alte Zusatz „sonst erstes Videobild", der seit `preload="none"` (30.07.2026)
+          nicht mehr stimmte — der Browser zeigt von allein kein erstes Videobild, die
+          Kachel blieb schwarz. Jetzt liefern wir das Bild selbst. */}
       <ImageCropUpload
         label="Vorschaubild"
         hint={
-          "Wird auf der Show-Seite gezeigt, bis jemand auf Play drückt. Ohne Vorschaubild " +
-          "bleibt die Kachel dort schwarz — das Video selbst wird zum Datensparen erst beim " +
-          "Klick geladen."
+          "Wird auf der Show-Seite gezeigt, bis jemand auf Play drückt. Lässt du es leer, " +
+          "wird automatisch ein Bild aus der ersten Sekunde des Videos genommen — das " +
+          "Video selbst wird zum Datensparen erst beim Klick geladen."
         }
         name="poster_path"
         aspect={orientation === "portrait" ? 9 / 16 : 16 / 9}
@@ -95,6 +136,7 @@ export default function ShowVideoUpload({ showId }: { showId: string }) {
       <button className="btn primary" disabled={busy}>
         {busy ? "Lädt hoch…" : "Video hochladen"}
       </button>
+      {note && <p className="media-slot-note">{note}</p>}
       {error && <p style={{ color: "var(--danger)", margin: 0 }}>{error}</p>}
       {done > 0 && <Toast key={done} message="Video gespeichert!" />}
     </form>

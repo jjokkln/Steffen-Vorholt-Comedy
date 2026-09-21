@@ -163,6 +163,15 @@ jemand auf Play drückt (mit `preload="none"` lädt der Browser auch bei gesetzt
 die beiden betroffenen Videos sind die Standbilder aus dem Video selbst extrahiert — Rezept, falls
 es wieder gebraucht wird:
 
+> [!info] Seit 21.09.2026 geht das aus dem Admin heraus
+> Das Rezept unten ist der Weg über die Kommandozeile und bleibt hier stehen, weil er ohne
+> Admin-Zugang funktioniert. Der normale Weg ist jetzt ein anderer: Beim Hochladen erzeugt
+> `lib/video-poster.ts` das Standbild selbst (Canvas im Browser, kein ffmpeg), und für
+> Videos aus dem Altbestand steht unter „Videos dieser Show" der Knopf
+> **„Vorschaubild aus dem Video erzeugen"**. Das Bild landet dabei im Storage, nicht in
+> `public/` — anders als 2026-07-30, weil der Upload über den angemeldeten Browser läuft
+> und damit die `authenticated`-Insert-Policy erfüllt.
+
 - Das ffmpeg im Playwright-Cache **kann keine MP4-Dateien lesen** (Minimal-Build fürs
   Bildschirmaufzeichnen, „Invalid data found when processing input"). Stattdessen Chromium
   benutzen: Video laden, `currentTime` setzen, Frame auf ein Canvas zeichnen, `toDataURL("image/webp")`.
@@ -176,6 +185,17 @@ es wieder gebraucht wird:
   eingetragen. Grund für lokal statt Storage: null Supabase-Egress — und ein Upload in den Storage
   bräuchte einen Service-Role-Key, der lokal nicht in `.env.local` steht (Insert-Policy verlangt
   `authenticated`).
+
+**Warum ein fehlendes Poster nicht nur häßlich ist (21.09.2026).** „Schwarze Fläche" war zu
+freundlich formuliert. Auf der dunklen Seite ist eine schwarze Fläche **unsichtbar** — im Archiv
+auf `/shows` hatte die Kachel nicht einmal eine Play-Plakette, und ein `<video>` ohne geladene
+Metadaten fällt zudem auf seine Standardgröße 300 × 150 zurück, wurde also als 302 × 340 großes
+Rechteck gerendert statt im Hochformat des Videos (Klasse `.portrait` hatte gar keine CSS-Regel).
+Gemeldet wurde das als „Video ist auf Handy da, auf iPad und Desktop nicht": Safari auf iOS hält
+sich nicht an `preload="none"` und zeigt das erste Bild trotzdem, alle anderen Browser tun es
+nicht. Behoben in `components/shows/VideoThumb.tsx` — ohne Poster wird gar kein `<video>` mehr
+gerendert, sondern ein sichtbarer Platzhalter mit Play-Plakette (null Egress, in jedem Browser
+gleich).
 
 **Was strukturell offen bleibt:** Die Videodateien selbst gehen weiterhin direkt vom Browser an den
 Supabase-Storage, sobald jemand auf Play drückt. Auf dem Free-Plan gibt es dagegen kein Werkzeug:
@@ -294,3 +314,29 @@ mit **echtem Chrome** (`executablePath: '/Applications/Google Chrome.app/Content
 ansteuern und die Seite danach löschen. Der Chromium aus dem Playwright-Cache bringt keine
 H.264-Kodierung mit; nur mit echtem Chrome zeigt sich, dass `MediaRecorder` MP4 liefert
 (`video/mp4;codecs="avc1.4d002a,mp4a.40.2"`) und nicht WebM.
+
+## Upload bricht ab, ohne zu sagen warum (21.09.2026)
+
+Gemeldet als: „wenn ich eine Datei über 50 MB hochlade, steht da nur *Fehler beim Upload des
+Videos*". Dahinter steckten zwei verschiedene Ursachen mit derselben Anzeige.
+
+**1. Die Größengrenze war nur in der Datenbank bekannt.** Migration 0022 setzt
+`file_size_limit = 52428800` (50 MiB) auf `media`, `gallery` und `planets`. Der Browser wusste
+davon nichts: `uploadToStorage()` schickte die Datei los und reichte den Rohtext von Supabase
+durch — der je nach Weg „The object exceeded the maximum allowed size", ein nacktes 413 oder
+(wenn das Gateway die Verbindung vorher kappt) gar keine Antwort ist. In keiner dieser Varianten
+kommt das Wort „groß" vor.
+
+Jetzt steht die Grenze in `lib/upload-limits.ts` und wird an **drei** Stellen wirksam: sofort bei
+der Dateiauswahl, vor dem Absenden und beim Übersetzen der Storage-Antwort. Die Meldung nennt
+beide Zahlen — die echte Dateigröße und die erlaubte.
+
+⚠️ **Die Grenze steht damit an zwei Orten** (Migration 0022 und `MAX_UPLOAD_BYTES`). Wer sie in
+der Datenbank ändert, muss die Konstante mitziehen; `tests/upload-limits.test.ts` hält den Wert
+fest, damit die Abweichung wenigstens auffällt.
+
+**2. Der Content-Type von `MediaRecorder` passte nicht zur Erlaubnisliste.** Echtes Chrome liefert
+`video/mp4;codecs="avc1.4d002a,mp4a.40.2"` (siehe Abschnitt oben). `allowed_mime_types` listet aber
+`video/mp4` — mit dem Codec-Zusatz ist das ein anderer String, und der Storage lehnt die Datei als
+unerlaubten Typ ab. Betraf jedes im Browser verkleinerte Video unter „Videos & Speicher".
+`plainContentType()` schneidet den Parameter jetzt ab.

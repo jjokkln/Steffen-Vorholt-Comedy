@@ -552,6 +552,34 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   .show-media-item .storage-image,.show-media-item video{height:280px;max-height:280px}
 }
 .show-media-item .media-thumb{position:relative;display:inline-block}
+/* Kachel eines Videos OHNE Vorschaubild. Vorher stand hier ein `<video>` mit
+   `preload="none"` und ohne `poster` — der Browser hat dann nichts zu malen, und
+   die Kachel war eine schwarze Fläche auf dunklem Grund, also unsichtbar (auf
+   Desktop und iPad gemessen am 21.09.2026, 302 × 340 px). Die Maße stimmen mit
+   `.show-media-item video` überein, damit beide Fälle gleich groß sind. */
+.media-thumb-empty{
+  height:340px;max-height:340px;aspect-ratio:16/9;
+  border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);
+  background:
+    radial-gradient(circle at 50% 38%,rgba(255,255,255,.14),transparent 46%),
+    linear-gradient(145deg,rgba(255,255,255,.1),rgba(255,255,255,.03));
+}
+.media-thumb-empty[data-orientation="portrait"]{aspect-ratio:9/16}
+/* Das Archiv auf /shows hat keine Lightbox: die Kachel IST der Auslöser. Der
+   Button darf dabei nicht wie ein Button aussehen. */
+.archive-video-start{
+  display:block;padding:0;border:0;background:none;cursor:pointer;font:inherit;border-radius:22px
+}
+/* Läuft das Archiv-Video, gilt fürs `<video>` dieselbe Kachelgröße wie für den
+   Platzhalter — sonst springt das Layout beim Klick. Hochformat bekommt sein
+   Format hier: die Klasse `.portrait` am `<figure>` hatte bis zum 21.09.2026
+   überhaupt keine Regel, ein 1080×1920-Video lag also in einer 16:9-Fläche. */
+.show-media-item video[data-orientation="portrait"]{aspect-ratio:9/16}
+/* Eigene Media-Query statt der oben: die dort steht VOR dieser Definition und
+   würde von ihr überschrieben. */
+@media (max-width:720px){
+  .media-thumb-empty{height:280px;max-height:280px}
+}
 .show-media-item .media-play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .show-media-item .media-play-badge span{
   width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;

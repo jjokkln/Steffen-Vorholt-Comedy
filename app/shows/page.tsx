@@ -6,6 +6,7 @@ import Planet from "@/components/Planet";
 import YoutubeGallery from "@/components/YoutubeGallery";
 import JsonLd from "@/components/JsonLd";
 import TermineSection from "@/components/shows/TermineSection";
+import ArchiveVideo from "@/components/shows/ArchiveVideo";
 import {
   getActiveShows,
   getAllShowVideos,
@@ -15,7 +16,6 @@ import {
 } from "@/lib/data";
 import { partitionEvents } from "@/lib/event-helpers";
 import { comedyEventJsonLd, eventToJsonLdInput } from "@/lib/jsonld";
-import { mediaUrl, optimizedImageUrl } from "@/lib/media";
 
 export const revalidate = 3600;
 
@@ -133,14 +133,10 @@ export default async function ShowsPage() {
                     key={v.id}
                     className={`show-media-item${v.orientation === "portrait" ? " portrait" : ""}`}
                   >
-                    {/* Mit Poster lädt der Browser die Videodatei erst auf Klick. */}
-                    <video
-                      src={mediaUrl(v.video_path)}
-                      poster={v.poster_path ? optimizedImageUrl(v.poster_path, 640) : undefined}
-                      controls
-                      preload="none"
-                      playsInline
-                    />
+                    {/* Kachel statt nacktem <video>: ohne Vorschaubild war die Fläche
+                        schwarz und damit unsichtbar — Begründung in VideoThumb.tsx.
+                        Die Videodatei wird weiterhin erst beim Klick geladen. */}
+                    <ArchiveVideo video={v} />
                     {v.title && <figcaption>{v.title}</figcaption>}
                   </figure>
                 ))}
