@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
-import { uploadToStorage } from "@/lib/upload";
+import { isTooLarge, tooLargeMessage, uploadToStorage } from "@/lib/upload";
 import { setSiteMediaPath, clearSiteMediaPath } from "@/lib/actions/site-media";
 import { mediaUrl } from "@/lib/media";
 import { formatBytes } from "@/lib/storage-format";
@@ -47,6 +47,22 @@ export default function SiteVideoUpload({
   const longEdge = slot.targetLongEdge ?? 1280;
   const mbps = slot.targetMbps ?? 2.5;
   const compressible = canCompressVideo();
+
+  /**
+   * Bei der Auswahl warnen, nicht erst nach dem Upload — und nicht abweisen: Das
+   * Verkleinern läuft VOR dem Upload und bringt große Dateien oft unter die Grenze.
+   * Deshalb hier nur ein Hinweis; die harte Prüfung sitzt in `uploadToStorage()`.
+   */
+  function onFilePicked(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !isTooLarge(file)) return setNote("");
+    setNote(
+      compressible
+        ? `${tooLargeMessage(file.size)} Mit dem Haken unten wird sie vorher verkleinert — ` +
+          "reicht das nicht, scheitert der Upload."
+        : tooLargeMessage(file.size),
+    );
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -143,7 +159,15 @@ export default function SiteVideoUpload({
 
       <label htmlFor={inputId}>
         Neues Video (MP4)
-        <input id={inputId} name="video" type="file" accept="video/mp4,video/*" required disabled={busy} />
+        <input
+          id={inputId}
+          name="video"
+          type="file"
+          accept="video/mp4,video/*"
+          required
+          disabled={busy}
+          onChange={onFilePicked}
+        />
       </label>
 
       {compressible ? (
