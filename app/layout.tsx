@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import GalaxyBackground from "@/components/GalaxyBackground";
@@ -104,6 +106,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <CookieBanner />
         </CookieConsentProvider>
         <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
+        {/* Vercel-Messung, cookielos und ohne Drittanbieter-Request:
+            beide Skripte und ihre Datenpunkte laufen über die eigene Domain
+            (/_vercel/insights, /_vercel/speed-insights). Kein Zugriff auf das
+            Endgerät nach § 25 TDDDG, daher kein Einwilligungs-Gate — der
+            Auftragsverarbeiter Vercel gehört aber in die Datenschutzerklärung. */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
