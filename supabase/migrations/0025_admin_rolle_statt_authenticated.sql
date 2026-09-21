@@ -1,16 +1,18 @@
 -- „Eingeloggt" war bisher dasselbe wie „Administrator".
 --
 -- 18 Policies lauteten `for all to authenticated using (true) with check (true)`. Das war
--- nicht ausnutzbar — gemessen am 21.09.2026 über /auth/v1/settings: `disable_signup: true`,
--- `anonymous_users: false`, kein einziger OAuth-Anbieter. Niemand kann sich selbst ein
--- Konto beschaffen, also ist `authenticated` heute genau Steffens Admin-Konto.
+-- von aussen nicht ausnutzbar — gemessen am 21.09.2026 über /auth/v1/settings:
+-- `disable_signup: true`, `anonymous_users: false`, kein einziger OAuth-Anbieter. Niemand
+-- kann sich selbst ein Konto beschaffen.
 --
--- Das Problem ist nicht die Lücke, sondern die Aufhängung: Die gesamte Zugriffskontrolle
--- hing an einem Schalter im Supabase-Dashboard. Wird je ein zweites Konto angelegt — eine
--- Bookerin, ein Testzugang, ein zweites Konto für Steffen selbst —, hat es im selben
--- Augenblick Vollzugriff auf `inquiries` mit Name, E-Mail, Telefon und Nachrichtentext.
--- Dabei wird nichts rot: kein Fehler, kein Test, keine Warnung. Dieselbe Fehlerklasse wie
--- die Rechtstexte in Pflichtkern Punkt 4.
+-- Das Problem ist die Aufhängung: Die gesamte Zugriffskontrolle hing an einem Schalter im
+-- Supabase-Dashboard, und jedes dort angelegte Konto bekam im selben Augenblick Vollzugriff
+-- auf `inquiries` mit Name, E-Mail, Telefon und Nachrichtentext. Dass das kein gedachter
+-- Fall ist, zeigte die Zählung beim Anwenden: In `auth.users` standen **drei** Konten,
+-- während `context/context.md` „genau ein User" behauptete. Zwei davon waren nach dem
+-- Anlegen nie benutzt worden — und hatten trotzdem seit Wochen Lese- und Löschrecht auf
+-- alle Anfragen. Dabei wird nichts rot: kein Fehler, kein Test, keine Warnung. Dieselbe
+-- Fehlerklasse wie die Rechtstexte in Pflichtkern Punkt 4.
 --
 -- Danach ist die Berechtigung ein Datensatz statt einer Annahme: Wer in `admin_users`
 -- steht, ist Administrator. Ein neues Auth-Konto hat standardmäßig KEINE Rechte.
@@ -43,11 +45,17 @@ alter table public.admin_users enable row level security;
 -- 2. Bootstrap — und zwar laut, nicht raten
 -- ─────────────────────────────────────────────────────────────
 -- Der gefährlichste Schritt der ganzen Migration: Wird hier niemand eingetragen, ist das
--- Dashboard nach dem nächsten Statement für alle zu. Deshalb bricht die Migration ab,
--- statt ein plausibles Ergebnis zu erzeugen.
+-- Dashboard nach dem nächsten Statement für alle zu.
+--
+-- In `auth.users` standen am 21.09.2026 **drei** Konten, nicht eines — `context/context.md`
+-- behauptete bis dahin „genau ein User". Lenny hat bestätigt, dass alle drei gewollt sind,
+-- deshalb werden alle drei übernommen. Der Gewinn dieser Migration liegt damit nicht bei den
+-- bestehenden Konten, sondern beim **nächsten**: Ein viertes Konto entsteht ohne Rechte und
+-- muss bewusst eingetragen werden, statt sie beim Anlegen geschenkt zu bekommen.
 do $$
 declare
   anzahl_nutzer int;
+  anzahl_admins int;
 begin
   select count(*) into anzahl_nutzer from auth.users;
 
@@ -57,17 +65,21 @@ begin
       'für alle sperren. Abbruch.';
   end if;
 
-  if anzahl_nutzer > 1 then
-    raise exception
-      'In auth.users stehen % Nutzer. Diese Migration weiß nicht, wer davon Administrator '
-      'sein soll, und sie rät nicht. Trage die gewollten Konten von Hand in '
-      'public.admin_users ein und lasse dann den Rest der Datei laufen.', anzahl_nutzer;
-  end if;
-
   insert into public.admin_users (user_id, notiz)
-  select id, 'Bestandskonto, übernommen bei Migration 0025'
+  select id, 'Bestandskonto, übernommen bei Migration 0025 (21.09.2026)'
     from auth.users
   on conflict (user_id) do nothing;
+
+  select count(*) into anzahl_admins from public.admin_users;
+
+  -- Zählen, nicht annehmen: Ein leerer INSERT hätte hier keinen Fehler geworfen.
+  if anzahl_admins <> anzahl_nutzer then
+    raise exception
+      'admin_users hat % Zeilen, auth.users aber % — der Bootstrap ist unvollständig. Abbruch.',
+      anzahl_admins, anzahl_nutzer;
+  end if;
+
+  raise notice '% Bestandskonten als Administrator übernommen.', anzahl_admins;
 end $$;
 
 -- ─────────────────────────────────────────────────────────────
@@ -166,5 +178,9 @@ end $$;
 --                    r.policyname, r.schemaname, r.tablename);
 --   end loop;
 -- end $$;
--- drop function if exists public.is_admin();
+-- drop function if exists private.is_admin();   -- seit 0027 in `private`, nicht `public`
 -- drop table if exists public.admin_users;
+--
+-- ⚠️ Die Rücknahme muss 0027 mitdenken: Der Helfer heißt seit dem 21.09.2026
+--    `private.is_admin()`. Und sie muss VOR dem Löschen der Funktion laufen — Postgres
+--    verweigert den DROP, solange eine Policy noch auf sie zeigt.

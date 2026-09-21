@@ -11,6 +11,10 @@
 --
 -- Getrennt von 0025 gehalten, damit sich dieser Teil einzeln zurücknehmen lässt, falls der
 -- Medien-Upload danach klemmt.
+--
+-- ⚠️ Nachtrag 0027: Der Helfer heißt seit dem 21.09.2026 `private.is_admin()`. Die drei
+--    Policies unten wurden von 0027 mit umgehängt — wer diese Datei erneut laufen lässt,
+--    trifft auf den `is_admin`-Treffer und überspringt sie (idempotent).
 
 do $$
 declare

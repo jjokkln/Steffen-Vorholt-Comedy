@@ -341,11 +341,11 @@ fest, damit die Abweichung wenigstens auffällt.
 unerlaubten Typ ab. Betraf jedes im Browser verkleinerte Video unter „Videos & Speicher".
 `plainContentType()` schneidet den Parameter jetzt ab.
 
-## Admin-Rolle statt `authenticated` (Migrationen 0024–0026, 21.09.2026)
+## Admin-Rolle statt `authenticated` (Migrationen 0024–0027, 21.09.2026)
 
-Ablauf, Reihenfolge und die Messbefehle stehen in
+Angewendet und gemessen am 21.09.2026; das Protokoll steht in
 `docs/2026-09-21-rls-admin-rolle-anwenden.md`. Hier nur die Symptome, nach denen man sucht,
-wenn nach dem Anwenden etwas klemmt.
+wenn etwas klemmt.
 
 **Das Admin-Dashboard ist nach 0025 leer, ohne Fehlermeldung.** Dann steht dein Konto nicht in
 `public.admin_users`. Die Tabelle hat RLS an und **absichtlich keine Policy** — über die
@@ -363,12 +363,23 @@ Policy sehen von außen gleich aus — deshalb zählen, nicht hinsehen.
 **Die öffentliche Website meldet `permission denied for function is_admin`.** Dann referenziert
 eine Policy, die auch für `anon` gilt, den Helfer — die Falle aus Regel supabase-sicherheit
 Punkt 7. Postgres prüft EXECUTE beim Planen der Abfrage, unabhängig davon, ob der Zweig zur
-Laufzeit überhaupt ausgewertet würde. Sofortmaßnahme
-`grant execute on function public.is_admin() to anon;`, danach die Policy suchen und in zwei
-getrennte aufteilen (eine für `anon` ohne Helfer, eine für `authenticated` mit). Beim Stand vom
-21.09.2026 kann das nicht auftreten: Die öffentlichen Lese-Policies sind reine
-`using (true)`-Ausdrücke. Eine später hinzugefügte anon-Policy mit Helferaufruf bringt es
-zurück.
+Laufzeit überhaupt ausgewertet würde. Sofortmaßnahme:
+
+```sql
+grant usage on schema private to anon;
+grant execute on function private.is_admin() to anon;
+```
+
+Danach die Policy suchen und in zwei getrennte aufteilen (eine für `anon` ohne Helfer, eine
+für `authenticated` mit) und die Notmaßnahme wieder zurücknehmen. Am 21.09.2026 gemessen
+kann das nicht auftreten: Die öffentlichen Lese-Policies sind reine `using (true)`-Ausdrücke,
+`anon` las Shows und Rechtstexte nach dem Umbau unverändert. Eine später hinzugefügte
+anon-Policy mit Helferaufruf bringt es zurück.
+
+⚠️ **Der Helfer heißt `private.is_admin()`, nicht `public.is_admin()`** (Migration 0027). In
+`public` war er über `/rest/v1/rpc/is_admin` aufrufbar — Advisor-Lint 0029. **EXECUTE für
+`authenticated` zu entziehen ist KEINE Lösung**, das bricht nach derselben Mechanik jede
+Policy; der Umzug in ein Schema, das PostgREST nicht exponiert, ist es.
 
 **Das Anfrageformular meldet nach 0024 „Houston, wir haben ein Problem".** Im Server-Log steht
 dann `permission denied for column`. 0024 gibt `anon` nur `insert` auf
@@ -378,5 +389,6 @@ den GRANT — sonst bricht das Absenden vollständig. Der GRANT steht in
 `lib/actions/submit-inquiry.ts`.
 
 ⚠️ **Die Spaltenliste steht damit an zwei Orten** — dieselbe Bauart wie die Upload-Grenze
-darüber, und sie wird von keinem Test gehalten. Ein fehlender GRANT wird beim Bauen nicht rot,
-sondern erst, wenn jemand das Formular abschickt.
+darüber. Anders als dort hält `tests/anfrage-spaltenrechte.test.ts` beide gegeneinander; der
+Test wurde gegengeprüft (mit `status` im GRANT fällt er, ohne ihn ist er grün). Ohne diesen
+Test würde ein fehlender GRANT beim Bauen nicht rot, sondern erst, wenn jemand absendet.

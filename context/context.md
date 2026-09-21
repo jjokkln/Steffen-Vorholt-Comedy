@@ -351,50 +351,92 @@ die Consent-Version, (b) den Banner-Text und (c) `legal_pages.datenschutz` über
 `/admin/rechtliches/datenschutz`. Der aktuelle Stand ist per SQL prüfbar:
 `select slug, content ilike '%openstreetmap%' from legal_pages where slug='datenschutz';`
 
-## Sicherheitsmodell (Stand 21.09.2026)
+## Sicherheitsmodell (Stand 21.09.2026, angewendet und gemessen)
 
-> [!warning] Umbau liegt bereit, ist NICHT angewendet
-> Die Migrationen **0024–0026** stellen das unten beschriebene Modell um: von „eingeloggt =
-> Administrator" auf eine echte Rollenprüfung (`public.admin_users` + `public.is_admin()`).
-> Sie sind geschrieben, aber noch **nicht ausgeführt** — in der Session vom 21.09.2026 hatte
-> weder der Supabase-MCP noch die CLI Zugriff auf `insyjxxpeywehwnoazjr`. Bis sie laufen, gilt
-> alles Folgende unverändert weiter.
-> **Anwenden und messen:** `docs/2026-09-21-rls-admin-rolle-anwenden.md` — dort steht die
-> Reihenfolge, der Notausstieg gegen Aussperrung und je Schritt der Befehl, der es beweist.
+Pro Tabelle eine öffentliche Lese-/Insert-Policy plus `admin all <tabelle>`. Bei
+`site_settings` sind bewusst **nur** Keys mit Prefix `notify_email_` anon-lesbar — der
+öffentliche Formular-Submit braucht sie ohne Session.
 
+> [!info] Am 21.09.2026 umgebaut — Migrationen 0024–0027
+> Bis dahin galt „eingeloggt = Administrator": 21 Policies prüften `to authenticated` und
+> sonst nichts. Jetzt entscheidet ein Datensatz. Die Herleitung steht in den Migrationen,
+> das Protokoll der Messungen in `docs/2026-09-21-rls-admin-rolle-anwenden.md`.
 
-Pro Tabelle eine öffentliche Lese-/Insert-Policy plus `admin all <tabelle>` für `authenticated`
-(Single-Admin-Setup: eingeloggt = Steffen). Bei `site_settings` sind bewusst **nur** Keys mit
-Prefix `notify_email_` anon-lesbar — der öffentliche Formular-Submit braucht sie ohne Session.
+Wer hier etwas ändert, muss vier Dinge kennen:
 
-Wer hier etwas ändert, muss die drei tragenden Annahmen kennen. Sie hängen voneinander ab:
+1. **Administrator ist, wer in `public.admin_users` steht.** Alle 21 Policies (18 Tabellen
+   plus 3 auf `storage.objects`) lauten `(select private.is_admin())`. Ein neues Auth-Konto
+   hat damit **keine** Rechte, bis es dort eingetragen wird.
+   ⚠️ **`admin_users` hat RLS an und absichtlich KEINE Policy** — über die REST-API kommt
+   niemand heran, auch kein angemeldetes Konto. Verwaltet wird sie im SQL-Editor des
+   Dashboards, der als `postgres` läuft. Das ist zugleich der Notausstieg, falls sich jemand
+   aussperrt:
+   ```sql
+   insert into public.admin_users (user_id) select id from auth.users;
+   ```
+   Eine Policy mit `is_admin()` auf dieser Tabelle wäre eine Policy, die ihre eigene Tabelle
+   liest — die Bauart, die nach Regel supabase-sicherheit Punkt 13 jedes Anlegen unmöglich
+   macht. Deshalb keine.
 
-1. **`authenticated` = Vollzugriff auf ALLES.** Jede `admin all`-Policy ist
-   `using (true) with check (true)`. Es gibt keine Rollen, keine Zeilenbeschränkung, keine
-   Trennung zwischen „darf Shows pflegen" und „darf Anfragen löschen". Der Supabase Security
-   Advisor meldet das als 18 × `rls_policy_always_true` — das sind **erwartete** Warnungen, keine
-   offenen Lücken, solange Punkt 2 gilt. Migration **0025** hebt genau diese Abhängigkeit auf:
-   Danach ist Administrator, wer in `public.admin_users` steht, und ein neues Auth-Konto hat
-   standardmäßig **keine** Rechte.
-2. **Selbstregistrierung ist ausgeschaltet — das ist die eigentliche Absicherung.**
-   `disable_signup: true`, Anonymous-Logins aus, kein OAuth-Provider aktiv, genau **ein** User in
-   `auth.users`. Nachprüfbar ohne Dashboard:
-   `curl -s -H "apikey: $ANON_KEY" "$SUPABASE_URL/auth/v1/settings"`.
-   ⚠️ **Wird Signup je aktiviert, kann sich jede fremde Person registrieren und ist damit sofort
-   `authenticated` — also schreib- und löschberechtigt auf jeder Tabelle und im Storage.** Das ist
-   kein theoretisches Risiko, sondern die direkte Folge von Punkt 1. Vor dem Aktivieren erst die
-   Policies auf eine echte Rollenprüfung umbauen — das ist Migration 0025, sie liegt bereit.
-   Ebenfalls offen und aus derselben Familie: `mailer_autoconfirm: true`. Solange Signup aus
-   ist, wirkt es nicht; zusammen mit einem aktivierten Signup hieße es, dass ein fremdes Konto
-   **ohne jede Bestätigung** sofort gültig ist (Pflichtkern Punkt 11.3). Schritt 4 der
-   Anwendungs-Anleitung schaltet es ab — mit der SMTP-Falle, die dabei zu beachten ist.
-3. **`proxy.ts` schützt Server Actions NICHT.** Requests mit `next-action`-Header werden bewusst
-   ohne Redirect durchgelassen (sonst bricht die Flight-Response, siehe Kommentar dort). Die
-   Autorisierung von Schreibvorgängen macht damit **allein RLS** — die Server Action läuft mit dem
-   anon-Key plus Session-Cookie, ohne Session ist die Rolle `anon` und jede `admin all`-Policy
-   greift nicht. Nur `events.ts`, `venues.ts`, `settings.ts` und die Route
-   `/api/admin/storage-usage` prüfen zusätzlich selbst `auth.getUser()`. Ein Service-Role-Key
-   existiert im Projekt **nicht** — bewusst, denn er würde RLS umgehen.
+2. **Der Helfer liegt in `private`, nicht in `public`** — sonst wäre er über
+   `/rest/v1/rpc/is_admin` aufrufbar (Advisor-Lint 0029, genau so gemeldet nach 0025).
+   ⚠️ **EXECUTE für `authenticated` lässt sich NICHT entziehen:** Postgres prüft das Recht
+   beim Planen der Abfrage, unabhängig vom Laufzeit-Zweig — ein Entzug ließe jede Policy mit
+   „permission denied for function" scheitern. Der Umzug ins nicht exponierte Schema ist der
+   einzige Weg, der beides kann. `anon` hat weder USAGE auf `private` noch EXECUTE.
+
+3. **Selbstregistrierung ist weiterhin aus**, jetzt aber als zweite Schicht statt als
+   einzige: `disable_signup: true`, Anonymous-Logins aus, kein OAuth-Anbieter. Nachprüfbar
+   ohne Dashboard: `curl -s -H "apikey: $ANON_KEY" "$SUPABASE_URL/auth/v1/settings"`.
+   ⚠️ **Dort steht weiter `mailer_autoconfirm: true`** (Pflichtkern Punkt 11.3). Solange
+   Signup aus ist, wirkt es nicht; zusammen mit einem aktivierten Signup hieße es, dass ein
+   fremdes Konto ohne jede Bestätigung sofort gültig ist. Abschalten ist eine
+   Dashboard-Einstellung, an die der MCP nicht herankommt — Schritt 4 in
+   `docs/2026-09-21-rls-admin-rolle-anwenden.md`, samt der SMTP-Falle, die dabei zählt.
+
+4. **`proxy.ts` schützt Server Actions NICHT.** Requests mit `next-action`-Header werden
+   bewusst ohne Redirect durchgelassen (sonst bricht die Flight-Response, siehe Kommentar
+   dort). Die Autorisierung von Schreibvorgängen macht damit **allein RLS**. Nur
+   `events.ts`, `venues.ts`, `settings.ts` und die Route `/api/admin/storage-usage` prüfen
+   zusätzlich selbst `auth.getUser()`. Ein Service-Role-Key existiert im Projekt **nicht** —
+   bewusst, denn er würde RLS umgehen.
+
+### Was am 21.09.2026 gemessen wurde
+
+Unter echten Rollen (`set local role` + gesetzte JWT-Claims), Zeilen gezählt statt
+hingesehen — ein leerer Zustand und eine greifende Policy sehen von außen gleich aus:
+
+| Rolle | Anfragen | Shows | `one_liners` UPDATE | `one_liners` INSERT |
+| --- | --- | --- | --- | --- |
+| Konto **in** `admin_users` | 1 | 3 | 5 Zeilen | erlaubt |
+| Konto **nicht** in `admin_users` | **0** | 3 | **0 Zeilen** | **42501** |
+| `anon` | — (42501) | 3 | — | — |
+
+Drei Dinge, die dieser Tabelle ihren Wert geben:
+
+- **Sie diskriminiert.** Wären überall 0 Zeilen herausgekommen, wäre es kein Beweis, sondern
+  nur eine tote Abfrage (Regel rls-performance, Punkt 5). Shows stehen bei allen drei Rollen
+  auf 3 — die öffentliche Lese-Policy greift unabhängig weiter.
+- **Beide Symptome sind da.** Dasselbe fremde Konto scheitert beim UPDATE **still** mit 0
+  Zeilen (das prüft `USING`) und beim INSERT **laut** mit 42501 (das prüft `WITH CHECK`).
+  Wer nur eines misst, hat die Hälfte der Policy nicht geprüft (Regel supabase-sicherheit,
+  Punkt 12a).
+- **Die Messung lief nach 0027 erneut.** Der Umzug des Helfers nach `private` hätte alles
+  brechen können; die Zahlen blieben gleich.
+
+⚠️ **Zwei Dinge sind NICHT gemessen** (brauchen Zugangsdaten bzw. lösen echte Mails aus):
+das Admin-Dashboard im Browser mit einem echten Login, und die Anfragestrecke über die
+Server Action samt Benachrichtigungs- und Bestätigungsmail. Der Datenbankteil beider Wege
+ist belegt (Insert über die REST-API: HTTP 201, `status` = `new`, echtes `created_at`).
+
+### Auth-Konten: drei, nicht eines
+
+`auth.users` enthielt beim Umbau **drei** Konten, während diese Datei bis dahin „genau ein
+User" behauptete. Alle drei sind gewollt (Lenny, 21.09.2026) und wurden nach `admin_users`
+übernommen. **Der Gewinn liegt deshalb nicht bei ihnen, sondern beim nächsten Konto** — es
+entsteht ohne Rechte. Zwei der drei waren nach dem Anlegen nie benutzt worden und hatten
+trotzdem wochenlang Lese- und Löschrecht auf alle Anfragen; genau das kann jetzt nicht mehr
+passieren.
 
 Real gegengeprüft (30.07.2026, mit dem anon-Key gegen die Produktions-API): Anfragen sind für
 `anon` nicht lesbar, unveröffentlichte Termine nicht sichtbar, `site_settings` nur mit
@@ -402,7 +444,12 @@ Real gegengeprüft (30.07.2026, mit dem anon-Key gegen die Produktions-API): Anf
 Wirkung.
 
 **Storage:** Die Buckets `media`, `gallery`, `planets` sind öffentlich lesbar (nötig, die
-Bild-URLs stehen im HTML), Schreiben darf nur `authenticated`. Seit Migration 0022 gilt je
+Bild-URLs stehen im HTML), Schreiben darf seit Migration 0026 nur noch, wer in `admin_users`
+steht — vorher genügte „angemeldet". Der Advisor meldet diese drei Policies **nicht**, weil ihr
+Ausdruck `bucket_id in (…)` und damit nicht literal `true` ist; geprüft wurde also, *welcher
+Bucket*, nie *wer*. ⚠️ Der Rollencheck steht mit `and` **neben** dem Bucket-Filter, nicht mit
+`or` darüber: Ein `or` am äußeren Ende hätte die Bucket-Grenze aufgehoben (Regel
+supabase-sicherheit, Punkt 17). Seit Migration 0022 gilt je
 Bucket ein `file_size_limit` von **50 MiB** und eine Positivliste von acht MIME-Typen. Zwei
 Gründe, die man beim Anfassen kennen muss:
 
@@ -423,7 +470,8 @@ Bestätigungsmail geht an die im Formular angegebene Adresse — ohne Bremse ist
 Spam-Verstärker über Steffens SMTP-Konto, und der realistische Schaden ist ein gesperrtes
 Postfach bei DMARC `p=reject`.
 
-⚠️ **Was 0021 nicht abgedeckt hat und Migration 0024 nachholt:** Begrenzt war die *Menge*, nicht
+⚠️ **Was 0021 nicht abgedeckt hat und Migration 0024 am 21.09.2026 geschlossen hat:**
+Begrenzt war die *Menge*, nicht
 der *Spaltenumfang*. `anon` durfte beim Einfügen auch `status` und `created_at` mitgeben — eine
 RLS-Policy filtert Zeilen, keine Spalten, und `with check (true)` prüfte nichts. Gemessen am
 21.09.2026 gegen die Produktions-API: Ein Insert mit `{"status":"answered"}` wurde erst vom
@@ -434,6 +482,16 @@ Benachrichtigungsmail, weil ein direkter REST-Insert die Server Action umgeht. E
 Buchungsanfrage ließ sich damit von außen faktisch unsichtbar machen. Der Schaden wäre kein
 Datenabfluss gewesen, sondern eine verlorene Buchung. 0024 entzieht `anon` alle Tabellenrechte
 und gibt genau die sechs Formularspalten zurück, die `lib/actions/submit-inquiry.ts` sendet.
+
+Nach dem Anwenden in beide Richtungen gemessen: derselbe Insert mit `status` liefert jetzt
+**42501**, der echte Formularweg weiterhin **HTTP 201** mit `status = 'new'` und echtem
+`created_at`. `anon` kann die Tabelle auch nicht mehr *lesen* — vorher filterte das nur RLS
+still, jetzt fehlt schon das Tabellenrecht.
+
+⚠️ **Die Spaltenliste steht damit an zwei Orten** (GRANT in 0024 und das Objekt in
+`submit-inquiry.ts`). `tests/anfrage-spaltenrechte.test.ts` hält beide gegeneinander — ohne
+ihn fiele ein neues Formularfeld erst auf, wenn ein Besucher absendet und
+„permission denied for column" im Server-Log landet.
 
 ## Rechtsstand — was steht, was offen ist
 

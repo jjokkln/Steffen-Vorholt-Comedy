@@ -1,160 +1,150 @@
-# Migrationen 0024–0026 anwenden und messen
+# Migrationen 0024–0027: was gemacht und was gemessen wurde
 
-Stand 21.09.2026. Die drei Migrationen sind geschrieben, aber **nicht angewendet** — weder
-der Supabase-MCP noch die CLI hatten in der Session Zugriff auf `insyjxxpeywehwnoazjr`
-(`supabase projects list` zeigt nur Projekte einer anderen Organisation). Alles unten ist
-deshalb ungemessen, bis du es gemessen hast.
+21.09.2026. Alle vier Migrationen sind **angewendet**, über den Supabase-MCP gegen
+`insyjxxpeywehwnoazjr` (vorher mit `get_project_url` verifiziert — es existiert ein zweites,
+älteres Projekt `unirwufvnfggwmdbkbpu`, das nicht zu dieser Website gehört).
 
-Reihenfolge einhalten: 0024 ist risikoarm, 0025 kann dich aussperren, 0026 kann den
-Medien-Upload brechen.
+Was **nicht** gemessen ist, steht am Ende. Der Abschnitt ist der wichtigste dieser Datei.
 
-## Vorbereitung — zwei Tokens
+## Der Anlass
 
-```bash
-cd ~/Code_Aktuell/GrowCore/vorholt_landing
-set -a && . ./.env && set +a
+Der Security Advisor meldete 18 × `rls_policy_always_true` plus die offene Insert-Policy des
+Anfrageformulars. Die 18 waren **von außen nicht ausnutzbar** — `/auth/v1/settings` zeigt
+`disable_signup: true`, `anonymous_users: false`, keinen OAuth-Anbieter.
 
-# Admin-JWT (Passwort aus dem Passwortmanager)
-ADMIN_JWT=$(curl -s -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/token?grant_type=password" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
-  -d '{"email":"DEINE-ADMIN-MAIL","password":"DEIN-PASSWORT"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["access_token"])')
-echo "${ADMIN_JWT:0:12}…"   # leer = Login fehlgeschlagen, dann nicht weitermachen
-```
+Ausnutzbar war etwas, das der Advisor gar nicht meldet: Beim Einfügen in `inquiries` durfte
+`anon` auch `status` und `created_at` setzen. Eine RLS-Policy filtert Zeilen, keine Spalten,
+und `with check (true)` prüfte nichts.
 
----
+*Beweis ohne Datenmüll*, vor dem Umbau: Ein Insert mit `{"status":"answered"}` **und** einem
+absichtlich ungültigen `type` scheiterte mit `23514` (CHECK-Constraint), nicht mit `42501`
+(fehlendes Spaltenrecht). Die Spalte wurde also akzeptiert; nur der Constraint hat abgelehnt.
+Mit gültigem `type` wäre die Zeile durchgegangen — ohne „neu"-Badge (beide Zähler im Admin
+filtern `status = 'new'`), am Ende der nach `created_at` sortierten Liste, und ohne Mail, weil
+ein REST-Insert die Server Action umgeht. Eine Buchungsanfrage ließ sich so unsichtbar machen.
 
-## Schritt 1 — Migration 0024 (Anfrageformular)
+## Ein Befund, der die Begründung verschoben hat
 
-Schließt die einzige Lücke, die heute ohne Voraussetzung ausnutzbar ist: `anon` durfte beim
-Einfügen `status` und `created_at` mitsetzen. Gemessen am 21.09.2026 — ein Insert mit
-`{"status":"answered"}` scheiterte am `type`-CHECK (23514), **nicht** an fehlenden
-Spaltenrechten (42501). Mit gültigem `type` wäre er durchgegangen: keine Mail (die läuft in
-der Server Action, nicht im Trigger), kein „neu"-Badge, unten in der nach `created_at`
-sortierten Liste. Eine Buchungsanfrage wäre praktisch unsichtbar gewesen.
+Vor 0025 gezählt: **`auth.users` enthielt drei Konten**, während `context/context.md` „genau
+ein User" behauptete und die ganze Absicherung auf dieser Zahl ruhte. Zwei der drei waren nach
+dem Anlegen nie benutzt worden — und hatten trotzdem wochenlang Lese- und Löschrecht auf alle
+Anfragen mit Namen, E-Mail und Telefonnummern.
 
-**Anwenden:** `supabase/migrations/0024_anfragen_nur_formularspalten.sql` im SQL-Editor.
+Alle drei sind gewollt (Lenny, 21.09.2026) und wurden nach `admin_users` übernommen. Der
+Gewinn des Umbaus liegt deshalb nicht bei ihnen, sondern beim **vierten** Konto: Es entsteht
+ohne Rechte.
 
-**Messen — beide Richtungen** (Regel supabase-sicherheit 12a: dieselbe Policy lehnt je nach
-Ausgangszustand mit zwei verschiedenen Symptomen ab, eine Messung allein beweist nichts):
+Die eingebaute Bremse hat dabei funktioniert wie vorgesehen — die ursprüngliche Fassung von
+0025 wäre bei mehr als einem Konto **abgebrochen**, statt zu raten, wer Administrator ist.
 
-```bash
-# a) Der Angriff MUSS jetzt scheitern — erwartet: 42501 permission denied for column
-curl -s -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/inquiries" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
-  -d '{"type":"frage_feedback","name":"Probe","email":"probe@example.org","status":"answered"}'
+## Was angewendet wurde
 
-# b) Der echte Weg MUSS weiter gehen — erwartet: leere Antwort, HTTP 201
-curl -s -o /dev/null -w "%{http_code}\n" -X POST "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/inquiries" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
-  -d '{"type":"frage_feedback","name":"Probe 0024","email":"DEINE-MAIL","phone":"","message":"Probe","payload":{}}'
-```
+| Migration | Inhalt |
+| --- | --- |
+| `0024` | `revoke all … from anon`, dann `grant insert (type, name, email, phone, message, payload)`. Policy prüft zusätzlich `status = 'new'`. |
+| `0025` | `admin_users` + `is_admin()`; 18 Policies maschinell aus `pg_policies` umgestellt, gezählt, mit Abbruch bei unerwarteter Logik. |
+| `0026` | Die 3 Storage-Policies nachgezogen — der Advisor meldet sie nicht, weil ihr Ausdruck nicht literal `true` ist. |
+| `0027` | Helfer nach `private` umgezogen, weil `public.is_admin()` über `/rest/v1/rpc/is_admin` aufrufbar war (Lint 0029, aufgetaucht **durch** 0025). |
 
-Danach zusätzlich **das echte Formular** auf der Seite einmal abschicken — (b) umgeht die
-Server Action und beweist den Mailversand nicht. Beide Probezeilen anschließend im Admin
-löschen.
+## Was gemessen wurde
 
----
+Unter echten Rollen (`set local role` + gesetzte JWT-Claims), Zeilen gezählt statt hingesehen.
+Alle Schreibproben liefen in einer Transaktion, die per Exception zurückgerollt wurde —
+danach gegengeprüft: 0 Probezeilen, Bestand unverändert.
 
-## Schritt 2 — Migration 0025 (Admin-Rolle)
+| Rolle | Anfragen | Shows | `one_liners` UPDATE | `one_liners` INSERT |
+| --- | --- | --- | --- | --- |
+| Konto **in** `admin_users` | 1 | 3 | 5 Zeilen | erlaubt |
+| Konto **nicht** in `admin_users` | **0** | 3 | **0 Zeilen** | **42501** |
+| `anon` | 42501 | 3 | — | — |
 
-⚠️ **Der Schritt, der dich aussperren kann.** Erst zählen, dann anwenden:
+Drei Eigenschaften machen das zu einem Beweis statt zu einer Beruhigung:
+
+1. **Es diskriminiert.** Wären überall 0 Zeilen herausgekommen, wäre es kein Beweis, sondern
+   eine tote Abfrage (Regel rls-performance, Punkt 5). Shows stehen bei allen drei Rollen auf
+   3 — die öffentliche Lese-Policy greift unabhängig weiter.
+2. **Beide Symptome sind da.** Dasselbe fremde Konto scheitert beim UPDATE **still** mit 0
+   Zeilen (`USING`) und beim INSERT **laut** mit 42501 (`WITH CHECK`). Wer nur eines misst,
+   hat die halbe Policy nicht geprüft (Regel supabase-sicherheit, Punkt 12a).
+3. **Nach 0027 erneut gemessen.** Der Umzug des Helfers hätte alles brechen können; die
+   Zahlen blieben identisch.
+
+Zusätzlich am Anfrageformular, über die echte REST-API mit dem anon-Key:
+
+| Versuch | vorher | nachher |
+| --- | --- | --- |
+| Insert mit `status: "answered"` | 23514 (nur Constraint) | **42501** |
+| Insert mit `created_at` in der Vergangenheit | 23514 | **42501** |
+| Echter Formularweg (die sechs Spalten) | 201 | **201**, `status = 'new'`, echtes `created_at` |
+| `select` auf `inquiries` | leer (RLS filtert still) | **42501** (schon das Tabellenrecht fehlt) |
+
+Die Probezeile wurde anschließend gelöscht (eine Zeile, gegengezählt).
+
+**Advisor danach:** Die 18 `rls_policy_always_true` und die Formular-Policy sind weg. Übrig:
+`rls_enabled_no_policy` auf `admin_users` (INFO, **absichtlich** — siehe unten) und
+`auth_leaked_password_protection` (von Lenny bewusst ignoriert).
+
+**Build und Tests:** 76 Tests grün, Build fehlerfrei, `ƒ Proxy (Middleware)` im Output. Der
+Build hat alle 3 Shows als `anon` vorgerendert — ein zweiter, unabhängiger Beleg, dass die
+öffentliche Seite unberührt ist.
+
+## Warum `admin_users` keine Policy hat
+
+RLS ist an, Policies gibt es **keine**. Damit kommt über die REST-API niemand an die Tabelle,
+auch kein angemeldetes Konto. Eine Policy, die dort `is_admin()` aufriefe, wäre eine Policy,
+die ihre eigene Tabelle liest — die Bauart, die nach Regel supabase-sicherheit Punkt 13 jedes
+Anlegen unmöglich macht.
+
+Verwaltet wird sie im SQL-Editor des Dashboards (läuft als `postgres`, umgeht RLS). Das ist
+zugleich der **Notausstieg**, falls sich jemand aussperrt:
 
 ```sql
-select count(*) from auth.users;   -- muss 1 sein
+insert into public.admin_users (user_id) select id from auth.users;
 ```
 
-Ist das Ergebnis **nicht 1**, bricht die Migration von selbst ab und sagt warum — dann von
-Hand entscheiden, wer in `public.admin_users` gehört.
+## Warum der Helfer in `private` liegt
 
-**Anwenden:** `supabase/migrations/0025_admin_rolle_statt_authenticated.sql`.
+`EXECUTE` für `authenticated` lässt sich **nicht** entziehen: Postgres prüft das Recht beim
+Planen der Abfrage, unabhängig davon, ob der Zweig zur Laufzeit ausgewertet würde. Ein Entzug
+ließe jede Policy mit „permission denied for function" scheitern (Regel supabase-sicherheit,
+Punkt 7). PostgREST exponiert nur `public` — der Umzug ist deshalb der einzige Weg, der die
+Policies am Leben lässt und die RPC-Fläche schließt. `anon` hat weder USAGE auf `private` noch
+EXECUTE auf die Funktion.
 
-**Sofort danach, im selben Fenster** (solange der SQL-Editor offen ist — er läuft als
-`postgres` und umgeht RLS, ist also dein Notausstieg):
-
-```sql
-select count(*) from public.admin_users;   -- muss 1 sein
-select public.is_admin();                  -- im Editor egal, entscheidend ist die Messung unten
-```
-
-**Messen — Zeilen zählen, nicht hinsehen** (ein leerer Zustand und eine fehlschlagende Policy
-sehen von außen gleich aus):
-
-```bash
-# a) Als Admin MUSS Lesen und Schreiben weiter gehen — erwartet: Zeilen > 0
-curl -s "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/shows?select=id" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $ADMIN_JWT" \
-  | python3 -c 'import sys,json;d=json.load(sys.stdin);print("Zeilen:",len(d) if isinstance(d,list) else d)'
-
-# b) Anfragen als Admin lesbar? — erwartet: Zeilen >= 0 OHNE Fehlerobjekt
-curl -s "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/inquiries?select=id" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" -H "Authorization: Bearer $ADMIN_JWT" \
-  | python3 -c 'import sys,json;d=json.load(sys.stdin);print("Zeilen:",len(d) if isinstance(d,list) else d)'
-
-# c) Die öffentliche Seite MUSS unberührt sein — erwartet: Zeilen > 0
-curl -s "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/shows?select=id" \
-  -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
-  | python3 -c 'import sys,json;d=json.load(sys.stdin);print("Zeilen:",len(d) if isinstance(d,list) else d)'
-```
-
-⚠️ **(c) ist die Probe auf den `revoke execute`.** Meldet sie
-`permission denied for function is_admin`, ist genau die Falle aus Regel
-supabase-sicherheit Punkt 7 eingetreten — dann im SQL-Editor
-`grant execute on function public.is_admin() to anon;` und die Ursache nachsehen.
-
-Zuletzt **das Admin-Dashboard im Browser** öffnen und eine Show speichern. Ein Schreibvorgang,
-den RLS verschluckt, trifft 0 Zeilen und liefert **keinen** Fehler (Regel 12) — die UI würde
-Erfolg melden. Also nach dem Speichern die Seite neu laden und den Wert wirklich ansehen.
-
-**Die eigentliche Probe** (die, für die der ganze Umbau gemacht ist): Leg im Dashboard unter
-Authentication einen zweiten Testnutzer an, trag ihn **nicht** in `admin_users` ein, hol dir
-mit seinen Zugangsdaten ein JWT und wiederhole (b). Erwartet: **0 Zeilen**. Vorher hätte er
-alle Anfragen mit Namen, E-Mail und Telefonnummer gesehen. Testnutzer danach löschen.
+Der abschließende `drop function public.is_admin()` in 0027 ist **keine Aufräumarbeit, sondern
+die Kontrolle**: Postgres verweigert ihn, solange auch nur eine Policy noch auf die alte
+Funktion zeigt. Dass er durchlief, beweist, dass alle 21 umgehängt sind.
 
 ---
 
-## Schritt 3 — Migration 0026 (Storage)
+## ⚠️ Was NICHT gemessen ist — das bleibt bei dir
 
-**Anwenden:** `supabase/migrations/0026_storage_admin_rolle.sql`.
+**1. Das Admin-Dashboard im Browser, mit echtem Login.** Dafür braucht es ein Passwort, das
+hier nicht vorliegt. Der RLS-Pfad ist identisch mit dem gemessenen (Rolle `authenticated`,
+`sub` = Konto-ID), und `proxy.ts` wurde nicht angefasst — aber gemessen ist gemessen, und das
+ist es nicht. Bitte einmal einloggen, eine Show speichern, **Seite neu laden** und den Wert
+wirklich ansehen: Ein Schreibvorgang, den RLS verschluckt, trifft 0 Zeilen und liefert keinen
+Fehler, die UI würde also Erfolg melden.
 
-**Messen:** Im Admin ein Bild hochladen, ein vorhandenes ersetzen und eines löschen. Alle drei
-Wege sind getrennte Policies — einer kann brechen, während die anderen laufen. Öffentliche
-Bild-URLs auf der Website müssen weiter laden (die Lese-Policy wurde nicht angefasst).
+**2. Die Anfragestrecke über die Server Action, samt Mails.** Absichtlich nicht ausgelöst —
+das verschickt echte Mails an Steffens Postfach und an die angegebene Adresse. Der
+Datenbankteil ist belegt (HTTP 201 mit exakt den sechs Spalten, die die Action sendet). Was
+offen bleibt, ist Pflichtkern Punkt 8: einmal abschicken → in der Datenbank → Mail beim Kunden
+→ Bestätigung beim Absender.
 
----
+**3. Upload, Ersetzen und Löschen im Storage.** Drei getrennte Policies — eine kann brechen,
+während die anderen laufen. Gemessen ist, dass die Berechtigung korrekt unterscheidet
+(`is_admin` wahr für ein eingetragenes, falsch für ein fremdes Konto) und dass die 35
+öffentlich lesbaren Objekte für alle Rollen lesbar bleiben. Der echte Weg durchs Dashboard ist
+das nicht.
 
-## Schritt 4 — E-Mail-Bestätigung einschalten
+**4. `mailer_autoconfirm: true` abschalten.** Eine Dashboard-Einstellung, an die der MCP nicht
+herankommt: Authentication → Sign In / Providers → Email → **Confirm email**.
 
-`mailer_autoconfirm: true` steht heute in den Auth-Settings, ist Pflichtkern Punkt 11.3
-(„Signup ist verifiziert, kein `mailer_autoconfirm` in Produktion").
-
-Dashboard → Authentication → Sign In / Providers → Email → **Confirm email** an.
-
-⚠️ **Vorher den SMTP von Supabase Auth einrichten, sonst sperrst du dich mittelfristig aus.**
-Der Mailversand der App (Nodemailer, `SMTP_*` in `.env`) und der von Supabase Auth sind zwei
-verschiedene Dinge — Supabase Auth kennt deine `.env` nicht. Ohne eigenen SMTP verschickt
-Supabase über seinen Standarddienst mit harter Drosselung (wenige Mails pro Stunde) und
-schlechter Zustellbarkeit. Da es in der App **keinen** Passwort-Reset-Flow gibt
-(`lib/actions/auth.ts` kann nur Login und Logout), läuft ein Reset ausschließlich über diese
-Mail. Kommt sie nicht an, hilft nur noch das Dashboard.
-
-Also: Dashboard → Authentication → Emails → SMTP Settings → dieselben Zugangsdaten wie in
-`.env` eintragen. Absenderadresse auf der eigenen Domain wählen — die steht auf DMARC
-`p=reject`, eine fremde Absenderdomain wird sonst abgelehnt.
-
-Danach einmal echt auslösen: Passwort-Reset für das Admin-Konto anfordern und prüfen, dass die
-Mail ankommt. Eine nicht ausgelöste Mailstrecke ist kein Nachweis (Pflichtkern Punkt 8).
-
----
-
-## Schritt 5 — Advisor nachzählen
-
-```
-get_advisors(type: "security")
-```
-
-Erwartet danach: die 18 × `rls_policy_always_true` auf den `admin all`-Policies sind weg, und
-`public insert inquiries` ebenfalls (die Policy prüft jetzt `status = 'new'`).
-Übrig bleibt `auth_leaked_password_protection` — von dir bewusst ignoriert.
-
-Bleibt eine Warnung stehen, die hier nicht aufgeführt ist: nicht wegklicken, sondern
-nachsehen. Genau dafür wurde der Rest grün gemacht.
+⚠️ **Vorher den SMTP von Supabase Auth einrichten.** Der Mailversand der App (Nodemailer,
+`SMTP_*` in `.env`) und der von Supabase Auth sind zwei verschiedene Dinge — Supabase Auth
+kennt deine `.env` nicht. Ohne eigenen SMTP verschickt Supabase über seinen Standarddienst mit
+harter Drosselung und schlechter Zustellbarkeit. Da es in der App **keinen**
+Passwort-Reset-Flow gibt (`lib/actions/auth.ts` kann nur Login und Logout), läuft ein Reset
+ausschließlich über diese Mail. Kommt sie nicht an, hilft nur noch das Dashboard.
+Absenderadresse auf der eigenen Domain wählen — sie steht auf DMARC `p=reject`.
