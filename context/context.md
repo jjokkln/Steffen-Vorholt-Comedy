@@ -351,7 +351,17 @@ die Consent-Version, (b) den Banner-Text und (c) `legal_pages.datenschutz` über
 `/admin/rechtliches/datenschutz`. Der aktuelle Stand ist per SQL prüfbar:
 `select slug, content ilike '%openstreetmap%' from legal_pages where slug='datenschutz';`
 
-## Sicherheitsmodell (Stand 30.07.2026, geprüft)
+## Sicherheitsmodell (Stand 21.09.2026)
+
+> [!warning] Umbau liegt bereit, ist NICHT angewendet
+> Die Migrationen **0024–0026** stellen das unten beschriebene Modell um: von „eingeloggt =
+> Administrator" auf eine echte Rollenprüfung (`public.admin_users` + `public.is_admin()`).
+> Sie sind geschrieben, aber noch **nicht ausgeführt** — in der Session vom 21.09.2026 hatte
+> weder der Supabase-MCP noch die CLI Zugriff auf `insyjxxpeywehwnoazjr`. Bis sie laufen, gilt
+> alles Folgende unverändert weiter.
+> **Anwenden und messen:** `docs/2026-09-21-rls-admin-rolle-anwenden.md` — dort steht die
+> Reihenfolge, der Notausstieg gegen Aussperrung und je Schritt der Befehl, der es beweist.
+
 
 Pro Tabelle eine öffentliche Lese-/Insert-Policy plus `admin all <tabelle>` für `authenticated`
 (Single-Admin-Setup: eingeloggt = Steffen). Bei `site_settings` sind bewusst **nur** Keys mit
@@ -363,7 +373,9 @@ Wer hier etwas ändert, muss die drei tragenden Annahmen kennen. Sie hängen von
    `using (true) with check (true)`. Es gibt keine Rollen, keine Zeilenbeschränkung, keine
    Trennung zwischen „darf Shows pflegen" und „darf Anfragen löschen". Der Supabase Security
    Advisor meldet das als 18 × `rls_policy_always_true` — das sind **erwartete** Warnungen, keine
-   offenen Lücken, solange Punkt 2 gilt.
+   offenen Lücken, solange Punkt 2 gilt. Migration **0025** hebt genau diese Abhängigkeit auf:
+   Danach ist Administrator, wer in `public.admin_users` steht, und ein neues Auth-Konto hat
+   standardmäßig **keine** Rechte.
 2. **Selbstregistrierung ist ausgeschaltet — das ist die eigentliche Absicherung.**
    `disable_signup: true`, Anonymous-Logins aus, kein OAuth-Provider aktiv, genau **ein** User in
    `auth.users`. Nachprüfbar ohne Dashboard:
@@ -371,7 +383,11 @@ Wer hier etwas ändert, muss die drei tragenden Annahmen kennen. Sie hängen von
    ⚠️ **Wird Signup je aktiviert, kann sich jede fremde Person registrieren und ist damit sofort
    `authenticated` — also schreib- und löschberechtigt auf jeder Tabelle und im Storage.** Das ist
    kein theoretisches Risiko, sondern die direkte Folge von Punkt 1. Vor dem Aktivieren erst die
-   Policies auf eine echte Rollenprüfung umbauen.
+   Policies auf eine echte Rollenprüfung umbauen — das ist Migration 0025, sie liegt bereit.
+   Ebenfalls offen und aus derselben Familie: `mailer_autoconfirm: true`. Solange Signup aus
+   ist, wirkt es nicht; zusammen mit einem aktivierten Signup hieße es, dass ein fremdes Konto
+   **ohne jede Bestätigung** sofort gültig ist (Pflichtkern Punkt 11.3). Schritt 4 der
+   Anwendungs-Anleitung schaltet es ab — mit der SMTP-Falle, die dabei zu beachten ist.
 3. **`proxy.ts` schützt Server Actions NICHT.** Requests mit `next-action`-Header werden bewusst
    ohne Redirect durchgelassen (sonst bricht die Flight-Response, siehe Kommentar dort). Die
    Autorisierung von Schreibvorgängen macht damit **allein RLS** — die Server Action läuft mit dem
@@ -406,6 +422,18 @@ wäre pro Instanz getrennt und damit wirkungslos): max. 5 Anfragen je E-Mail-Adr
 Bestätigungsmail geht an die im Formular angegebene Adresse — ohne Bremse ist das Formular ein
 Spam-Verstärker über Steffens SMTP-Konto, und der realistische Schaden ist ein gesperrtes
 Postfach bei DMARC `p=reject`.
+
+⚠️ **Was 0021 nicht abgedeckt hat und Migration 0024 nachholt:** Begrenzt war die *Menge*, nicht
+der *Spaltenumfang*. `anon` durfte beim Einfügen auch `status` und `created_at` mitgeben — eine
+RLS-Policy filtert Zeilen, keine Spalten, und `with check (true)` prüfte nichts. Gemessen am
+21.09.2026 gegen die Produktions-API: Ein Insert mit `{"status":"answered"}` wurde erst vom
+`type`-CHECK abgewiesen (23514), **nicht** von fehlenden Spaltenrechten (42501). Wirkung mit
+gültigem `type`: kein „neu"-Badge (beide Zähler im Admin filtern auf `status = 'new'`), Position
+am Ende der nach `created_at` sortierten Liste, Farbe „erledigt" — und keine
+Benachrichtigungsmail, weil ein direkter REST-Insert die Server Action umgeht. Eine echte
+Buchungsanfrage ließ sich damit von außen faktisch unsichtbar machen. Der Schaden wäre kein
+Datenabfluss gewesen, sondern eine verlorene Buchung. 0024 entzieht `anon` alle Tabellenrechte
+und gibt genau die sechs Formularspalten zurück, die `lib/actions/submit-inquiry.ts` sendet.
 
 ## Rechtsstand — was steht, was offen ist
 

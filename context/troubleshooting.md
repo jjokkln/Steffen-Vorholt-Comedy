@@ -340,3 +340,43 @@ fest, damit die Abweichung wenigstens auffällt.
 `video/mp4` — mit dem Codec-Zusatz ist das ein anderer String, und der Storage lehnt die Datei als
 unerlaubten Typ ab. Betraf jedes im Browser verkleinerte Video unter „Videos & Speicher".
 `plainContentType()` schneidet den Parameter jetzt ab.
+
+## Admin-Rolle statt `authenticated` (Migrationen 0024–0026, 21.09.2026)
+
+Ablauf, Reihenfolge und die Messbefehle stehen in
+`docs/2026-09-21-rls-admin-rolle-anwenden.md`. Hier nur die Symptome, nach denen man sucht,
+wenn nach dem Anwenden etwas klemmt.
+
+**Das Admin-Dashboard ist nach 0025 leer, ohne Fehlermeldung.** Dann steht dein Konto nicht in
+`public.admin_users`. Die Tabelle hat RLS an und **absichtlich keine Policy** — über die
+REST-API kommt niemand an sie heran, auch du nicht. Der Weg hinein ist der SQL-Editor im
+Dashboard, der als `postgres` läuft und RLS umgeht:
+
+```sql
+insert into public.admin_users (user_id) select id from auth.users;
+```
+
+Dass die Seite dabei *leer* statt *fehlerhaft* aussieht, ist erwartbar: Ein Lesezugriff, den
+RLS wegfiltert, liefert 0 Zeilen und keinen Fehler. Ein leerer Zustand und eine greifende
+Policy sehen von außen gleich aus — deshalb zählen, nicht hinsehen.
+
+**Die öffentliche Website meldet `permission denied for function is_admin`.** Dann referenziert
+eine Policy, die auch für `anon` gilt, den Helfer — die Falle aus Regel supabase-sicherheit
+Punkt 7. Postgres prüft EXECUTE beim Planen der Abfrage, unabhängig davon, ob der Zweig zur
+Laufzeit überhaupt ausgewertet würde. Sofortmaßnahme
+`grant execute on function public.is_admin() to anon;`, danach die Policy suchen und in zwei
+getrennte aufteilen (eine für `anon` ohne Helfer, eine für `authenticated` mit). Beim Stand vom
+21.09.2026 kann das nicht auftreten: Die öffentlichen Lese-Policies sind reine
+`using (true)`-Ausdrücke. Eine später hinzugefügte anon-Policy mit Helferaufruf bringt es
+zurück.
+
+**Das Anfrageformular meldet nach 0024 „Houston, wir haben ein Problem".** Im Server-Log steht
+dann `permission denied for column`. 0024 gibt `anon` nur `insert` auf
+`(type, name, email, phone, message, payload)`. Kommt eine Spalte im Formular dazu, muss sie in
+den GRANT — sonst bricht das Absenden vollständig. Der GRANT steht in
+`supabase/migrations/0024_anfragen_nur_formularspalten.sql`, die sendende Stelle in
+`lib/actions/submit-inquiry.ts`.
+
+⚠️ **Die Spaltenliste steht damit an zwei Orten** — dieselbe Bauart wie die Upload-Grenze
+darüber, und sie wird von keinem Test gehalten. Ein fehlender GRANT wird beim Bauen nicht rot,
+sondern erst, wenn jemand das Formular abschickt.
