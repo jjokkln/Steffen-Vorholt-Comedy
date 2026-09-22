@@ -11,6 +11,7 @@ import {
   parseRecipients,
   recipientsFor,
 } from "@/lib/settings";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -48,6 +49,16 @@ export async function saveNotificationSettings(_prev: FormState, formData: FormD
   } catch (err) {
     return { ok: false, message: (err as Error).message, at: Date.now() };
   }
+  // ⚠️ Die Adressen selbst stehen NICHT im Protokoll — nur, dass die Empfänger
+  // geändert wurden. Wer die Benachrichtigung umleitet, leitet Buchungsanfragen
+  // um; DASS das passiert ist, muss nachvollziehbar sein, die Adresse steht in
+  // `site_settings` und gehört nicht zusätzlich in eine zweite Tabelle.
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "einstellung",
+    objektId: "benachrichtigungs-empfaenger",
+    bezeichnung: "Empfänger der Anfrage-Benachrichtigungen",
+  });
   revalidatePath("/admin/einstellungen");
   return { ok: true, message: "Empfänger gespeichert.", at: Date.now() };
 }

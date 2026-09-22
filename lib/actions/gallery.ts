@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
 import { deleteFilesIfUnused } from "@/lib/media-refs";
+import { protokolliere } from "@/lib/audit";
 
 /** Speichert ein bereits per Direkt-Upload (mit Zuschnitt) hochgeladenes Galeriefoto. */
 export async function addGalleryItem(input: {
@@ -14,13 +15,19 @@ export async function addGalleryItem(input: {
 }) {
   if (!input.imagePath) throw new Error("Bild ist Pflicht.");
   const supabase = await createServerSupabase();
-  const { error } = await supabase.from("gallery_items").insert({
+  const { data, error } = await supabase.from("gallery_items").insert({
     image_path: input.imagePath,
     caption: input.caption.trim(),
     category: input.category.trim(),
     sort_order: input.sortOrder,
-  });
+  }).select("id").single();
   if (error) throw new Error(`Galerie-Eintrag fehlgeschlagen: ${error.message}`);
+  await protokolliere({
+    aktion: "hochgeladen",
+    objekt: "galeriebild",
+    objektId: data.id as string,
+    bezeichnung: input.caption.trim() || null,
+  });
   revalidatePublic();
   revalidatePath("/admin/galerie");
 }
@@ -33,6 +40,12 @@ export async function updateGalleryItem(id: string, formData: FormData) {
     sort_order: Number(formData.get("sort_order") ?? 0),
   }).eq("id", id);
   if (error) throw new Error(`Speichern fehlgeschlagen: ${error.message}`);
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "galeriebild",
+    objektId: id,
+    bezeichnung: String(formData.get("caption") ?? ""),
+  });
   revalidatePublic();
   revalidatePath("/admin/galerie");
 }
@@ -45,6 +58,7 @@ export async function deleteGalleryItem(id: string) {
   const { error } = await supabase.from("gallery_items").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
   await deleteFilesIfUnused(supabase, [row?.image_path]);
+  await protokolliere({ aktion: "geloescht", objekt: "galeriebild", objektId: id });
   revalidatePublic();
   revalidatePath("/admin/galerie");
 }
@@ -55,6 +69,7 @@ export async function setHeroVideoPath(path: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("site_media").upsert({ key: "hero_video", file_path: path, updated_at: new Date().toISOString() });
   if (error) throw new Error(`Video speichern fehlgeschlagen: ${error.message}`);
+  await protokolliere({ aktion: "hochgeladen", objekt: "medium", objektId: "hero_video", bezeichnung: "Hero-Video" });
   revalidatePublic();
   revalidatePath("/admin/galerie");
 }

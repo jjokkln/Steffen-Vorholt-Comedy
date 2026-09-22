@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { deleteFilesIfUnused } from "@/lib/media-refs";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -32,12 +33,21 @@ function appearanceFields(formData: FormData) {
 
 export async function createAppearance(_prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  let neueId: string;
   try {
-    const { error } = await supabase.from("appearances").insert(appearanceFields(formData));
+    const { data, error } = await supabase.from("appearances").insert(appearanceFields(formData)).select("id").single();
     if (error) throw new Error(error.message);
+    neueId = data.id as string;
   } catch (err) {
     return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "gastauftritt",
+    objektId: neueId,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: { veroeffentlicht: formData.get("is_published") === "on" },
+  });
   revalidatePublic();
   redirect("/admin/auftritte");
 }
@@ -55,6 +65,13 @@ export async function updateAppearance(id: string, _prev: FormState, formData: F
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
   await deleteFilesIfUnused(supabase, [previous?.flyer_path]);
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "gastauftritt",
+    objektId: id,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: { veroeffentlicht: formData.get("is_published") === "on" },
+  });
   revalidatePublic();
   revalidatePath("/admin/auftritte");
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -67,6 +84,7 @@ export async function deleteAppearance(id: string) {
   const { error } = await supabase.from("appearances").delete().eq("id", id);
   if (error) throw new Error(`Auftritt löschen fehlgeschlagen: ${error.message}`);
   await deleteFilesIfUnused(supabase, [row?.flyer_path]);
+  await protokolliere({ aktion: "geloescht", objekt: "gastauftritt", objektId: id });
   revalidatePublic();
   revalidatePath("/admin/auftritte");
 }

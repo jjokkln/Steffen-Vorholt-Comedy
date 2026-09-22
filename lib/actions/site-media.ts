@@ -5,6 +5,7 @@ import { revalidatePublic } from "@/lib/revalidate";
 import { revalidatePath } from "next/cache";
 import { siteMediaSlot } from "@/lib/site-media";
 import { deleteFileIfUnused } from "@/lib/media-refs";
+import { protokolliere } from "@/lib/audit";
 
 /**
  * Speichert den Pfad einer bereits per Direkt-Upload hochgeladenen Datei für einen
@@ -28,6 +29,13 @@ export async function setSiteMediaPath(key: string, path: string) {
   const old = (previous?.file_path ?? "").trim();
   if (old && old !== path) await deleteFileIfUnused(supabase, old);
 
+  await protokolliere({
+    aktion: "hochgeladen",
+    objekt: "medium",
+    objektId: key,
+    bezeichnung: siteMediaSlot(key)?.label ?? key,
+    details: { ersetzt: Boolean(old && old !== path) },
+  });
   revalidatePublic();
   revalidatePath("/admin/medien");
 }
@@ -53,6 +61,14 @@ export async function clearSiteMediaPath(key: string) {
   const old = (previous?.file_path ?? "").trim();
   if (old) await deleteFileIfUnused(supabase, old);
 
+  // Paarweise zu `setSiteMediaPath`: Das Leeren eines Platzes nimmt ein Bild
+  // oder Video von der Website, ohne dass irgendwo ein Fehler entsteht.
+  await protokolliere({
+    aktion: "geleert",
+    objekt: "medium",
+    objektId: key,
+    bezeichnung: siteMediaSlot(key)?.label ?? key,
+  });
   revalidatePublic();
   revalidatePath("/admin/medien");
 }

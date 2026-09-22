@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { einwilligungNachweisen } from "@/lib/einwilligung-nachweis";
 
 /**
  * Consent-Verwaltung nach § 25 TDDDG / Art. 6 Abs. 1 lit. a DSGVO.
@@ -140,11 +141,27 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
-  const save = useCallback((next: ConsentCategories) => {
-    setCategories(next);
-    persistConsent(next);
-    setManualOpen(false);
-  }, []);
+  const save = useCallback(
+    (next: ConsentCategories) => {
+      setCategories(next);
+      persistConsent(next);
+      setManualOpen(false);
+
+      // Nachweis nach Art. 7 Abs. 1 DSGVO. Bewusst ohne `await`: Ein Bannerklick
+      // darf nicht auf die Datenbank warten. Die Unterscheidung „erteilt /
+      // abgelehnt / widerrufen" kommt aus dem VORHERIGEN Zustand — wer schon
+      // eingewilligt hatte und jetzt alles abwählt, widerruft, und das ist nach
+      // Art. 7 Abs. 3 ein eigener Vorgang.
+      const hatteEingewilligt = categories !== null && Object.values(categories).some(Boolean);
+      const willigtEin = Object.values(next).some(Boolean);
+      void einwilligungNachweisen(
+        willigtEin ? "erteilt" : hatteEingewilligt ? "widerrufen" : "abgelehnt",
+        CONSENT_VERSION,
+        next,
+      );
+    },
+    [categories],
+  );
 
   const openSettings = useCallback(() => setManualOpen(true), []);
   const closeSettings = useCallback(() => setManualOpen(false), []);

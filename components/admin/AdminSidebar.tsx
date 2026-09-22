@@ -57,7 +57,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "System",
-    items: [{ href: "/admin/einstellungen", label: "Benachrichtigungen" }],
+    items: [
+      { href: "/admin/einstellungen", label: "Benachrichtigungen" },
+      { href: "/admin/protokoll", label: "Protokoll" },
+    ],
   },
 ];
 

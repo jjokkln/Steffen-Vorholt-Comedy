@@ -641,7 +641,8 @@ textarea{min-height:130px;resize:vertical}
    dashboard wirkt das überdimensioniert statt professionell). */
 .admin-layout h2{font-size:clamp(26px,2.6vw,34px);line-height:1.15;letter-spacing:-.02em}
 .admin-layout h3{font-size:clamp(19px,1.8vw,23px);line-height:1.25;letter-spacing:-.01em}
-.admin-login h3{font-size:clamp(22px,2.6vw,28px);line-height:1.2;letter-spacing:-.02em}
+.admin-login h1{font-size:clamp(30px,3.4vw,40px);line-height:1.1;letter-spacing:-.03em;margin-bottom:18px;text-align:center}
+.admin-login h2,.admin-login h3{font-size:clamp(22px,2.6vw,28px);line-height:1.2;letter-spacing:-.02em}
 .admin-layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;border:1px solid var(--line);border-radius:34px;background:rgba(255,255,255,.07);padding:28px;box-shadow:var(--shadow);min-height:calc(100vh - 220px)}
 /* Gleichmäßiger Abstand zwischen Überschrift/Button-Zeile und dem ersten Inhaltsblock
    (Tabelle/Formular/Karten) auf jeder Admin-Seite — vorher berührten sich die Elemente

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -48,13 +49,30 @@ export async function createShowOffer(
 ): Promise<FormState> {
   const supabase = await createServerSupabase();
   let target: string | null = showId;
+  let neueId: string;
   try {
     target = formShowId(formData, showId);
-    const { error } = await supabase.from("offers").insert({ ...offerFields(formData), show_id: target });
+    const { data, error } = await supabase
+      .from("offers").insert({ ...offerFields(formData), show_id: target }).select("id").single();
     if (error) throw new Error(error.message);
+    neueId = data.id as string;
   } catch (err) {
     return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  // ⚠️ Angebote tragen Preise und Gültigkeiten — ein Kunde liest sie als Zusage
+  // (Pflichtkern Punkt 5). Genau dafür ist Punkt 12 da: „seit wann steht dieser
+  // Code auf der Seite" muss rückwirkend beantwortbar sein.
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "angebot",
+    objektId: neueId,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: {
+      code: String(formData.get("code") ?? ""),
+      gueltigkeit: String(formData.get("validity") ?? ""),
+      aktiv: formData.get("is_active") === "on",
+    },
+  });
   revalidateShows(showId, target);
   return { ok: true, message: "Angebot angelegt!", at: Date.now() };
 }
@@ -77,6 +95,18 @@ export async function updateOffer(
   } catch (err) {
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "angebot",
+    objektId: id,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: {
+      code: String(formData.get("code") ?? ""),
+      gueltigkeit: String(formData.get("validity") ?? ""),
+      aktiv: formData.get("is_active") === "on",
+      verschoben: target !== showId,
+    },
+  });
   revalidateShows(showId, target);
   return { ok: true, message: target === showId ? "Gespeichert!" : "Gespeichert und verschoben!", at: Date.now() };
 }
@@ -93,6 +123,13 @@ export async function assignOfferToShow(
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("offers").update({ show_id: targetShowId }).eq("id", id);
   if (error) throw new Error(`Zuordnen fehlgeschlagen: ${error.message}`);
+  // Paarweise: Zuordnen und Lösen gehen durch dieselbe Funktion.
+  await protokolliere({
+    aktion: targetShowId ? "zugeordnet" : "entzogen",
+    objekt: "angebot",
+    objektId: id,
+    details: { show: targetShowId ?? "keine" },
+  });
   revalidateShows(currentShowId, targetShowId);
 }
 
@@ -101,6 +138,11 @@ export async function setOfferActive(id: string, showId: string, isActive: boole
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("offers").update({ is_active: isActive }).eq("id", id);
   if (error) throw new Error(`Sichtbarkeit ändern fehlgeschlagen: ${error.message}`);
+  await protokolliere({
+    aktion: isActive ? "veroeffentlicht" : "zurueckgezogen",
+    objekt: "angebot",
+    objektId: id,
+  });
   revalidateShows(showId);
 }
 
@@ -108,5 +150,6 @@ export async function deleteOffer(id: string, showId: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("offers").delete().eq("id", id);
   if (error) throw new Error(`Angebot löschen fehlgeschlagen: ${error.message}`);
+  await protokolliere({ aktion: "geloescht", objekt: "angebot", objektId: id });
   revalidateShows(showId);
 }

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { deleteFilesIfUnused } from "@/lib/media-refs";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -37,6 +38,12 @@ export async function createComedian(_prev: FormState, formData: FormData): Prom
   } catch (err) {
     return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "comedian",
+    objektId: newId,
+    bezeichnung: String(formData.get("name") ?? ""),
+  });
   revalidatePublic();
   redirect(`/admin/comedians/${newId}`);
 }
@@ -55,6 +62,13 @@ export async function updateComedian(id: string, _prev: FormState, formData: For
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
   await deleteFilesIfUnused(supabase, [previous?.photo_path]);
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "comedian",
+    objektId: id,
+    bezeichnung: String(formData.get("name") ?? ""),
+    details: { sichtbar: formData.get("is_active") === "on" },
+  });
   revalidatePublic();
   revalidatePath(`/admin/comedians/${id}`);
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -67,6 +81,7 @@ export async function deleteComedian(id: string) {
   const { error } = await supabase.from("comedians").delete().eq("id", id);
   if (error) throw new Error(`Comedian löschen fehlgeschlagen: ${error.message}`);
   await deleteFilesIfUnused(supabase, [row?.photo_path]);
+  await protokolliere({ aktion: "geloescht", objekt: "comedian", objektId: id });
   revalidatePublic();
   redirect("/admin/comedians");
 }

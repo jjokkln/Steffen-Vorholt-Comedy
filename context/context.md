@@ -496,6 +496,118 @@ still, jetzt fehlt schon das Tabellenrecht.
 ihn fiele ein neues Formularfeld erst auf, wenn ein Besucher absendet und
 „permission denied for column" im Server-Log landet.
 
+## Sicherheit: Bremse, Protokoll, CSP (seit 22.09.2026)
+
+Drei Dinge aus dem Sicherheitsbefund vom 21.09., gebaut am 22.09. Migrationen
+`0028`–`0032`.
+
+### Anfrage-Bremse (`lib/bremse.ts`, Migration 0030/0031)
+
+Zwei Strecken, drei Eimer: `login_quelle` (30/h), `login_konto` (10/h),
+`anfrage_quelle` (10/h). Fixed-Window-Zähler in Postgres, nicht im
+Prozessspeicher — auf Vercel zählt eine `Map` pro Lambda-Instanz und ist gegen
+Raten wirkungslos.
+
+Vier Punkte, die man kennen muss:
+
+1. **Die Kennung ist `sha256(BREMSE_GEHEIMNIS + ':' + art + ':' + wert)`**, nie
+   die IP oder die Adresse selbst. Grund: Die Zählfunktionen müssen für `anon`
+   aufrufbar sein (eine Anmeldung ist anonym), und ohne Hash wäre der Zähler ein
+   **Aussperr-Werkzeug** — wer die Kennung kennt, sperrt gezielt jemanden aus.
+   Ohne das Geheimnis lässt sich keine fremde Kennung bilden. Nebeneffekt: In der
+   Tabelle steht keine IP und keine Adresse im Klartext.
+   ⚠️ **Ohne `BREMSE_GEHEIMNIS` wird NICHT gebremst**, und das steht im
+   Server-Log. Ein Standardwert im Code wäre schlimmer als keine Bremse.
+2. **Nur Fehlversuche zählen, die Vorabprüfung liest.** `bremseGreift()` erhöht
+   nichts; sonst verbrauchte jeder erfolgreiche Login Budget. *Gemessen am
+   22.09.2026:* drei Fehlversuche über das echte Formular → Stand exakt **3**
+   (nicht 6), beide Eimer.
+3. **Bei Erfolg zurücksetzen**, damit eine vertippte Eingabe nichts kostet.
+4. **Fail-open mit Log.** Klemmt der Zähler, bleibt die Anmeldung offen — eine
+   hustende Datenbank darf nicht die Tür zumauern.
+
+Der globale Deckel am Anfrageformular (Migration 0021) steht jetzt bei **200**
+statt 60: Er war mit 60 auch ein Abschaltknopf — ein Angreifer kaufte damit eine
+Stunde lang jede Buchungsanfrage weg. Gebremst wird jetzt je Quelle.
+
+### Audit-Log (`lib/audit.ts`, Migration 0028/0032)
+
+Pflichtkern Punkt 12, Fall 2: Die Verwaltungsfläche zählt dazu, auch ohne Konten
+für Besucher. 58 schreibende Server-Funktionen, alle protokolliert oder mit
+Begründung in `scripts/audit-abdeckung.mjs` (`npm run test:audit-abdeckung`).
+
+**Die Bauart weicht bewusst von der Vorlage (boltwork) ab:** Dort schreibt der
+Service-Role-Client. Dieses Projekt hat keinen und soll keinen bekommen — ein
+solcher Schlüssel in der Vercel-Umgebung umgeht die RLS des ganzen Projekts.
+Stattdessen:
+
+- `audit_logs` hat **nur eine SELECT-Policy**. Kein direkter Insert, kein Update,
+  kein Delete — auch nicht für einen angemeldeten Admin.
+- Geschrieben wird ausschließlich über `public.audit_schreiben()`, die den
+  Handelnden aus `auth.uid()` nimmt statt als Parameter. Eine fremde Nutzer-Id
+  ist damit nicht eintragbar, weil es kein Feld dafür gibt.
+
+*Gemessen am 22.09.2026 (SQL-Probe mit gesetzten JWT-Claims, danach
+zurückgerollt):* Admin schreibt → 1 Zeile mit korrektem Handelnden ·
+Nicht-Admin → `AUDIT_OHNE_BERECHTIGUNG` · Admin ändert eine Protokollzeile →
+**0 Zeilen** · Admin löscht eine → **0 Zeilen**.
+
+⚠️ **Noch nicht durch die Anwendung ausgelöst** — dafür fehlt eine Anmeldung.
+Die Funktion ist bewiesen, der Aufruf aus den Server Actions nicht.
+
+Gelesen wird unter `/admin/protokoll` (nur lesend, letzte 200 Vorgänge, Knopf
+zum Löschen abgelaufener Einträge).
+
+### Einwilligungs-Nachweis (`lib/einwilligung-nachweis.ts`, Migration 0029)
+
+Pflichtkern Punkt 12, Fall 3. Die Einwilligung lag bisher nur im `localStorage`
+des Besuchers — ein Datum auf dem Gerät des Betroffenen ist kein Nachweis, den
+der Verantwortliche führen kann (Art. 7 Abs. 1 DSGVO).
+
+Gespeichert werden **nur** Zeitpunkt, Banner-Version, Kategorien, Entscheidung
+und eine im Browser erzeugte Zufallszahl. **Keine IP, kein User-Agent, keine
+URL.** Die Zufallszahl beantwortet die einzige Frage, für die eine Zuordnung
+nötig ist: „wurde dieselbe Einwilligung später widerrufen".
+
+*Gemessen am 22.09.2026, ganze Strecke durch den Browser:* „Alle akzeptieren" →
+Zeile `erteilt` · danach über den Fußbereich „Nur Notwendige" → Zeile
+`widerrufen` unter derselben Kennung. Beide Richtungen, wie Punkt 12 es für
+paarweise Handlungen verlangt. Probezeilen danach gelöscht.
+
+### Content-Security-Policy (`next.config.ts`)
+
+⚠️ **`script-src` enthält `'unsafe-inline'`** — gegen eingeschleusten Inline-Code
+schützt diese Richtlinie **nicht**. Der saubere Weg wäre eine Nonce je Anfrage;
+die verlangt serverseitiges Rendern jeder Seite, und diese Website ist bis auf
+das Dashboard vollständig statisch (43 vorgerenderte Seiten). Was sie trotzdem
+verhindert: Skripte von fremden Hosts, `<base>`-Hijacking, Formular-Exfiltration,
+Plugins, fremde Rahmen.
+
+⚠️ **Die `frame-src`-Liste ist der vierte Schritt der Drei-Schritt-Regel.** Wer
+einen Dienst einbettet, ohne ihn dort einzutragen, bekommt eine leere Fläche —
+zum ersten Mal wird etwas sichtbar rot, wenn jemand den Schritt vergisst.
+
+*Gemessen am 22.09.2026 über neun Seiten (Playwright, Konsole mitgelesen):*
+**0 CSP-Verstöße, 0 Seitenfehler**, Three.js-Hintergrund und Panel laufen
+überall. Die Meldungen zu `/_vercel/insights/script.js` sind **keine**
+CSP-Verstöße, sondern der lokale 404 dieser Route — auf Vercel liegt sie
+same-origin.
+
+### Was am Advisor absichtlich stehen bleibt
+
+`get_advisors(security)` meldet nach diesen Migrationen zehn Punkte. Alle sind
+gewollt, und das ist der Grund:
+
+- **`bremse_zaehler` hat RLS ohne Policy.** Genau so muss es sein: Stünde die
+  Zählertabelle unter der RLS derer, die sie bremst, verschluckte eine
+  fehlschlagende Policy das Hochzählen still, und die Bremse wäre lautlos
+  wirkungslos.
+- **Vier Funktionen sind für `anon` ausführbar** (`bremse_*`,
+  `einwilligung_nachweisen`). Eine Anmeldung und ein Cookie-Banner sind anonym —
+  der Schutz liegt im Hash bzw. in den Wertprüfungen, nicht im Entzug.
+- **`audit_*` sind für `authenticated` ausführbar.** Sie prüfen selbst auf Admin.
+- **`admin_users` ohne Policy** — der gewollte Zustand seit Migration 0025.
+
 ## Rechtsstand — was steht, was offen ist
 
 Geprüft am 30.07.2026. **Umgesetzt und belastbar:** Impressum nach § 5 DDG (inkl. § 18 Abs. 2

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { deleteFilesIfUnused } from "@/lib/media-refs";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -60,6 +61,12 @@ export async function createShow(_prev: FormState, formData: FormData): Promise<
   } catch (err) {
     return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "show",
+    objektId: newId,
+    bezeichnung: String(formData.get("name") ?? ""),
+  });
   revalidatePublic();
   // Auf die Bearbeiten-Seite der neuen Show, damit direkt Videos hinzugefügt werden können.
   redirect(`/admin/shows/${newId}`);
@@ -87,6 +94,16 @@ export async function updateShow(id: string, _prev: FormState, formData: FormDat
     previous?.header_image_path,
     previous?.background_image_path,
   ]);
+  // `is_active` steht im Protokoll, weil es die Sichtbarkeit auf der Website
+  // entscheidet — „war die Show am Stichtag online" ist genau die Frage, die
+  // rückwirkend gestellt wird.
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "show",
+    objektId: id,
+    bezeichnung: String(formData.get("name") ?? ""),
+    details: { sichtbar: formData.get("is_active") === "on" },
+  });
   revalidatePublic();
   revalidatePath(`/admin/shows/${id}`);
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -111,6 +128,15 @@ export async function deleteShow(id: string) {
     ...(images ?? []).map((row) => row.image_path as string),
     ...(videos ?? []).flatMap((row) => [row.video_path as string, row.poster_path as string]),
   ]);
+  await protokolliere({
+    aktion: "geloescht",
+    objekt: "show",
+    objektId: id,
+    bezeichnung: null,
+    // Beim Löschen einer Show fallen Bilder und Videos per CASCADE mit weg.
+    // Die Zahlen stehen hier, weil sie hinterher nicht mehr zu ermitteln sind.
+    details: { bilder: (images ?? []).length, videos: (videos ?? []).length },
+  });
   revalidatePublic();
   redirect("/admin/shows");
 }

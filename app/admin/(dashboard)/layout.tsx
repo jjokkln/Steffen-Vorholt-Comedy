@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       <div className="container" style={{ paddingBlock: "32px clamp(48px, 6vw, 96px)" }}>
         <div className="admin-layout">
           <AdminSidebar newInquiries={newInquiries ?? 0} />
-          <main id="main-content" tabIndex={-1}>
+          <main id="hauptinhalt" tabIndex={-1}>
             {children}
           </main>
         </div>

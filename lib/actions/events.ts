@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { parseDateList } from "@/lib/bulk-dates";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -32,12 +33,22 @@ function eventFields(formData: FormData) {
 
 export async function createEvent(_prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  let neueId: string;
   try {
-    const { error } = await supabase.from("events").insert(eventFields(formData));
+    const felder = eventFields(formData);
+    const { data, error } = await supabase.from("events").insert(felder).select("id").single();
     if (error) throw new Error(error.message);
+    neueId = data.id as string;
   } catch (err) {
     return { ok: false, message: `Termin anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "termin",
+    objektId: neueId,
+    bezeichnung: `${String(formData.get("date") ?? "")} ${String(formData.get("city") ?? "")}`.trim(),
+    details: { veroeffentlicht: formData.get("is_published") === "on" },
+  });
   revalidatePublic();
   redirect("/admin/termine");
 }
@@ -50,6 +61,15 @@ export async function updateEvent(id: string, _prev: FormState, formData: FormDa
   } catch (err) {
     return { ok: false, message: `Termin speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  // `is_published` steht dabei: Ein Termin, der still offline genommen wird,
+  // ist für einen Besucher dasselbe wie ein abgesagter — nur ohne Absage.
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "termin",
+    objektId: id,
+    bezeichnung: `${String(formData.get("date") ?? "")} ${String(formData.get("city") ?? "")}`.trim(),
+    details: { veroeffentlicht: formData.get("is_published") === "on" },
+  });
   revalidatePublic();
   revalidatePath(`/admin/termine/${id}`);
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -59,6 +79,7 @@ export async function deleteEvent(id: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("events").delete().eq("id", id);
   if (error) throw new Error(`Termin löschen fehlgeschlagen: ${error.message}`);
+  await protokolliere({ aktion: "geloescht", objekt: "termin", objektId: id });
   revalidatePublic();
   redirect("/admin/termine");
 }
@@ -71,12 +92,24 @@ export async function createShowEvent(
   formData: FormData,
 ): Promise<FormState> {
   const supabase = await createServerSupabase();
+  let neueId: string;
   try {
-    const { error } = await supabase.from("events").insert(eventFields(formData));
+    const { data, error } = await supabase.from("events").insert(eventFields(formData)).select("id").single();
     if (error) throw new Error(error.message);
+    neueId = data.id as string;
   } catch (err) {
     return { ok: false, message: `Termin anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  // Zweiter Weg in dieselbe Sache — und deshalb protokollpflichtig wie der
+  // erste: Ein Termin, der über die Show-Seite entsteht, ist derselbe Vorgang
+  // wie einer aus der Terminliste (Pflichtkern Punkt 12, „jeder zweite Weg").
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "termin",
+    objektId: neueId,
+    bezeichnung: `${String(formData.get("date") ?? "")} ${String(formData.get("city") ?? "")}`.trim(),
+    details: { ueber: "show-seite", veroeffentlicht: formData.get("is_published") === "on" },
+  });
   revalidatePublic();
   redirect(`/admin/shows/${showId}`);
 }
@@ -152,6 +185,16 @@ export async function createVenueEvents(
     return { ok: false, message: `Termine anlegen fehlgeschlagen: ${error.message}`, at: Date.now() };
   }
 
+  // Eine Serie ist EIN Vorgang, nicht n. Protokolliert wird deshalb der Ort mit
+  // der Zahl der entstandenen Termine — n Einzelzeilen wären Rauschen, in dem
+  // die Vorgänge untergehen, auf die es ankommt.
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "termin",
+    objektId: venueId,
+    bezeichnung: `${fresh.length} Termine in ${venue.city as string}`,
+    details: { anzahl: fresh.length, uebersprungen: dates.length - fresh.length, ueber: "standort-serie" },
+  });
   revalidatePublic();
   revalidatePath("/admin/standorte");
   revalidatePath("/admin/termine");
@@ -169,6 +212,7 @@ export async function deleteShowEvent(id: string, showId: string) {
   const supabase = await createServerSupabase();
   const { error } = await supabase.from("events").delete().eq("id", id);
   if (error) throw new Error(`Termin löschen fehlgeschlagen: ${error.message}`);
+  await protokolliere({ aktion: "geloescht", objekt: "termin", objektId: id, details: { ueber: "show-seite" } });
   revalidatePublic();
   redirect(`/admin/shows/${showId}`);
 }

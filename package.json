@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "node --test \"tests/**/*.test.*\""
+    "test": "node --test \"tests/**/*.test.*\"",
+    "test:audit-abdeckung": "node scripts/audit-abdeckung.mjs"
   },
   "dependencies": {
     "@growcore/a11y": "github:jjokkln/growcore-a11y#1ea6bf291deffca83edb66c6eba2e2c3ebff43af",

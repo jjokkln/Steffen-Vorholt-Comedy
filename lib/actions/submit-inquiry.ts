@@ -1,6 +1,7 @@
 "use server";
 
 import { createPublicClient } from "@/lib/supabase/public";
+import { anfragendeQuelle, bremseGreift, fehlversuchZaehlen } from "@/lib/bremse";
 import { sendInquiryConfirmation, sendInquiryNotification } from "@/lib/email";
 import { getNotificationSettings } from "@/lib/settings";
 import type { InquiryType } from "@/lib/types";
@@ -40,6 +41,22 @@ export async function submitInquiry(
   // Honeypot: echtes Feld ist unsichtbar — Bots füllen es aus.
   if (String(formData.get("website") ?? "")) return { ok: true };
 
+  // Bremse je Quelle. Die Grenze je Adresse (5/Stunde) liegt in der Datenbank
+  // und greift auch am REST-Weg vorbei; diese hier ergänzt die Dimension, die
+  // dort fehlt: Migration 0021 kannte nur „Adresse" und „alle zusammen", und
+  // der globale Deckel war damit auch ein Abschaltknopf — 60 Anfragen aus einer
+  // Quelle kauften eine Stunde lang jede echte Buchungsanfrage weg. Der Deckel
+  // steht seit Migration 0030 bei 200, gebremst wird hier.
+  const quelle = await anfragendeQuelle();
+  if (await bremseGreift("anfrage_quelle", quelle)) {
+    return {
+      ok: false,
+      error:
+        "Von hier kamen gerade sehr viele Anfragen. Bitte in einer Stunde erneut versuchen – " +
+        "oder direkt eine E-Mail schreiben, die Adresse steht im Impressum.",
+    };
+  }
+
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
@@ -77,6 +94,11 @@ export async function submitInquiry(
     console.error("[inquiry] Insert fehlgeschlagen:", error);
     return { ok: false, error: "Houston, wir haben ein Problem. Bitte später nochmal versuchen." };
   }
+  // Jede angenommene Anfrage zählt — anders als beim Login, wo nur Fehlversuche
+  // zählen. Hier ist nicht das Raten das Problem, sondern dass jede Absendung
+  // zwei Mails über Steffens privates Gmail-Konto verschickt.
+  await fehlversuchZaehlen("anfrage_quelle", quelle);
+
   // Empfänger-Einstellungen einmal laden und an beide Mails geben (statt zweimal die DB fragen).
   const settings = await getNotificationSettings();
   await Promise.all([

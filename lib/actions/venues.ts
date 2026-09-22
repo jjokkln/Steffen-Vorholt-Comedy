@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { revalidatePublic } from "@/lib/revalidate";
 import { isInNrw, roundCoord } from "@/lib/venue-helpers";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -33,17 +34,26 @@ export async function createVenue(_prev: FormState, formData: FormData): Promise
     return { ok: false, message: "Der Punkt liegt außerhalb von NRW.", at: Date.now() };
   }
 
-  const { error } = await supabase.from("venues").insert({
+  const { data, error } = await supabase.from("venues").insert({
     city,
     venue: venue || "Location folgt",
     lat: roundCoord(lat),
     lng: roundCoord(lng),
     show_id: showId || null,
-  });
+  }).select("id").single();
   if (error) {
     return { ok: false, message: `Standort anlegen fehlgeschlagen: ${error.message}`, at: Date.now() };
   }
 
+  // ⚠️ Die Koordinaten stehen bewusst NICHT im Protokoll. Sie gehören zum
+  // Datensatz, nicht zur Spur — ein Protokoll bekommt nur die Felder, die es
+  // braucht (Pflichtkern Punkt 12, Warnkasten zu Standortdaten).
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "standort",
+    objektId: data.id as string,
+    bezeichnung: `${venue || "Location folgt"}, ${city}`,
+  });
   revalidatePublic();
   revalidatePath(ADMIN_PATH);
   return { ok: true, message: `${city} gespeichert – Karte aktualisiert.`, at: Date.now() };
@@ -72,6 +82,7 @@ export async function deleteVenue(id: string): Promise<void> {
   const { error } = await supabase.from("venues").delete().eq("id", id);
   if (error) throw new Error(`Standort löschen fehlgeschlagen: ${error.message}`);
 
+  await protokolliere({ aktion: "geloescht", objekt: "standort", objektId: id });
   revalidatePublic();
   revalidatePath(ADMIN_PATH);
 }

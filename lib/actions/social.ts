@@ -7,6 +7,7 @@ import { revalidatePublic } from "@/lib/revalidate";
 import { SOCIAL_PLATFORMS } from "@/lib/social";
 import { deleteFilesIfUnused } from "@/lib/media-refs";
 import type { SocialItemKind, VideoOrientation } from "@/lib/types";
+import { protokolliere } from "@/lib/audit";
 
 export type FormState = { ok: boolean; message: string; at: number } | null;
 
@@ -45,12 +46,22 @@ function socialFields(formData: FormData) {
 
 export async function createSocialItem(_prev: FormState, formData: FormData): Promise<FormState> {
   const supabase = await createServerSupabase();
+  let neueId: string;
   try {
-    const { error } = await supabase.from("social_media_items").insert(socialFields(formData));
+    const { data, error } = await supabase
+      .from("social_media_items").insert(socialFields(formData)).select("id").single();
     if (error) throw new Error(error.message);
+    neueId = data.id as string;
   } catch (err) {
     return { ok: false, message: `Anlegen fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
+  await protokolliere({
+    aktion: "angelegt",
+    objekt: "social_eintrag",
+    objektId: neueId,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: { sichtbar: formData.get("is_active") === "on" },
+  });
   revalidatePublic();
   redirect("/admin/social");
 }
@@ -73,6 +84,13 @@ export async function updateSocialItem(
     return { ok: false, message: `Speichern fehlgeschlagen: ${(err as Error).message}`, at: Date.now() };
   }
   await deleteFilesIfUnused(supabase, [previous?.thumbnail_path]);
+  await protokolliere({
+    aktion: "geaendert",
+    objekt: "social_eintrag",
+    objektId: id,
+    bezeichnung: String(formData.get("title") ?? ""),
+    details: { sichtbar: formData.get("is_active") === "on" },
+  });
   revalidatePublic();
   revalidatePath("/admin/social");
   return { ok: true, message: "Gespeichert!", at: Date.now() };
@@ -85,6 +103,7 @@ export async function deleteSocialItem(id: string) {
   const { error } = await supabase.from("social_media_items").delete().eq("id", id);
   if (error) throw new Error(`Löschen fehlgeschlagen: ${error.message}`);
   await deleteFilesIfUnused(supabase, [row?.thumbnail_path]);
+  await protokolliere({ aktion: "geloescht", objekt: "social_eintrag", objektId: id });
   revalidatePublic();
   revalidatePath("/admin/social");
 }
@@ -100,6 +119,14 @@ export async function toggleSocialItem(id: string, nextActive: boolean) {
     .update({ is_active: nextActive })
     .eq("id", id);
   if (error) throw new Error(`Umschalten fehlgeschlagen: ${error.message}`);
+  // Zweiter Weg in dieselbe Sache: Die Sichtbarkeit lässt sich auch im
+  // Bearbeiten-Formular umstellen. Beide Wege protokollieren, sonst fehlt genau
+  // der schnelle — und der wird häufiger benutzt.
+  await protokolliere({
+    aktion: nextActive ? "veroeffentlicht" : "zurueckgezogen",
+    objekt: "social_eintrag",
+    objektId: id,
+  });
   revalidatePublic();
   revalidatePath("/admin/social");
 }
