@@ -17,7 +17,7 @@ export default async function Footer() {
           <p>Steffen Vorholt · Comedian, Moderator und Veranstalter aus Recklinghausen.</p>
         </div>
         <div>
-          <h4>Shows</h4>
+          <h2>Shows</h2>
           <p>
             {shows.map((s) => (
               <span key={s.id}>
@@ -28,7 +28,7 @@ export default async function Footer() {
           </p>
         </div>
         <div>
-          <h4>Entdecken</h4>
+          <h2>Entdecken</h2>
           <p>
             <Link href="/shows">Shows &amp; Termine</Link>
             <br />
@@ -40,13 +40,15 @@ export default async function Footer() {
           </p>
         </div>
         <div>
-          <h4>Rechtliches</h4>
+          <h2>Rechtliches</h2>
           <p>
             <Link href="/impressum">Impressum</Link>
             <br />
             <Link href="/datenschutz">Datenschutz</Link>
             <br />
             <Link href="/agb">AGB</Link>
+            <br />
+            <Link href="/barrierefreiheit">Barrierefreiheit</Link>
             <br />
             {/* Widerruf muss so einfach sein wie die Einwilligung (Art. 7 Abs. 3 DSGVO) */}
             <ConsentSettingsButton />

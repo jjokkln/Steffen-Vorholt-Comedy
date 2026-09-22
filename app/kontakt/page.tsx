@@ -15,6 +15,7 @@ export default async function KontaktPage() {
   const shows = await getActiveShows();
   return (
     <>
+      <main id="hauptinhalt">
       <header className="container section">
         <div className="eyebrow">📡 Booking &amp; Kontakt</div>
         <h1>Funkkontakt aufnehmen.</h1>
@@ -180,6 +181,7 @@ export default async function KontaktPage() {
         </div>
       </section>
 
+      </main>
       <Footer />
     </>
   );

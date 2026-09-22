@@ -39,6 +39,7 @@ export default async function ShowsPage() {
 
   return (
     <>
+      <main id="hauptinhalt">
       <header className="container section shows-hero">
         <div className="eyebrow">🪐 Wähle deine Mission</div>
         <h1>Finde die Show, die zu deinem Humor passt.</h1>
@@ -82,7 +83,7 @@ export default async function ShowsPage() {
                   </div>
                 </div>
                 <div className="show-card-copy">
-                  <h3>{show.tagline}</h3>
+                  <h2>{show.tagline}</h2>
                   <p>{show.description}</p>
                 </div>
               </div>
@@ -154,6 +155,7 @@ export default async function ShowsPage() {
       )}
 
       <JsonLd data={upcoming.map((e) => comedyEventJsonLd(eventToJsonLdInput(e)))} />
+      </main>
       <Footer />
     </>
   );

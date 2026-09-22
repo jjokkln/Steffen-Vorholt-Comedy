@@ -62,6 +62,7 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
 
   return (
     <>
+      <main id="hauptinhalt">
       {backgroundUrl && (
         // Früher als CSS-background-image gesetzt — damit lief bei jedem Aufruf das
         // Original (bis zu 6 MB PNG) direkt aus dem Storage. Über next/image kommt
@@ -253,6 +254,7 @@ export default async function ShowPage({ params }: { params: Promise<{ slug: str
           ...upcoming.map((e) => comedyEventJsonLd(eventToJsonLdInput(e))),
         ]}
       />
+      </main>
       <Footer />
     </>
   );

@@ -1,3 +1,12 @@
+/* Barrierefreiheits-Panel (@growcore/a11y) — alle drei, in dieser Reihenfolge.
+   styles.css muss VOR den Projektregeln stehen (CSS verlangt @import am Dateianfang);
+   die Nutzerpräferenzen setzen sich trotzdem durch, weil die Regeln dort !important
+   tragen. fonts.css nicht weglassen: ohne @font-face fällt der Browser lautlos auf die
+   Systemschrift zurück und die zwei Leseschriften im Panel tun nichts. */
+@import "@growcore/a11y/styles.css";
+@import "@growcore/a11y/panel.css";
+@import "@growcore/a11y/fonts.css";
+
 
 :root{
   --space:#050711;
@@ -54,6 +63,14 @@ a{color:inherit;text-decoration:none}
 img,video{max-width:100%;display:block}
 button,input,textarea,select{font:inherit}
 .page{position:relative;z-index:1}
+/* Sprunglink: liegt ueber dem Sichtbereich und faehrt beim Fokus herein. Bewusst
+   mit `top` statt mit einem Sichtbarkeits-Trick — ein Link, der beim Fokus
+   unsichtbar bleibt, sieht im Screenshot aus wie gar kein Sprunglink. */
+.skip-link{position:fixed;top:-100px;left:12px;z-index:100;padding:12px 18px;
+  border-radius:14px;background:var(--text);color:var(--space);font-weight:700;
+  text-decoration:none;box-shadow:var(--shadow);transition:top .18s ease}
+.skip-link:focus-visible{top:12px;outline:3px solid var(--blue);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.skip-link{transition:none}}
 .container{width:min(1440px,100%);margin:0 auto;padding-inline:clamp(18px,4vw,64px)}
 .nav{
   position:sticky;top:0;z-index:30;
@@ -193,7 +210,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   position:relative;z-index:2;margin-top:14px;padding-top:20px;
   border-top:1px solid rgba(255,255,255,.12);
 }
-.show-card h3{font-size:clamp(30px,3vw,46px);line-height:.98}
+.show-card h3,.show-card h2{font-size:clamp(30px,3vw,46px);line-height:.98}
 .show-card-copy p{margin-bottom:0}
 /* Die ganze Karte ist ein Link — vorher musste man bis zu „Show öffnen" scrollen.
    Umgesetzt als unsichtbare Fläche und NICHT als <Link> um die Karte: In der Karte steckt
@@ -803,6 +820,15 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .mini-event{display:block;margin-top:8px;padding:6px 8px;border-radius:10px;font-size:11px;font-weight:900;background:rgba(255,255,255,.12)}
 .footer{border-top:1px solid var(--line);background:rgba(0,0,0,.22);padding:42px 0}
 .footer-grid{display:grid;grid-template-columns:1.2fr repeat(3,.7fr);gap:24px}
+/* Die Spaltenüberschriften im Fußbereich sind <h2>, nicht <h4>: axe meldete sonst
+   auf jeder Seite einen Sprung von h1 direkt auf h4 (heading-order). Sie sollen
+   aber weiter aussehen wie vorher — daher hier die alten h4-Werte. */
+.footer-grid h2{font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em}
+
+/* Der Showname in einer Terminkarte ist ein <h3> und kein <h4>: darueber steht
+   eine <h2>-Abschnittsueberschrift, und axe meldete den uebersprungenen Rang
+   (heading-order). Aussehen soll er wie vorher — daher die alten h4-Werte. */
+.event-card h3{font-size:22px;line-height:1.08;margin:0 0 10px;letter-spacing:-.04em}
 .notice{padding:16px 18px;border-radius:22px;background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.26);color:rgba(255,255,255,.82);margin-top:16px}
 @media(max-width:1050px){
   .hero,.feature,.grid-2,.admin-layout{grid-template-columns:1fr}
@@ -888,7 +914,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   /* Nur die Maße ändern — Position des Scheins folgt weiter automatisch der Fläche. */
   .show-card{--show-halo:200px;--show-art-h:186px;--show-art-mt:12px}
   .show-card-copy{margin-top:12px;padding-top:14px}
-  .show-card h3{font-size:23px;line-height:1.08}
+  .show-card h3,.show-card h2{font-size:23px;line-height:1.08}
   /* Kein line-clamp: die Beschreibung wird vollständig gezeigt. Die Karten im
      Karussell sind gleich hoch (Flex-Stretch), die längste gibt die Höhe vor. */
   .show-card-copy p{font-size:14.5px;line-height:1.5}
@@ -1097,7 +1123,7 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   /* Termin-Karten kompakter: Standard-Kartenpolsterung (26 px) plus Marketing-
      Typografie macht aus vier Terminen sonst vier Bildschirme Scrollweg. */
   .event-card{min-height:0;padding:18px}
-  .event-card h4{font-size:19px;margin-bottom:7px}
+  .event-card h3{font-size:19px;margin-bottom:7px}
   .event-card p{font-size:14.5px;line-height:1.5}
   .event-top{gap:11px}
   .datebox{min-width:62px;border-radius:14px}
@@ -1969,6 +1995,11 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    bewusst nicht ausgegraut — er muss lesbar sein, sonst erfüllt er seinen Zweck nicht. */
 .contact-card-privacy{margin:0;font-size:11.5px;line-height:1.5;color:var(--muted);text-align:center}
 .contact-card-privacy a{color:var(--ice);text-decoration:underline}
+/* Kontaktkarten-Ueberschriften sind <h2>: darueber steht nur die <h1> der Seite,
+   ein <h3> uebersprang einen Rang (axe: heading-order). Die Groesse bleibt die
+   der frueheren h3 — hier steht dieselbe Zeile wie in der globalen h3-Regel. */
+.contact-card h2{font-size:clamp(27px,3.6vw,52px)}
+
 .contact-card.is-green{border-color:rgba(124,255,107,.28);background:linear-gradient(180deg,rgba(124,255,107,.07),rgba(255,255,255,.03))}
 .contact-card.is-green .contact-card-icon{background:conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
 .contact-card.is-gold{border-color:rgba(255,209,102,.32);background:linear-gradient(180deg,rgba(255,209,102,.08),rgba(255,255,255,.03))}
@@ -2251,4 +2282,27 @@ html.galaxy-live body:before{opacity:0;transition:opacity 1.2s ease}
   .admin-filterbar select,.filterbar input[type="search"]{min-width:0;flex:1 1 140px}
   .ort-zeile{gap:10px}
   .ort-naechster{flex-basis:100%}
+}
+
+/* ---------------------------------------------------------------------------
+   Barrierefreiheits-Panel: Farbmodi an die Token dieses Projekts anschließen
+   (INSTALL.md Abschnitt 4, Fall B — wir haben eigene Namen, nicht die von shadcn).
+
+   `:root` und `html[data-a11y-color]` sind dasselbe Element, der Selektor mit
+   Attribut ist spezifischer und gewinnt. Dieser Block muss NACH dem @import von
+   styles.css stehen, sonst überschreibt das Paket mit seinem eigenen `--muted`
+   (dort eine Flaeche, hier eine gedaempfte Schriftfarbe) den Fliesstext.
+
+   ⚠️ Das deckt Flächen, Schrift und Ränder ab, nicht die harten Farbwerte in
+   Verläufen, Schatten und Show-Akzenten — diese Grenze steht so auch auf
+   /barrierefreiheit. Kein Halbwissen auf der Seite behaupten.
+--------------------------------------------------------------------------- */
+html[data-a11y-color]{
+  --space:var(--background);
+  --deep:var(--background);
+  --text:var(--foreground);
+  --muted:var(--muted-foreground);
+  --panel:var(--card);
+  --panel2:var(--card);
+  --line:var(--border);
 }

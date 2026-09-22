@@ -35,7 +35,7 @@ export default function ContactForm({
   if (state?.ok) {
     return (
       <div className={cardClass}>
-        <h3>📡 Übertragung angekommen!</h3>
+        <h2>📡 Übertragung angekommen!</h2>
         <p>{successMessage}</p>
       </div>
     );
@@ -44,7 +44,7 @@ export default function ContactForm({
   return (
     <form className={cardClass} action={action}>
       {icon && <span className="contact-card-icon" aria-hidden="true">{icon}</span>}
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       {description && <p className="contact-card-desc">{description}</p>}
       {children}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" style={{ position: "absolute", left: "-9999px" }} aria-hidden="true" />

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { A11yBootScript, A11yFilterDefs, A11yWidget } from "@growcore/a11y/react";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import GalaxyBackground from "@/components/GalaxyBackground";
@@ -94,11 +95,26 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="de">
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        {/* MUSS in den <head>: setzt die gespeicherten Einstellungen auf <html>,
+            waehrend der Browser das HTML parst — also vor dem ersten Paint. In
+            einem useEffect waere es zu spaet und jemand mit Hochkontrast saehe
+            bei jedem Seitenaufruf einen hellen Blitz. Daher auch
+            suppressHydrationWarning oben: der Server kennt diese Attribute nicht. */}
+        <A11yBootScript />
+      </head>
       <body className={`${inter.variable} ${grotesk.variable}`}>
         <CookieConsentProvider>
           <GalaxyBackground />
           <ConstellationCursor />
+          {/* Sprunglink (WCAG 2.4.1): ohne ihn muss ein Tastaturnutzer auf JEDER
+              Seite zuerst die komplette Navigation durchtabben. Sichtbar nur bei
+              Fokus — die Regel dafür steht in globals.css, nicht als sr-only-Trick,
+              der beim Fokus unsichtbar bleiben kann. */}
+          <a className="skip-link" href="#hauptinhalt">
+            Zum Hauptinhalt springen
+          </a>
           <div className="page">
             <Nav />
             {children}
@@ -113,6 +129,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             Auftragsverarbeiter Vercel gehört aber in die Datenschutzerklärung. */}
         <Analytics />
         <SpeedInsights />
+        {/* A11yFilterDefs muss serverseitig gerendert werden: das CSS kann beim
+            ersten Paint schon filter: url(#gc-a11y-…) setzen, und ein fehlendes
+            Ziel greift ohne Fehlermeldung ins Leere. Der Trigger sitzt unten
+            links, das Panel liegt im Top Layer und braucht keinen z-index. */}
+        <A11yFilterDefs />
+        <A11yWidget statementHref="/barrierefreiheit" />
       </body>
     </html>
   );

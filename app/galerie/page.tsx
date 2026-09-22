@@ -24,6 +24,7 @@ export default async function GaleriePage() {
 
   return (
     <>
+      <main id="hauptinhalt">
       <header className="container section">
         <div className="eyebrow">📸 Galerie & Gästebuch</div>
         <h1>Beweisfotos & Bühnen-Gäste.</h1>
@@ -82,6 +83,7 @@ export default async function GaleriePage() {
         </section>
       )}
 
+      </main>
       <Footer />
     </>
   );

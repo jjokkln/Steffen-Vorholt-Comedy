@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 export default function NotFound() {
   return (
     <>
+      <main id="hauptinhalt">
       <section className="container section" style={{ textAlign: "center", minHeight: "60vh" }}>
         <div className="eyebrow">🛸 404 – Signal verloren</div>
         <h1>
@@ -22,6 +23,7 @@ export default function NotFound() {
           </Link>
         </div>
       </section>
+      </main>
       <Footer />
     </>
   );

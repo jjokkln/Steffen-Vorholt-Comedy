@@ -48,6 +48,7 @@ export default async function SteffenPage() {
 
   return (
     <>
+      <main id="hauptinhalt">
       <header className="steffen-hero">
         <div className="container section steffen-hero-copy">
           <div className="eyebrow">🧑‍🚀 Über mich</div>
@@ -279,6 +280,7 @@ export default async function SteffenPage() {
         </SectionTransition>
       )}
 
+      </main>
       <Footer />
     </>
   );

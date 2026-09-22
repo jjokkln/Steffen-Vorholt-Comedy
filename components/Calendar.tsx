@@ -115,15 +115,19 @@ export default function Calendar({
             >
               {/* Auf Desktop nur die Tageszahl (pointer-events:none), auf Mobile der
                   Tages-Button: Zahl + farbige Punkte, Tap füllt die Liste darunter. */}
+              {/* Fuellzellen aus Vor- und Folgemonat bekommen gar keinen Button:
+                  ein deaktivierter Knopf ohne Beschriftung ist fuer einen
+                  Screenreader ein namenloses Bedienelement (axe: button-name) und
+                  fuer alle anderen eine leere Flaeche. */}
+              {!cell.iso ? (
+                <span className="calendar-cell-number" aria-hidden="true">
+                  <span className="calendar-cell-day" />
+                </span>
+              ) : (
               <button
                 type="button"
                 className="calendar-cell-number"
-                disabled={!cell.iso}
-                aria-label={
-                  cell.iso
-                    ? `${formatDateLong(cell.iso)}${items.length ? ` – ${items.length} Termin${items.length === 1 ? "" : "e"}` : " – keine Show"}`
-                    : undefined
-                }
+                aria-label={`${formatDateLong(cell.iso)}${items.length ? ` – ${items.length} Termin${items.length === 1 ? "" : "e"}` : " – keine Show"}`}
                 onClick={() => cell.iso && setSelectedIso(selectedIso === cell.iso ? null : cell.iso)}
               >
                 <span className="calendar-cell-day">{cell.day ?? ""}</span>
@@ -139,6 +143,7 @@ export default function Calendar({
                   </span>
                 )}
               </button>
+              )}
               {items.map((e) => (
                 <a
                   key={e.id}

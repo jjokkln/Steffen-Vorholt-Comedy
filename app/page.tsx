@@ -59,6 +59,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <main id="hauptinhalt">
       <div className="hero-pin-block">
         <HeroScrollExperience />
 
@@ -226,6 +227,7 @@ export default async function HomePage() {
       )}
 
       <JsonLd data={personJsonLd()} />
+      </main>
       <Footer />
     </>
   );

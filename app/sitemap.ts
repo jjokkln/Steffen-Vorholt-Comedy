@@ -11,6 +11,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/steffen`, changeFrequency: "monthly" },
     { url: `${SITE}/galerie`, changeFrequency: "monthly" },
     { url: `${SITE}/kontakt`, changeFrequency: "monthly" },
+    // Anders als Impressum, Datenschutz und AGB (noindex, bewusst nicht hier):
+    // Die Erklärung zur Barrierefreiheit soll gefunden werden — auch von jemandem,
+    // der über die Suche nach dem Meldeweg sucht statt über den Fußbereich.
+    { url: `${SITE}/barrierefreiheit`, changeFrequency: "yearly" },
     ...shows.map((s) => ({ url: `${SITE}/shows/${s.slug}`, changeFrequency: "weekly" as const })),
   ];
 }

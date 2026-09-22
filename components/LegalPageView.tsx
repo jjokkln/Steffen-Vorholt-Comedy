@@ -13,6 +13,7 @@ export default async function LegalPageView({ slug }: { slug: LegalSlug }) {
 
   return (
     <>
+      <main id="hauptinhalt">
       <section className="container section legal">
         <div className="eyebrow">{page.eyebrow}</div>
         <h1>{page.heading}</h1>
@@ -25,6 +26,7 @@ export default async function LegalPageView({ slug }: { slug: LegalSlug }) {
           </p>
         )}
       </section>
+      </main>
       <Footer />
     </>
   );

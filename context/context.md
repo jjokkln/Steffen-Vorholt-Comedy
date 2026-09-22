@@ -97,7 +97,10 @@ Verantwortlich: `components/Calendar.tsx` + der Kalenderblock in `app/globals.cs
    Kolonne aus 42 leeren Kästen (~10 Wischer bis zum ersten Termin).
 2. **`.calendar-cell-number` ist ein `<button>`** — auf Desktop per `pointer-events:none` reine
    Anzeige, auf Mobile das Tages-Auswahlziel. Termin-Links bleiben Geschwister, nicht Kinder
-   (kein `<a>` im `<button>`).
+   (kein `<a>` im `<button>`). ⚠️ **Nur Zellen mit Datum.** Die Füllzellen aus Vor- und
+   Folgemonat bekommen seit dem 22.09.2026 ein `<span>` statt eines deaktivierten Knopfs:
+   ein `<button disabled>` ohne Beschriftung ist für einen Screenreader ein namenloses
+   Bedienelement (axe: `button-name`, 4 Vorkommen auf `/shows`).
 3. **Startmonat** kommt aus `startMonth()`: laufender Monat, wenn dort etwas gespielt wird,
    sonst der Monat des nächsten Termins. Ohne das landet man im leeren Juli, obwohl die
    nächste Show im September ist. Rechnet nur aus Props → keine Hydration-Diskrepanz.
@@ -528,6 +531,57 @@ BFSG (Barrierefreiheit) greift hier nach derzeitiger Einschätzung **nicht**: St
 Kleinstunternehmen (§ 3 Abs. 3 BFSG), und es wird kein Vertrag auf der Seite geschlossen —
 Tickets laufen über externe Anbieter. Die Grundlagen sitzen ohnehin (`lang="de"`,
 Labels an allen Formularfeldern, `alt` an allen Bildern, Fokus-Falle im Consent-Dialog).
+
+## Barrierefreiheit (seit 22.09.2026)
+
+Eingebaut ist das Panel `@growcore/a11y`, festgenagelt auf den Commit `1ea6bf29` —
+**nicht** auf `#main`, damit ein späterer Stand des Pakets nicht unbemerkt in einen
+Build rutscht. Drei Stellen:
+
+- `app/globals.css` — die drei Stylesheets des Pakets ganz oben (CSS verlangt
+  `@import` am Dateianfang; die Nutzerpräferenzen setzen sich trotzdem durch, weil
+  die Regeln dort `!important` tragen). `fonts.css` **nicht** weglassen, sonst tun
+  die zwei Leseschriften im Panel nichts.
+- `app/layout.tsx` — `A11yBootScript` im `<head>` (nicht im Body und nicht in einem
+  `useEffect`: es setzt die gespeicherten Einstellungen, während der Browser das
+  HTML parst), `A11yFilterDefs` + `A11yWidget` am Ende des Body, Sprunglink vor
+  `.page`.
+- `app/barrierefreiheit/page.tsx` — die Pflichtseite. Sie steht **im Code und nicht
+  in `legal_pages`**: Impressum, Datenschutz und AGB beschreiben Steffens Geschäft
+  und gehören ihm; diese Seite beschreibt den technischen Zustand dieser Website.
+  Wer eine Barriere behebt, ändert beides im selben Commit — der Text nennt die
+  Einschränkungen namentlich, statt „vollständig konform" zu behaupten.
+
+**Farbmodi: Fall B aus INSTALL Abschnitt 4.** Das Projekt hat eigene Token
+(`--space`, `--text`, `--panel`, `--line`), nicht die von shadcn. Der Block
+`html[data-a11y-color]` am Ende von `globals.css` speist sie aus den mitgelieferten.
+⚠️ Er muss **nach** dem `@import` von `styles.css` stehen: `:root` und
+`html[data-a11y-color]` sind dasselbe Element, und das Paket belegt `--muted` mit
+einer *Fläche*, während es hier eine *gedämpfte Schriftfarbe* ist. Ohne die Zeile
+`--muted: var(--muted-foreground)` wird in jedem Farbmodus der Fließtext zur Fläche.
+Die harten Farbwerte in Verläufen, Schatten und Show-Akzenten schalten **nicht** um;
+das steht so auf `/barrierefreiheit` unter „bekannte Einschränkungen".
+
+**Dabei mitbehoben** (Bestand, betraf alle Seiten): Fußbereich `<h4>` → `<h2>`,
+Showname in der Terminkarte `<h4>` → `<h3>`, Show-Karten auf `/shows` und die
+Kontaktformulare `<h3>` → `<h2>`, Füllzellen im Kalender rendern keinen
+deaktivierten Knopf ohne Beschriftung mehr, `<main id="hauptinhalt">` auf allen neun
+öffentlichen Seiten. Jede Rangänderung hat eine CSS-Zeile daneben, damit die
+Schriftgröße bleibt, wo sie war.
+
+**Gemessen am 22.09.2026, nicht angesehen:** `npx @axe-core/cli` über zehn
+öffentliche Seiten → 0 Befunde (vorher acht). Dazu 13 Browser-Messungen mit
+Playwright, 13/13 — Tastaturweg mit Fokus-Rückgabe, axe bei **offenem** Panel,
+Hochkontrast hell und dunkel je 21,00:1, 175 % Schrift ohne waagerechtes Scrollen
+auf 1440 px und 390 px, Attribut steht bei `readyState=loading` schon auf `<html>`,
+Zurücksetzen räumt restlos auf. Das Skript liegt im Vault
+(`20_Tech-Library/Komponenten/A11y-Pruefskript-Playwright.md`) und **nicht** hier:
+Playwright gehört ins Scratchpad, nicht ins Kundenrepo. Dort stehen auch die vier
+Fallen, darunter die stumme — `MutationObserver.observe(document.documentElement)`
+wirft im `addInitScript`, weil `<html>` zu diesem Zeitpunkt noch nicht existiert.
+
+⚠️ Das Panel ist **kein BFSG-Nachweis** und darf nirgends als einer verkauft werden.
+Zur Einschätzung, warum das BFSG hier ohnehin nicht greift, siehe „Rechtsstand".
 
 ## KI-Kennzeichnung nach Art. 50 EU AI Act (seit 08.08.2026)
 
