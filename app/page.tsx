@@ -96,10 +96,9 @@ export default async function HomePage() {
                     tabIndex={-1}
                   />
                   <div>
-                    <div className="top">
-                      <span className="badge">{show.name}</span>
-                      <span className="badge">{show.format_label}</span>
-                    </div>
+                    {/* Kein Tag-Block mehr (Steffen, 21.09.2026) — wie auf /shows:
+                        Show-Name und Format standen als Pillen über dem Planeten,
+                        der den Namen selbst trägt. */}
                     {/* .show-art-frame trägt den Schein und hält ihn mittig auf dem
                         Planeten — siehe globals.css. */}
                     <div className="show-art-frame">
@@ -137,12 +136,27 @@ export default async function HomePage() {
             </div>
             <p>Ticketlinks führen direkt zum externen Anbieter.</p>
           </div>
-          <EventGrid limit={3} showFilters={false} />
+          <EventGrid limit={3} />
           <div className="actions">
             <Link className="btn primary" href="/shows#termine">Alle Termine im Kalender</Link>
           </div>
         </section>
       </SectionTransition>
+
+      {gallery.length > 0 && (
+        <SectionTransition variant="archive">
+          <section className="container section home-gallery-section">
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">Vergangene Missionen</div>
+                <h2>Beweisfotos.</h2>
+              </div>
+              <p>Echte Bühnen, echtes Publikum, echte Lacher.</p>
+            </div>
+            <HomeGallery items={gallery} />
+          </section>
+        </SectionTransition>
+      )}
 
       {homeAppearances.length > 0 && (
         <SectionTransition variant="track">
@@ -161,21 +175,6 @@ export default async function HomePage() {
           <Buzzer oneLiners={oneLiners.map((line) => line.text)} />
         </section>
       </SectionTransition>
-
-      {gallery.length > 0 && (
-        <SectionTransition variant="archive">
-          <section className="container section home-gallery-section">
-            <div className="section-head">
-              <div>
-                <div className="eyebrow">Vergangene Missionen</div>
-                <h2>Beweisfotos.</h2>
-              </div>
-              <p>Echte Bühnen, echtes Publikum, echte Lacher.</p>
-            </div>
-            <HomeGallery items={gallery} />
-          </section>
-        </SectionTransition>
-      )}
 
       <SectionTransition variant="reveal">
         <section className="container section home-captain-section">

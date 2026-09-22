@@ -323,7 +323,7 @@ export default function HeroScrollExperience() {
           {/* Art. 50 EU AI Act: das Key Visual ist eine KI-Bearbeitung — Steffens
               echtes Foto, per KI in die Kugel mit den drei Show-Planeten gesetzt.
               Teilweise verändert, also `modified`, nicht `generated`. */}
-          <AiLabel className="hero-moon-ai-label" text="Bild mit KI bearbeitet" />
+          <AiLabel className="hero-moon-ai-label" />
         </div>
       </div>
     </header>

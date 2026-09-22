@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 /**
  * Bühnen-Video neben dem Text (Startseite und „Über Steffen").
@@ -20,6 +20,14 @@ import { useEffect, useRef, useState } from "react";
  * Netzwerk-Mitschnitt). Ohne Poster war das der Preis dafür, dass überhaupt ein Bild
  * erscheint — mit Poster ist es reine Verschwendung. Also nie wieder einbauen, solange
  * ein Poster hinterlegt ist.
+ *
+ * Der Rahmen richtet sich nach dem Video, nicht umgekehrt (Steffen, 22.09.2026):
+ * Vorher stand das Seitenverhältnis fest in der CSS (9/16 auf der Startseite,
+ * 16/10 auf „Über Steffen") — ein 4:3-Video lag dadurch mit schwarzen Balken
+ * oben/unten bzw. links/rechts darin. Das Verhältnis kommt jetzt als
+ * `--video-ratio` aus dem Bild: zuerst aus dem Poster (das ist es, was man vor
+ * dem Start sieht, und es liegt im Cache), später aus den Video-Metadaten, falls
+ * beide auseinanderliegen. Ohne beides bleibt der CSS-Vorgabewert stehen.
  */
 export default function CaptainVideo({ src, poster }: { src: string; poster?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -27,6 +35,21 @@ export default function CaptainVideo({ src, poster }: { src: string; poster?: st
   const [muted, setMuted] = useState(false);
   /** Erst laden, wenn im Bild: setzt `src` nachträglich statt am Markup. */
   const [visible, setVisible] = useState(false);
+  /** Breite/Höhe des Bildinhalts, z. B. 1.7778 für 16:9. */
+  const [ratio, setRatio] = useState<number | null>(null);
+
+  // Poster ausmessen, ohne es ein zweites Mal zu laden: dieselbe URL steckt im
+  // `poster`-Attribut, der Browser bedient das aus dem Cache.
+  useEffect(() => {
+    if (!poster) return;
+    const bild = new window.Image();
+    bild.onload = () => {
+      if (bild.naturalWidth > 0 && bild.naturalHeight > 0) {
+        setRatio(bild.naturalWidth / bild.naturalHeight);
+      }
+    };
+    bild.src = poster;
+  }, [poster]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -62,7 +85,7 @@ export default function CaptainVideo({ src, poster }: { src: string; poster?: st
   }
 
   return (
-    <div className="captain-video">
+    <div className="captain-video" style={ratio ? ({ "--video-ratio": ratio } as CSSProperties) : undefined}>
       <video
         ref={videoRef}
         src={visible ? src : undefined}
@@ -71,6 +94,10 @@ export default function CaptainVideo({ src, poster }: { src: string; poster?: st
         preload="none"
         loop
         muted={muted}
+        onLoadedMetadata={(e) => {
+          const v = e.currentTarget;
+          if (v.videoWidth > 0 && v.videoHeight > 0) setRatio(v.videoWidth / v.videoHeight);
+        }}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         className="captain-video-media"

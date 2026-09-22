@@ -39,7 +39,7 @@ export default async function ShowsPage() {
 
   return (
     <>
-      <header className="container section">
+      <header className="container section shows-hero">
         <div className="eyebrow">🪐 Wähle deine Mission</div>
         <h1>Finde die Show, die zu deinem Humor passt.</h1>
         <p className="lead">
@@ -48,7 +48,7 @@ export default async function ShowsPage() {
         <p className="lead shows-lead-kicker">Schau dir die Shows einfach in Ruhe mal an.</p>
       </header>
 
-      <section className="container section">
+      <section className="container section shows-grid-section">
         <div className="grid-3">
           {shows.map((show) => (
             <article className="card show-card" key={show.id}>
@@ -62,10 +62,10 @@ export default async function ShowsPage() {
                 tabIndex={-1}
               />
               <div>
-                <div className="top">
-                  <span className="badge">{show.name}</span>
-                  <span className="badge">{show.format_label}</span>
-                </div>
+                {/* Kein Tag-Block mehr (Steffen, 21.09.2026): Show-Name und Format
+                    standen als Pillen über dem Planeten, der den Namen selbst trägt.
+                    Auf der Startseite bleiben sie — dort ist die Karte ein Teaser
+                    zwischen anderen Sektionen. */}
                 {/* Gleiche Darstellung wie auf der Startseite: über <Planet>, nicht als
                     rohes <Image>. Als <Image> zog `.show-art img{width:100%;height:100%}`
                     den Planeten auf die volle Flächenhöhe — gemessen 386 px gegen 294 px

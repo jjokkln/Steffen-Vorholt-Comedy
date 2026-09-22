@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Calendar from "@/components/Calendar";
-import TermineFilters from "@/components/TermineFilters";
+import EventGallery from "@/components/EventGallery";
+import TermineFilterBar from "@/components/shows/TermineFilterBar";
 import NRWMap from "@/components/shows/NRWMap";
 import type { EventRow, Show, Venue } from "@/lib/types";
 
@@ -27,6 +28,24 @@ export default function TermineSection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [view, setView] = useState<View>(searchParams.get("view") === "karte" ? "karte" : "kalender");
+  // Der Filter steht seit dem 21.09.2026 ÜBER dem Kalender und gilt deshalb für
+  // alles darunter: Monatsansicht, Karte und Liste. Ein Filter, der nur die
+  // unterste der drei Ansichten beeinflusst, wäre an dieser Stelle eine Lüge.
+  const [selectedShows, setSelectedShows] = useState<string[]>([]);
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+
+  const passt = useCallback(
+    (e: EventRow) =>
+      (selectedShows.length === 0 || selectedShows.includes(e.shows?.slug ?? "")) &&
+      (selectedCities.length === 0 || selectedCities.includes(e.city)),
+    [selectedShows, selectedCities],
+  );
+
+  const gefilterteEvents = useMemo(() => events.filter(passt), [events, passt]);
+  const gefilterteUpcoming = useMemo(() => upcoming.filter(passt), [upcoming, passt]);
+  // Wechselt der Filter, startet die Liste wieder bei der ersten Portion: ohne
+  // den Remount bliebe ein kurzes Ergebnis hinter einem aufgeklappten Stand.
+  const filterKey = `${selectedShows.join(",")}|${selectedCities.join(",")}`;
 
   const changeView = useCallback(
     (next: View) => {
@@ -69,6 +88,16 @@ export default function TermineSection({
         </div>
       </div>
 
+      <TermineFilterBar
+        events={upcoming}
+        shows={shows}
+        selectedShows={selectedShows}
+        selectedCities={selectedCities}
+        onShowsChange={setSelectedShows}
+        onCitiesChange={setSelectedCities}
+        treffer={gefilterteUpcoming.length}
+      />
+
       {view === "kalender" ? (
         <>
           <div className="public-calendar">
@@ -82,17 +111,25 @@ export default function TermineSection({
                 ))}
               </div>
             </div>
-            <Calendar events={events} initialYear={initialYear} initialMonth={initialMonth} />
+            <Calendar events={gefilterteEvents} initialYear={initialYear} initialMonth={initialMonth} />
           </div>
           <div className="termine-list-block">
             {/* Überschrift trennt die Monatsansicht oben von der Gesamtliste –
                 auf Mobile stehen sonst zwei Terminlisten ohne Kontext hintereinander. */}
             <span className="map-section-label">Alle kommenden Termine</span>
-            <TermineFilters events={upcoming} shows={shows} />
+            <EventGallery
+              key={filterKey}
+              events={gefilterteUpcoming}
+              emptyText={
+                selectedShows.length + selectedCities.length > 0
+                  ? "Für diesen Filter ist nichts geplant — nimm oben eine Auswahl heraus."
+                  : "Aktuell keine Termine geplant — Steffen arbeitet dran."
+              }
+            />
           </div>
         </>
       ) : (
-        <NRWMap events={upcoming} venues={venues} shows={shows} />
+        <NRWMap events={gefilterteUpcoming} venues={venues} shows={shows} />
       )}
     </div>
   );

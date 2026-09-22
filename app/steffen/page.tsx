@@ -71,7 +71,7 @@ export default async function SteffenPage() {
             per KI freigestellt und nachbearbeitet — teilweise verändert, also
             `modified`. Steht direkt am Bild, nicht in der Fußzeile: die
             Kennzeichnung muss beim ersten Kontakt mit dem Inhalt erkennbar sein. */}
-        <AiLabel className="steffen-hero-ai-label" text="Bild mit KI bearbeitet" />
+        <AiLabel className="steffen-hero-ai-label" />
         {/* Kometenbahn als Hero-Abschluss: Horizontlinie + streifende Kometen
             (Tiefenstaffelung über nth-child in globals.css). */}
         <div className="steffen-comet-divider" aria-hidden="true">
@@ -192,10 +192,9 @@ export default async function SteffenPage() {
                   tabIndex={-1}
                 />
                 <div>
-                  <div className="top">
-                    <span className="badge">{show.name}</span>
-                    <span className="badge">{show.format_label}</span>
-                  </div>
+                  {/* Kein Tag-Block mehr (Steffen, 22.09.2026) — wie auf der Startseite
+                      und /shows: Show-Name und Format standen als Pillen über dem
+                      Planeten, der den Namen selbst trägt. */}
                   {/* .show-art-frame trägt den Schein und hält ihn mittig auf dem
                       Planeten — siehe globals.css. */}
                   <div className="show-art-frame">

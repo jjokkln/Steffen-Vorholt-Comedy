@@ -18,8 +18,14 @@
  *   generated  vollständig KI-erzeugt, außer dem Prompt kein menschlicher Anteil
  *   modified   menschlicher Inhalt teilweise per KI verändert
  *
- * Der sichtbare deutsche Text ist kein Beiwerk: das EU-Nutzertesting zeigt, dass
- * die Zeichen allein schlecht verstanden werden. Deshalb ist `text` Pflicht.
+ * Bis zum 21.09.2026 stand neben dem Zeichen ein deutscher Klartext („Bild mit
+ * KI bearbeitet") auf einem dunklen Chip. Lennys Entscheidung: beides raus, das
+ * Zeichen steht allein. Es trägt die Aussage selbst („AI MODIFIED" /
+ * "AI GENERATED") und bringt seine eigene weiße Pille mit — der dunkle Grund war
+ * eine Pille um eine Pille. Das EU-Nutzertesting spricht für einen
+ * begleitenden Text; die Aussage bleibt deshalb im Alt-Text erhalten und ist
+ * für Screenreader unverändert vorhanden. Wer den sichtbaren Text zurückholen
+ * will, holt `.ai-label`-Grund und Textknoten zusammen zurück, nicht einzeln.
  *
  * Nicht zuständig für: die maschinenlesbare Markierung nach Art. 50 Abs. 2
  * (C2PA/IPTC in der Datei) und die Chatbot-Offenlegung nach Art. 50 Abs. 1
@@ -48,19 +54,18 @@ const SIGNS = {
 /**
  * Zeichenhöhe in px, muss zu `.ai-label img` in globals.css passen. Bei 16 px war
  * die Versalhöhe des eingesetzten Worts („MODIFIED") auf einem 1×-Display rund
- * 5 px und damit nur noch zu erahnen — 20 px ist die Untergrenze, bei der das
- * Zeichen ohne Zoom als Kennzeichnung lesbar bleibt.
+ * 5 px und damit nur noch zu erahnen — 20 px war die Untergrenze, solange der
+ * deutsche Text danebenstand. Ohne ihn trägt das Zeichen die Aussage allein,
+ * deshalb zunächst 24 px und nach Lennys Sichtprüfung am 21.09.2026 noch einmal
+ * 20 % mehr: 29 px.
  */
-const SIGN_HEIGHT = 20;
+const SIGN_HEIGHT = 29;
 
 export default function AiLabel({
   sign = "modified",
-  text,
   className,
 }: {
   sign?: keyof typeof SIGNS;
-  /** Deutscher Klartext neben dem Zeichen. Pflicht — siehe Kopfkommentar. */
-  text: string;
   className?: string;
 }) {
   const { file, ratio, alt } = SIGNS[sign];
@@ -75,7 +80,6 @@ export default function AiLabel({
           Screenreader nicht vorliest, ist keine. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={`/assets/ai/${file}`} alt={alt} width={Math.round(SIGN_HEIGHT * ratio)} height={SIGN_HEIGHT} />
-      <span>{text}</span>
     </span>
   );
 }

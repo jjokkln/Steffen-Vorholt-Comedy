@@ -6,12 +6,10 @@ export default async function EventGrid({
   showOnly,
   includePast = false,
   limit,
-  showFilters = true,
 }: {
   showOnly?: string;
   includePast?: boolean;
   limit?: number;
-  showFilters?: boolean;
 }) {
   const all = await getPublishedEvents();
   const filtered = showOnly ? all.filter((e) => e.shows?.name === showOnly) : all;
@@ -19,5 +17,5 @@ export default async function EventGrid({
   let items = includePast ? [...upcoming, ...past] : upcoming;
   if (limit) items = items.slice(0, limit);
 
-  return <EventGallery events={items} showFilters={showFilters} />;
+  return <EventGallery events={items} />;
 }

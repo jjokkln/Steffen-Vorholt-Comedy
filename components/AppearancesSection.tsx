@@ -19,7 +19,7 @@ export default function AppearancesSection({ appearances }: { appearances: Appea
       <div className="section-head">
         <div>
           <div className="eyebrow">Steffen als Comedian</div>
-          <h2>Hier siehst du mich als Nächstes.</h2>
+          <h2>Gastauftritte. Nicht verpassen!</h2>
         </div>
         <p>
           Open Mics, Mix Shows, Veranstaltungen oder auf dem Platz mit der{" "}

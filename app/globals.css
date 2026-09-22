@@ -22,11 +22,6 @@
   --shadow:0 28px 90px rgba(0,0,0,.38);
   --gold1:#f5d68a;
   --gold2:#e8a33d;
-  /* Show-Card-Tags: eine Pillen-Zeile = 34px, reservierter Block = zwei Zeilen.
-     Siehe .show-card .top — hält die Planeten aller Karten auf einer Höhe. */
-  /* Pillen-Höhe = line-height 18 + padding 2×8 + border 2×1 */
-  --show-tag-row:36px;
-  --show-tag-block:80px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -152,7 +147,10 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
   border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.04));
   box-shadow:var(--shadow);padding:26px;position:relative;overflow:hidden
 }
-.show-card{min-height:620px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
+/* 540 statt vormals 620 px: Seit dem 21./22.09.2026 zeigt KEINE Show-Karte mehr
+   einen Tag-Block (--show-tag-block = 80 px) — Startseite, /shows und /steffen.
+   Die Höhe bliebe sonst als Luft über dem Planeten stehen. */
+.show-card{min-height:540px;display:flex;flex-direction:column;justify-content:space-between;isolation:isolate}
 /* Der Schein sitzt an einem Rahmen um die Planetenfläche und damit IMMER in deren Mitte.
    Vorher hing er als `.show-card:before` an einem festen `top:92px`, während der Planet
    unter dem Tag-Block steht — seit die Tags zweizeilig stapeln, klaffte das 43–55 px
@@ -174,24 +172,11 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .brain{color:var(--green)}.brain .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 20deg,var(--green),var(--blue),var(--purple),var(--green))}
 .ice{color:var(--ice)}.ice .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 80deg,#fff,var(--ice),var(--turq),#4f7dff,#fff)}
 .checkin{color:var(--orange)}.checkin .show-art-frame:before{background:radial-gradient(circle at 35% 25%,#fff 0 5%,transparent 6%),conic-gradient(from 130deg,var(--orange),var(--yellow),var(--captain),var(--orange))}
-/* Tags IMMER untereinander, auf jeder Breite: nebeneinander passten kurze
-   Labels („Brain Loading" + „Impro") in eine Zeile, lange („Open MIC mit
-   Publikumsspiel") brauchten zwei — dadurch starteten Planet, Headline und
-   Text der Karten nebeneinander auf unterschiedlicher Höhe. Zusammen mit der
-   reservierten Blockhöhe (--show-tag-block = zwei Pillen-Zeilen) belegt der
-   Tag-Block jetzt in JEDER Karte exakt gleich viel Platz. */
-.show-card .top{
-  display:flex;flex-direction:column;align-items:flex-start;
-  gap:8px;color:var(--text);
-  min-height:var(--show-tag-block)
-}
-/* Feste Pixel-Zeilenhöhe: sonst ergeben unterschiedliche Labels durch
-   Subpixel-Rundung minimal verschieden hohe Pillen. `white-space:normal` ist
-   die Reißleine, wenn ein Label breiter als die Karte ist — dann bricht es
-   intern um statt abgeschnitten zu werden. */
-.show-card .top .badge{white-space:normal;max-width:100%;line-height:18px}
+/* Der Tag-Block über dem Planeten (.show-card .top, zwei Pillen mit reservierter
+   Blockhöhe) ist am 22.09.2026 auf allen drei Seiten entfallen — Startseite,
+   /shows, /steffen. Mit ihm die Regeln und die Variablen --show-tag-row und
+   --show-tag-block, die nur er gebraucht hat. */
 .badge{display:inline-flex;width:max-content;padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.34);border:1px solid var(--line);font-size:13px;font-weight:950;color:rgba(255,255,255,.85)}
-.show-card .spacer{height:240px}
 /* `margin-top` sitzt am .show-art-frame, hier bleiben nur die negativen Seitenränder
    (Planet darf 6 px über die Kartenpolsterung hinausragen). */
 .show-art{
@@ -542,14 +527,17 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-gallery-title::after{content:"";flex:1;height:1px;background:var(--line)}
 .show-media-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
 .show-media-item{margin:0;display:flex;flex-direction:column;gap:10px;cursor:zoom-in}
+/* 520 statt 340 px — dieselbe Vergrößerung wie bei den Fotogalerien (22.09.2026).
+   ⚠️ Wer das ändert, ändert .media-thumb-empty mit: die beiden Maße MÜSSEN
+   übereinstimmen, sonst springt das Layout beim Klick auf ein Video. */
 .show-media-item .storage-image,.show-media-item video{
-  height:340px;max-height:340px;width:auto;max-width:100%;display:block;object-fit:contain;
+  height:520px;max-height:520px;width:auto;max-width:100%;display:block;object-fit:contain;
   border-radius:22px;border:1px solid var(--line);background:#000;box-shadow:var(--shadow)
 }
 .show-media-item figcaption{display:block;color:var(--muted);font-weight:850;font-size:14px}
 @media (max-width:720px){
   .show-media-grid{justify-content:center}
-  .show-media-item .storage-image,.show-media-item video{height:280px;max-height:280px}
+  .show-media-item .storage-image,.show-media-item video{height:420px;max-height:420px}
 }
 .show-media-item .media-thumb{position:relative;display:inline-block}
 /* Kachel eines Videos OHNE Vorschaubild. Vorher stand hier ein `<video>` mit
@@ -558,7 +546,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
    Desktop und iPad gemessen am 21.09.2026, 302 × 340 px). Die Maße stimmen mit
    `.show-media-item video` überein, damit beide Fälle gleich groß sind. */
 .media-thumb-empty{
-  height:340px;max-height:340px;aspect-ratio:16/9;
+  height:520px;max-height:520px;aspect-ratio:16/9;
   border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);
   background:
     radial-gradient(circle at 50% 38%,rgba(255,255,255,.14),transparent 46%),
@@ -578,7 +566,7 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 /* Eigene Media-Query statt der oben: die dort steht VOR dieser Definition und
    würde von ihr überschrieben. */
 @media (max-width:720px){
-  .media-thumb-empty{height:280px;max-height:280px}
+  .media-thumb-empty{height:420px;max-height:420px}
 }
 .show-media-item .media-play-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 .show-media-item .media-play-badge span{
@@ -897,7 +885,6 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   .section-head{flex-direction:column;align-items:stretch;gap:14px;margin-bottom:16px}
   .section-head p,.section-head-copy{max-width:100%}
   .grid-3:has(.show-card){padding-top:2px}
-  /* Tag-Block (Spalte + reservierte Höhe) steht global in .show-card .top. */
   /* Nur die Maße ändern — Position des Scheins folgt weiter automatisch der Fläche. */
   .show-card{--show-halo:200px;--show-art-h:186px;--show-art-mt:12px}
   .show-card-copy{margin-top:12px;padding-top:14px}
@@ -1010,26 +997,103 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 /* Tages-/Monatsliste unter dem Raster: nur Mobile. Auf Desktop stehen die
    Termine als Pillen in den Zellen, eine zweite Liste wäre dort Dopplung. */
 .calendar-daylist{display:none}
+/* ── Terminfilter (/shows, über Kalender und Karte) ──────────────────────────
+   Steht seit dem 21.09.2026 ganz oben in der Termin-Sektion und gilt für alles
+   darunter. Aufbau: eine Zeile je Kriterium, Beschriftung links, Pillen rechts,
+   die Pillen brechen innerhalb ihrer eigenen Zeile um. Das ersetzt das frühere
+   Drei-Spalten-Raster (.event-filter-groups, ersatzlos entfallen): dort stand
+   „Alle" in einer eigenen Spalte und blieb als Waise stehen, sobald die
+   Show-Pillen in die zweite Reihe rutschten.
+   ⚠️ Orte: Neuss, Dormagen, Leverkusen und Köln stehen offen, alles Weitere
+   liegt im Klapper — die Liste ist in components/shows/TermineFilterBar.tsx
+   (KERN_ORTE) festgelegt, nicht hier. */
+.termine-filterbar{
+  border:1px solid var(--line);border-radius:26px;
+  background:rgba(255,255,255,.045);padding:clamp(14px,1.6vw,20px);
+  display:grid;gap:14px;margin-bottom:clamp(18px,2vw,26px)
+}
+.filterbar-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filterbar-title{font-size:11px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;color:var(--ice)}
+.filterbar-treffer{font-size:13px;font-weight:850;color:var(--muted)}
+.filterbar-reset{
+  margin-left:auto;background:none;border:0;padding:4px 2px;cursor:pointer;
+  color:var(--text);font-size:13px;font-weight:850;text-decoration:underline;text-underline-offset:3px
+}
+.filterbar-reset:hover{color:var(--ice)}
+/* Beschriftung in fester Spalte, Pillen daneben: so beginnen Show- und Ortzeile
+   auf derselben Kante. Unter 640px stapelt es (Media-Query weiter unten). */
+.filter-zeile{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start;gap:12px}
+.filter-zeile-label{
+  padding-top:11px;font-size:11px;font-weight:950;letter-spacing:.11em;
+  text-transform:uppercase;color:rgba(247,247,255,.62)
+}
+.filter-zeile-pillen{display:flex;flex-wrap:wrap;gap:8px;min-width:0;position:relative}
+.filter-pille{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 13px;font-size:14px;
+  background:rgba(255,255,255,.045);
+  transition:transform .18s ease,background .18s ease,border-color .18s ease
+}
+.filter-pille:hover{transform:translateY(-2px);border-color:rgba(174,235,255,.42)}
+.filter-pille.active{background:var(--text);color:#050711;box-shadow:0 8px 24px rgba(255,255,255,.13)}
+/* Zähler in der Pille: gedämpft, damit die Zahl die Beschriftung nicht überstimmt —
+   aber nicht unter 4,5:1. Mit .5 bzw. .55 gerechnet: 3,79:1 auf dem Lila-Schleier
+   des Seitenhintergrunds und 4,42:1 auf der aktiven Pille, beides bei 12 px zu
+   wenig. Mit .66 sind es 5,35:1 und 6,54:1. axe kann das hier NICHT messen
+   („background color could not be determined" – Sternenfeld als Bild), deshalb
+   von Hand gerechnet gegen den ungünstigsten Grund. */
+.filter-pille-zahl{font-size:12px;font-weight:950;color:rgba(247,247,255,.66)}
+.filter-pille.active .filter-pille-zahl{color:rgba(5,7,17,.66)}
+/* Das Auswahlfeld hängt am Knopf und öffnet nach LINKS (right:0): der Knopf
+   steht immer am Ende seiner Zeile, ein nach rechts geöffnetes Panel liefe aus
+   dem Bild. Auf Mobile ist der Bezugspunkt stattdessen die ganze Zeile — siehe
+   Media-Query unten, sonst hinge das Panel an einem umgebrochenen Knopf. */
+.filter-klapper{position:relative}
+.filter-mehr-pfeil{
+  width:0;height:0;border-left:4.5px solid transparent;border-right:4.5px solid transparent;
+  border-top:5px solid currentColor;opacity:.7
+}
+.filter-mehr[aria-expanded="true"] .filter-mehr-pfeil{rotate:180deg}
+/* Das Auswahlfeld selbst. z-index über die Kalenderkarte, damit es nicht
+   hinter der nächsten Sektion verschwindet. */
+.filter-klapper-panel{
+  position:absolute;top:calc(100% + 8px);left:auto;right:0;z-index:40;width:min(300px,80vw);
+  border:1px solid rgba(174,235,255,.28);border-radius:20px;
+  background:rgba(9,12,28,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 26px 70px rgba(0,0,0,.55);padding:12px;display:grid;gap:10px
+}
+.filter-klapper-suche{padding:10px 13px;border-radius:14px;font-size:14px}
+.filter-klapper-suche:focus-visible{outline:2px solid var(--accent,#7CFF6B);outline-offset:1px}
+.filter-klapper-liste{display:grid;gap:2px;max-height:264px;overflow-y:auto;margin:0 -4px;padding:0 4px}
+/* `label` ist global display:grid (Feld über Beschriftung) — hier soll es eine Zeile sein. */
+.filter-option{
+  display:flex;flex-direction:row;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:700;color:var(--text)
+}
+.filter-option:hover{background:rgba(255,255,255,.08)}
+.filter-option:has(input:checked){background:rgba(174,235,255,.14)}
+.filter-option:has(input:focus-visible){outline:2px solid var(--accent,#7CFF6B);outline-offset:-2px}
+.filter-option-label{flex:1;min-width:0}
+.filter-option-zahl{font-size:12px;font-weight:950;color:rgba(247,247,255,.66)}
+.filter-klapper-leer{margin:0;padding:10px;font-size:14px;color:var(--muted)}
+@media(max-width:640px){
+  .filter-zeile{grid-template-columns:minmax(0,1fr);gap:7px}
+  .filter-zeile-label{padding-top:0}
+  /* Kein Wisch-Band wie bei den alten Filtern: hier stehen nur noch vier Orte
+     plus Knopf, die passen umgebrochen ins Bild. Ein Band mit `overflow-x` wäre
+     hier sogar schädlich — es beschneidet das aufgeklappte Auswahlfeld. */
+  .filter-pille{padding:8px 12px;font-size:13px}
+  .filter-klapper{position:static}
+  .filter-klapper-panel{left:0;right:auto;width:min(320px,calc(100vw - 52px))}
+}
+@media(prefers-reduced-motion:reduce){.filter-pille:hover{transform:none}}
+
 /* Gesamtliste unter der Monatsansicht (Label + Filter + Karten). Abstände
    kommen aus dem grid-gap, deshalb die Filter-Marge hier neutralisieren. */
 .termine-list-block{margin-top:28px;display:grid;gap:18px}
-.termine-list-block .event-filter-groups{margin-bottom:0}
-.event-filter-groups{display:grid;grid-template-columns:auto minmax(0,.78fr) minmax(0,1.72fr);align-items:end;gap:22px;margin-bottom:24px}.event-filter-reset{margin-bottom:0}.event-filter-group{display:grid;gap:7px;min-width:0}.event-filter-label{color:var(--ice);font-size:11px;font-weight:950;letter-spacing:.11em;text-transform:uppercase}.event-filter-group .filters{margin:0}.event-filter-group .chip.active{background:var(--text);color:#050711;box-shadow:0 8px 24px rgba(255,255,255,.13)}
-/* Filterzeile auf Mobile: die drei Spalten (Alle | Show | Ort) blieben hier
-   früher stehen – `display:grid` allein setzt `grid-template-columns` nicht
-   zurück, dadurch lagen Show- und Ort-Chips sichtbar übereinander. */
+/* Das frühere Drei-Spalten-Raster der Filterzeile (.event-filter-groups) ist am
+   21.09.2026 entfallen: EventGallery filtert nicht mehr selbst, der Filter steht
+   über dem Kalender (.termine-filterbar, weiter oben). */
 @media(max-width:900px){
-  .event-filter-groups{grid-template-columns:minmax(0,1fr);align-items:stretch;gap:13px;margin-bottom:18px}
-  .event-filter-reset{margin:0;width:max-content}
-  .event-filter-label{font-size:10px}
-  /* Show-/Ort-Filter je als einzeiliges Wisch-Band: 11 Orte als Umbruchblock
-     haben vorher einen halben Handy-Screen gefüllt. */
-  .event-gallery-filters{
-    flex-wrap:nowrap;overflow-x:auto;gap:7px;padding-bottom:2px;
-    scrollbar-width:none;-webkit-overflow-scrolling:touch
-  }
-  .event-gallery-filters::-webkit-scrollbar{display:none}
-  .event-gallery-filters .chip{flex:0 0 auto;padding:8px 12px;font-size:13px}
   /* Termin-Karten kompakter: Standard-Kartenpolsterung (26 px) plus Marketing-
      Typografie macht aus vier Terminen sonst vier Bildschirme Scrollweg. */
   .event-card{min-height:0;padding:18px}
@@ -1232,6 +1296,13 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    hervorgehoben (gleiche Behandlung wie .section-head-copy .kicker). */
 .shows-lead-kicker{margin-top:10px;color:var(--ice);font-weight:850}
 
+/* Kopf und Kartenraster auf /shows rücken zusammen. Zwei volle Sektionspolster
+   (2 × clamp(62px,8vw,122px)) ergaben unter der Einladungszeile bis zu 244 px
+   Leerraum — sichtbar als Loch zwischen Text und Planeten. Nur hier gekürzt,
+   damit der Rhythmus der übrigen Sektionen bleibt. */
+.shows-hero{padding-bottom:clamp(20px,2.5vw,36px)}
+.shows-grid-section{padding-top:clamp(16px,2vw,28px)}
+
 .buzzer-zone{display:grid;place-items:center;gap:18px;text-align:center}
 .buzzer{width:150px;height:150px;border-radius:50%;border:0;cursor:pointer;background:radial-gradient(circle at 35% 30%,#ff7a7a,#e02525 60%,#8f0f0f);color:#fff;font-weight:950;font-size:22px;letter-spacing:.08em;box-shadow:0 14px 0 #7a0c0c,0 26px 60px rgba(224,37,37,.35);transition:transform .08s ease,box-shadow .08s ease}
 .buzzer:active{transform:translateY(10px);box-shadow:0 4px 0 #7a0c0c,0 12px 30px rgba(224,37,37,.3)}
@@ -1240,7 +1311,12 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 .gallery-grid{display:flex;flex-wrap:wrap;gap:16px}
 .gallery-grid figure{margin:0;border-radius:18px;overflow:hidden;border:1px solid var(--line);transform:rotate(var(--rot,0deg));transition:transform .25s ease;cursor:zoom-in}
 .gallery-grid figure:hover{transform:rotate(0) scale(1.03)}
-.gallery-grid img{height:260px;max-height:260px;width:auto;max-width:100%;display:block;object-fit:contain;background:#000}
+/* Kachelhöhe 400 statt 260 px (Steffen, 22.09.2026): „über 50 % größer", solange
+   es wenige Medien gibt — eine halbleere Reihe kleiner Kacheln wirkt wie ein
+   Platzhalter. Die Breite folgt der Höhe (width:auto + object-fit:contain), das
+   Seitenverhältnis bleibt also unangetastet. Gilt für beide Fotogalerien:
+   Beweisfotos auf der Startseite und /galerie. */
+.gallery-grid img{height:400px;max-height:400px;width:auto;max-width:100%;display:block;object-fit:contain;background:#000}
 .gallery-grid figcaption{padding:10px 14px;font-size:13px;color:var(--muted)}
 /* Slideshow-Controls: nur im mobilen Karussell sichtbar (siehe unten). */
 .gallery-slideshow-controls{display:none}
@@ -1268,7 +1344,11 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   }
   .gallery-grid figure:last-child{margin-right:0}
   .gallery-grid figure:hover{transform:none}
-  .gallery-grid img{width:100%;height:min(62vh,440px);max-height:none}
+  /* Mobil KEINE feste Höhe: mit fester Höhe und 100 % Breite füllt `contain`
+     den Rest mit Schwarz — dieselben Balken, die am 22.09.2026 bei den Videos
+     weggefallen sind. Beide Maße auf `auto` und nur gedeckelt: Das Bild bringt
+     sein Verhältnis selbst mit, die Kachel folgt ihm. */
+  .gallery-grid img{width:auto;height:auto;max-width:100%;max-height:min(74vh,620px);margin-inline:auto}
 
   .gallery-slideshow-controls{
     display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px;
@@ -1461,22 +1541,22 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
    greift nur bei sehr schmalen Desktop-Fenstern — der Mond ist mit 44vw
    gedeckelt, ein größerer Einzug würde ihn dort in die Copy schieben. */
 /* ── KI-Kennzeichnung (Art. 50 EU AI Act) ─────────────────────────────────
-   Chip aus offiziellem EU-Zeichen + deutschem Klartext, siehe
-   components/AiLabel.tsx. Eigener dunkler Grund, weil das Zeichen direkt am
-   Bild sitzt und nicht auf dessen Motiv verschwinden darf. Über allem, was
-   sonst im Hero liegt (Scrim, Kometenbahn): über die Kennzeichnung darf sich
-   nichts legen. `pointer-events:none` — sie ist Information, kein Bedienelement,
-   und soll dem Link darunter nicht die Klickfläche wegnehmen. */
+   Nur noch das offizielle EU-Zeichen, siehe components/AiLabel.tsx. Der dunkle
+   Chip mit deutschem Klartext ist am 21.09.2026 entfallen (Lennys
+   Entscheidung): das Zeichen bringt seine eigene weiße Pille mit, der Grund
+   war eine Pille um eine Pille. Der Schlagschatten ersetzt ihn — er hält die
+   weiße Pille auch dort ablesbar, wo sie auf einer hellen Stelle des Motivs
+   liegt. Über allem, was sonst im Hero liegt (Scrim, Kometenbahn): über die
+   Kennzeichnung darf sich nichts legen. `pointer-events:none` — sie ist
+   Information, kein Bedienelement, und soll dem Link darunter nicht die
+   Klickfläche wegnehmen. */
 .ai-label{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:5px 11px 5px 8px;border-radius:999px;
-  background:rgba(6,8,24,.74);border:1px solid rgba(255,255,255,.16);
-  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-  font-size:12px;line-height:1.3;color:rgba(255,255,255,.84);
-  white-space:nowrap;pointer-events:none;
+  display:inline-flex;align-items:center;
+  pointer-events:none;
+  filter:drop-shadow(0 2px 6px rgba(0,0,0,.45));
 }
 /* Höhe hier und `SIGN_HEIGHT` in components/AiLabel.tsx zusammen ändern. */
-.ai-label img{display:block;height:20px;width:auto;flex:none}
+.ai-label img{display:block;height:29px;width:auto;flex:none}
 
 /* Der Wrapper existiert aus zwei Gründen, nicht aus Layout-Laune:
    1. Die Kennzeichnung darf NICHT in den Link: dessen `aria-label` ersetzt den
@@ -1663,12 +1743,32 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
   box-shadow:0 0 46px rgba(66,217,255,.42),inset 0 0 34px rgba(255,79,216,.28);
   opacity:0
 }
-.captain-media{overflow:hidden;border-radius:24px;border:1px solid var(--line);aspect-ratio:9/16;max-height:min(72vh,600px);margin-inline:auto}
-.captain-media>div{width:100%;height:100%}
+/* Der Rahmen hat KEIN eigenes Seitenverhältnis mehr (22.09.2026). Es kam bis
+   dahin von hier — 9/16 auf der Startseite, 16/10 unter .is-wide auf „Über
+   Steffen" — und passte zum Video nur zufällig: ein 4:3-Bühnenvideo bekam oben
+   und unten bzw. links und rechts schwarze Balken. Jetzt liefert
+   components/CaptainVideo.tsx das gemessene Verhältnis als `--video-ratio`
+   (Zahl = Breite/Höhe), der Rahmen übernimmt es, und Balken können nicht mehr
+   entstehen. Die Höhe deckelt `--video-maxh`: die Breite ist das Kleinere aus
+   Spaltenbreite und dem, was diese Höhe zulässt. */
+.captain-media{--video-maxh:min(72vh,600px);margin-inline:auto;max-width:100%}
 .captain-media video{width:100%;height:100%;object-fit:contain;display:block;background:#000}
 /* Querformat-Variante für /steffen (Handoff will 16/10 statt Hochformat) */
-.captain-media.is-wide{aspect-ratio:16/10;max-height:none;margin-inline:0}
-.captain-video{position:relative;width:100%;height:100%;background:#000}.captain-video-media{width:100%;height:100%;display:block;object-fit:contain;cursor:pointer}.captain-video-start{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,7,17,.42);border:0;cursor:pointer;border-radius:inherit}.captain-video-start span,.captain-video-controls button{display:flex;align-items:center;justify-content:center;color:#fff;border:1px solid rgba(255,255,255,.56);background:rgba(5,7,17,.48);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer}.captain-video-start span{width:72px;height:72px;border-radius:50%;font-size:28px}.captain-video-controls{position:absolute;right:14px;bottom:14px;z-index:3;display:flex;gap:8px;opacity:0;transform:translateY(5px);transition:opacity .2s ease,transform .2s ease}.captain-video:hover .captain-video-controls,.captain-video:focus-within .captain-video-controls{opacity:1;transform:none}.captain-video-controls button{width:42px;height:42px;border-radius:50%;font-size:17px}.captain-video-controls button:hover{background:rgba(255,255,255,.22)}
+/* „Über Steffen": das Video steht in der breiteren Spalte und darf höher werden.
+   Der Vorgabewert ist hier quer (16/10), falls weder Poster noch Metadaten da
+   sind — auf der Startseite hochkant. */
+.captain-media.is-wide{--video-maxh:min(78vh,680px);margin-inline:0}
+.captain-media.is-wide .captain-video{
+  width:min(100%,calc(var(--video-maxh) * var(--video-ratio,1.6)));
+  aspect-ratio:var(--video-ratio,16/10);
+  margin-inline:0
+}
+.captain-video{
+  position:relative;background:#000;margin-inline:auto;
+  width:min(100%,calc(var(--video-maxh,min(72vh,600px)) * var(--video-ratio,.5625)));
+  aspect-ratio:var(--video-ratio,9/16);
+  overflow:hidden;border-radius:24px;border:1px solid var(--line)
+}.captain-video-media{width:100%;height:100%;display:block;object-fit:contain;cursor:pointer}.captain-video-start{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,7,17,.42);border:0;cursor:pointer;border-radius:inherit}.captain-video-start span,.captain-video-controls button{display:flex;align-items:center;justify-content:center;color:#fff;border:1px solid rgba(255,255,255,.56);background:rgba(5,7,17,.48);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);cursor:pointer}.captain-video-start span{width:72px;height:72px;border-radius:50%;font-size:28px}.captain-video-controls{position:absolute;right:14px;bottom:14px;z-index:3;display:flex;gap:8px;opacity:0;transform:translateY(5px);transition:opacity .2s ease,transform .2s ease}.captain-video:hover .captain-video-controls,.captain-video:focus-within .captain-video-controls{opacity:1;transform:none}.captain-video-controls button{width:42px;height:42px;border-radius:50%;font-size:17px}.captain-video-controls button:hover{background:rgba(255,255,255,.22)}
 
 @media(max-width:900px){
   .hero-scroll-shell{min-height:max(620px,82vh)}
@@ -1727,10 +1827,14 @@ th{color:var(--text);background:rgba(255,255,255,.08);font-size:13px;text-transf
 
 /* ── YouTube-Galerie (Homepage, Comedian-Seite, Show-Seiten, Archiv) ── */
 .youtube-grid{display:grid;gap:20px;align-items:start}
-.youtube-grid[data-count="1"]{grid-template-columns:minmax(0,700px);justify-content:center;width:100%}
+/* Zwei Spalten als Obergrenze (22.09.2026): drei bzw. vier Videos nebeneinander
+   ergaben Kacheln um 280 px — bei so wenigen Videos sieht das nach Restposten
+   aus. Mit `minmax(min(100%,440px),1fr)` bleiben es auf dem Handy trotzdem
+   automatisch eine Spalte. */
+.youtube-grid[data-count="1"]{grid-template-columns:minmax(0,900px);justify-content:center;width:100%}
 .youtube-grid[data-count="2"]{grid-template-columns:1fr 1fr}
-.youtube-grid[data-count="3"]{grid-template-columns:repeat(3,minmax(0,1fr))}
-.youtube-grid[data-count="4"]{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.youtube-grid[data-count="3"],
+.youtube-grid[data-count="4"]{grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr))}
 .youtube-item{margin:0;display:flex;flex-direction:column;gap:10px}
 .youtube-frame{position:relative;width:100%;aspect-ratio:16/9;border-radius:22px;overflow:hidden;border:1px solid var(--line);background:#000;box-shadow:var(--shadow)}
 .youtube-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
