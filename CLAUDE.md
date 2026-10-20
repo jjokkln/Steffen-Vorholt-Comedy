@@ -21,17 +21,10 @@ Next.js 16 (App Router, TypeScript, plain CSS — KEIN Tailwind) Marketing-Websi
 - Build: `npm run build` (muss nach jedem Task fehlerfrei sein)
 - Tests: `npm test` (`node --test "tests/**/*.test.*"` — Verzeichnis-Argument funktioniert auf Node 24 nicht)
 
-## AI-OS — nutzen & pflegen
+## AI-OS
 
-Lennys AI-OS (`/Users/lennardkuss/Code_Aktuell/AI-OS/`) ist das zentrale Operating System. Nutze es aktiv:
-
-- **Kontext:** `00_System/ACTIVE_CONTEXT.md` (Fokus/Prioritäten) und `10_Projects/steffen-vorholt/PROJECT.md` (Projektstand). Entscheidungen in `00_System/DECISIONS.md` — erst lesen, nicht neu verhandeln.
-- **Bausteine:** `30_Knowledge/Templates/` (z. B. growcore-nextjs-base) und Second Brain Vault → `20_Tech-Library` prüfen, bevor du etwas von Null baust.
-- **Tools:** `00_System/TOOL_RULES.md` listet verfügbare MCPs/Integrationen (Supabase, n8n, Gmail, Calendar, Notion) + Routing-Regeln.
-- **Voice:** Kundengerichtete Texte im Register von `30_Knowledge/Referenzen/voice.md`; Entwürfe immer erst zeigen, nie ungefragt senden.
-
-Pflege in jeder Session:
-- Bedeutende Entscheidung in diesem Projekt → Eintrag in `AI-OS/00_System/DECISIONS.md` vorschlagen.
-- Neues Tool/API angebunden → `TOOL_RULES.md` ergänzen + `30_Knowledge/Referenzen/{tool}-api.md` anlegen.
-- Wiederverwendbares Pattern/Snippet entstanden → als Note in den Second Brain Vault (Pfad in der globalen CLAUDE.md).
-- Manuelle Aufgabe zum 3. Mal beobachtet → als `/level-up`-Kandidat ansprechen.
+Lennys AI-OS liegt unter `~/Code_Aktuell/obsidian_vault/AI-OS`. Wie es genutzt
+und gepflegt wird (Router, Regeln, wohin Entscheidungen und Aufgaben gehören),
+steht in `~/.claude/CLAUDE.md` und lädt in jeder Sitzung von selbst. Hier nichts
+davon wiederholen. Projektstand: `AI-OS/10_Projects/<slug>/` (PROJECT, OFFEN,
+DECISIONS). Kundengerichtete Texte erst zeigen, nie ungefragt senden.
