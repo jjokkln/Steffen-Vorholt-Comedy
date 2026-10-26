@@ -10,7 +10,7 @@
     "test:audit-abdeckung": "node scripts/audit-abdeckung.mjs"
   },
   "dependencies": {
-    "@growcore/a11y": "github:jjokkln/growcore-a11y#1ea6bf291deffca83edb66c6eba2e2c3ebff43af",
+    "@growcore/a11y": "github:jjokkln/growcore-a11y#473d049d1b93ac78038cf4e136ebe8001de300c8",
     "@gsap/react": "^2.1.2",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.1",
