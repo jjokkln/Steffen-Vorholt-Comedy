@@ -392,3 +392,23 @@ den GRANT — sonst bricht das Absenden vollständig. Der GRANT steht in
 darüber. Anders als dort hält `tests/anfrage-spaltenrechte.test.ts` beide gegeneinander; der
 Test wurde gegengeprüft (mit `status` im GRANT fällt er, ohne ihn ist er grün). Ohne diesen
 Test würde ein fehlender GRANT beim Bauen nicht rot, sondern erst, wenn jemand absendet.
+
+## Kontaktformular
+
+**`POST /kontakt` läuft 300 s und endet mit „Task timed out" (504).** Ursache war bis zum
+26.10.2026 eine Schleife in Reacts Server-Rendering: `useActionState` mit einer **gebundenen**
+Server Action (`submitInquiry.bind(null, type)`) und einem Absenden **ohne JavaScript**. React
+prüft dann die Signatur der Action gegen den Formularstand und dreht dabei auf 100 % CPU, bis
+Vercel abbricht. Bots posten genau so; in den Logs vom 26.10. endet jeder solche Post als 504,
+auch die, bei denen vorher das Gmail-Tageslimit griff. Lokal nachstellbar mit `next start` und einem `curl -F`-Post
+der versteckten `$ACTION_…`-Felder.
+Seitdem drei Sperren: (1) die Anfrageart kommt als Formularfeld `type`, nie als
+`.bind`-Argument; (2) das Formular schickt per `onSubmit` (keine Form-Action), ein Post ohne
+JavaScript geht an `proxy.ts` und bekommt sofort eine Hinweisseite (BotID ließe ihn ohnehin
+nicht durch); (3) `maxDuration = 60` in `app/kontakt/page.tsx`, SMTP-Timeouts in `lib/email.ts`.
+⚠️ Wer wieder `<form action={…}>` mit gebundener Action baut, holt die Schleife zurück.
+
+**„Failed to find Server Action" auf `/kontakt`.** Ohne `next-action`-Kopf (Formular-Post
+ohne JavaScript mit HTML eines älteren Deploys) fängt das jetzt der Proxy ab. Mit Kopf (offener
+Tab über einen Deploy hinweg) antwortet Next mit 404 und `x-nextjs-action-not-found`;
+`components/ContactForm.tsx` zeigt dann „Seite neu laden", die Eingaben bleiben stehen.

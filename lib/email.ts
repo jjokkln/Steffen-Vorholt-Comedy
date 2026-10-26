@@ -32,6 +32,13 @@ function transporter() {
     port: Number(SMTP_PORT ?? 587),
     secure: SMTP_SECURE === "true",
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    // Nodemailer wartet ohne Angabe bis zu 2 Min. auf die Verbindung und
+    // 10 Min. auf eine stille Leitung – länger, als die Funktion leben darf
+    // (maxDuration in app/kontakt/page.tsx). Ein hängender Mailserver soll als
+    // Fehler im Log stehen, nicht als „Task timed out".
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
   });
 }
 

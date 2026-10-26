@@ -1,6 +1,7 @@
 "use server";
 
 import { checkBotId } from "botid/server";
+import { after } from "next/server";
 
 import { createPublicClient } from "@/lib/supabase/public";
 import { anfragendeQuelle, bremseGreift, fehlversuchZaehlen } from "@/lib/bremse";
@@ -12,6 +13,8 @@ import type { InquiryType } from "@/lib/types";
 export interface InquiryFormState {
   ok: boolean;
   error?: string;
+  /** Nur im Browser gesetzt (components/ContactForm.tsx): die Seite stammt aus einem älteren Deploy. */
+  veraltet?: boolean;
 }
 
 const PAYLOAD_KEYS: Record<InquiryType, string[]> = {
@@ -42,11 +45,28 @@ const LIMITS = { name: 120, email: 254, phone: 40, message: 5000, payload: 200 }
 // leer). Die Länge wird deshalb zusätzlich **vor** dem Muster geprüft.
 const EMAIL_MUSTER = /^[^\s@,;:<>"\\]+@[^\s@,;:<>"\\]+\.[^\s@,;:<>"\\.]{2,}$/;
 
+function istAnfrageArt(wert: unknown): wert is InquiryType {
+  return typeof wert === "string" && Object.hasOwn(PAYLOAD_KEYS, wert);
+}
+
+/**
+ * ⚠️ Die Anfrageart kommt als Formularfeld `type`, **nicht** als gebundenes
+ * Argument (`submitInquiry.bind(null, type)`). Mit gebundenem Argument hing
+ * React beim Absenden ohne JavaScript im Server-Rendering in einer Schleife
+ * (`useActionState` prüft die Signatur der Action gegen den Formularstand und
+ * wartet dabei endlos auf die gebundenen Argumente): 100 % CPU bis zum
+ * 300-s-Abbruch, ab Oktober 2026 bei jedem Bot-Post auf `/kontakt` (Vercel
+ * „Task timed out after 300 seconds"). Lokal nachgestellt am 26.10.2026.
+ * Das Feld ist so wenig vertrauenswürdig wie vorher das gebundene Argument –
+ * beide schickt der Browser –, deshalb die Prüfung gegen die feste Liste.
+ */
 export async function submitInquiry(
-  type: InquiryType,
   _prev: InquiryFormState | null,
   formData: FormData,
 ): Promise<InquiryFormState> {
+  const type = formData.get("type");
+  if (!istAnfrageArt(type)) return { ok: false, error: "Unbekannte Anfrageart – bitte die Seite neu laden." };
+
   // Honeypot: echtes Feld ist unsichtbar — Bots füllen es aus.
   if (String(formData.get("website") ?? "")) return { ok: true };
 
@@ -126,11 +146,17 @@ export async function submitInquiry(
   // zwei Mails über Steffens privates Gmail-Konto verschickt.
   await fehlversuchZaehlen("anfrage_quelle", quelle);
 
-  // Empfänger-Einstellungen einmal laden und an beide Mails geben (statt zweimal die DB fragen).
-  const settings = await getNotificationSettings();
-  await Promise.all([
-    sendInquiryNotification(inquiry, settings),
-    sendInquiryConfirmation(inquiry, settings),
-  ]);
+  // Die Anfrage ist gespeichert, ab hier entscheidet nichts mehr über die
+  // Antwort an den Absender. Die Mails gehen deshalb nach der Antwort raus
+  // (`after`): Der Absender wartet nicht auf Gmail, und ein Versandfehler
+  // (z. B. 550-5.4.5 Tageslimit) steht weiter als Fehler im Log.
+  after(async () => {
+    // Empfänger-Einstellungen einmal laden und an beide Mails geben (statt zweimal die DB fragen).
+    const settings = await getNotificationSettings();
+    await Promise.all([
+      sendInquiryNotification(inquiry, settings),
+      sendInquiryConfirmation(inquiry, settings),
+    ]);
+  });
   return { ok: true };
 }

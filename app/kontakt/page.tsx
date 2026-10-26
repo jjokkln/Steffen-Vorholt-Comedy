@@ -4,6 +4,10 @@ import Footer from "@/components/Footer";
 import { getActiveShows } from "@/lib/data";
 
 export const revalidate = 3600;
+// Obergrenze für die Funktion hinter dieser Seite, also auch für die Server Action des
+// Formulars samt Mailversand (SMTP-Timeouts in lib/email.ts). Ohne Angabe gilt das
+// Plattform-Maximum von 300 s – so lange lief bis Oktober 2026 jede hängende Anfrage.
+export const maxDuration = 60;
 
 export const metadata: Metadata = {
   title: "Booking & Kontakt",
