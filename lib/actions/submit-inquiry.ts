@@ -4,6 +4,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { anfragendeQuelle, bremseGreift, fehlversuchZaehlen } from "@/lib/bremse";
 import { sendInquiryConfirmation, sendInquiryNotification } from "@/lib/email";
 import { getNotificationSettings } from "@/lib/settings";
+import { siehtNachSpamAus } from "@/lib/spam";
 import type { InquiryType } from "@/lib/types";
 
 export interface InquiryFormState {
@@ -31,7 +32,13 @@ const LIMITS = { name: 120, email: 254, phone: 40, message: 5000, payload: 200 }
  * und Zeilenumbrüche, die in einem Mail-Header nichts zu suchen haben (die Adresse landet in
  * `to`/`replyTo`).
  */
-const EMAIL_MUSTER = /^[^\s@,;:<>"\\]+@[^\s@,;:<>"\\]+\.[^\s@,;:<>"\\]{2,}$/;
+//
+// Die Endung schließt den Punkt aus. Vorher durfte sie ihn enthalten, und dann
+// probierte die Prüfung bei einer Adresse aus lauter Punkten jede Trennstelle
+// einzeln durch: quadratische Laufzeit, 20.000 Zeichen = 229 ms, 4 MB = Stunden.
+// Vom 24. bis 25.10.2026 liefen so 56 Stunden Active CPU auf (Vercel-Guthaben
+// leer). Die Länge wird deshalb zusätzlich **vor** dem Muster geprüft.
+const EMAIL_MUSTER = /^[^\s@,;:<>"\\]+@[^\s@,;:<>"\\]+\.[^\s@,;:<>"\\.]{2,}$/;
 
 export async function submitInquiry(
   type: InquiryType,
@@ -63,7 +70,7 @@ export async function submitInquiry(
   const phone = String(formData.get("phone") ?? "").trim();
   if (!name || !email) return { ok: false, error: "Name und E-Mail sind Pflicht – sonst können wir nicht zurückfunken." };
 
-  if (!EMAIL_MUSTER.test(email) || email.length > LIMITS.email) {
+  if (email.length > LIMITS.email || !EMAIL_MUSTER.test(email)) {
     return { ok: false, error: "Diese E-Mail-Adresse sieht nicht gültig aus – bitte nochmal prüfen." };
   }
   if (name.length > LIMITS.name || phone.length > LIMITS.phone) {
@@ -77,6 +84,10 @@ export async function submitInquiry(
   for (const key of PAYLOAD_KEYS[type]) {
     payload[key] = String(formData.get(key) ?? "").trim().slice(0, LIMITS.payload);
   }
+
+  // Kein Eintrag, keine Mail, dieselbe Antwort wie beim Honeypot (lib/spam.ts).
+  // Vor dem Speichern, damit Spam weder Steffens Liste noch sein Postfach füllt.
+  if (siehtNachSpamAus(name, Object.values(payload))) return { ok: true };
 
   const inquiry = { type, name, email, phone, message, payload };
   const { error } = await createPublicClient().from("inquiries").insert(inquiry);

@@ -56,16 +56,18 @@ test("frage_feedback: Platzhalter werden ersetzt", () => {
   });
   assert.match(subject, /Nachricht/);
   assert.ok(html.includes("Hi Chris,"));
-  assert.ok(html.includes("Tolle Show!"));
+  // Die Nachricht steht nicht in der Bestätigung: Sie ginge an eine Adresse, die
+  // niemand bestätigt hat, und machte das Formular zum Spam-Verteiler (lib/spam.ts).
+  assert.ok(!html.includes("Tolle Show!"));
   assert.ok(!html.includes("{{"));
 });
 
 test("Nutzereingaben werden HTML-escaped (XSS-Schutz)", () => {
   const { html } = renderInquiryConfirmation({
-    type: "frage_feedback",
+    type: "booking_steffen",
     name: '<script>alert(1)</script>',
-    message: "Hallo & <b>Gruß</b>",
-    payload: {},
+    message: "",
+    payload: { company: "Hallo & <b>Gruß</b>", event_type: "", event_date: "" },
   });
   assert.ok(!html.includes("<script>"));
   assert.ok(html.includes("&lt;script&gt;"));
