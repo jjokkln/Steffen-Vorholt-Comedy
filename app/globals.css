@@ -624,7 +624,9 @@ p{color:var(--muted);font-size:17px;line-height:1.66;white-space:pre-line}
 .show-video figcaption{color:var(--muted);font-weight:850;font-size:14px}
 .form{display:grid;gap:12px}
 .form.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-label{display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850}
+/* :where hält die Spezifität bei einem Element-Selektor; ohne den Ausschluss schlägt die
+   weiße Schrift ins helle a11y-Panel (@growcore/a11y) durch und die Optionen werden unlesbar. */
+label:where(:not(.gc-a11y-panel *)){display:grid;gap:7px;color:rgba(255,255,255,.84);font-size:13px;font-weight:850}
 /* Erklärender Zusatz unter einer Feldbeschriftung. `label` ist global `display:grid`, der
    span wird also automatisch eine eigene Zeile — braucht nur Gewicht und Größe zurückgesetzt,
    sonst liest er sich wie eine zweite Beschriftung. */
