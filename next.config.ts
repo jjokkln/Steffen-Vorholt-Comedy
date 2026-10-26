@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withBotId } from "botid/next/config";
 
 /**
  * Content-Security-Policy.
@@ -140,4 +141,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// withBotId leitet die BotID-Prüfung über die eigene Domain (kein fremder Host,
+// die CSP bleibt bei 'self').
+export default withBotId(nextConfig);

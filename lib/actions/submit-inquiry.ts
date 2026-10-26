@@ -1,5 +1,7 @@
 "use server";
 
+import { checkBotId } from "botid/server";
+
 import { createPublicClient } from "@/lib/supabase/public";
 import { anfragendeQuelle, bremseGreift, fehlversuchZaehlen } from "@/lib/bremse";
 import { sendInquiryConfirmation, sendInquiryNotification } from "@/lib/email";
@@ -47,6 +49,20 @@ export async function submitInquiry(
 ): Promise<InquiryFormState> {
   // Honeypot: echtes Feld ist unsichtbar — Bots füllen es aus.
   if (String(formData.get("website") ?? "")) return { ok: true };
+
+  // Vercel BotID (instrumentation-client.ts). Sichtbare Meldung statt stillem
+  // „ok": Hält BotID einen Menschen fälschlich für einen Bot, soll er wissen,
+  // dass nichts ankam, und hat den Weg per Mail.
+  const botPruefung = await checkBotId();
+  if (botPruefung.isBot) {
+    console.warn("[inquiry] BotID hat eine Anfrage abgewiesen");
+    return {
+      ok: false,
+      error:
+        "Die Anfrage konnte nicht übermittelt werden. Bitte lade die Seite neu und versuche es noch einmal – " +
+        "oder schreib direkt eine E-Mail, die Adresse steht im Impressum.",
+    };
+  }
 
   // Bremse je Quelle. Die Grenze je Adresse (5/Stunde) liegt in der Datenbank
   // und greift auch am REST-Weg vorbei; diese hier ergänzt die Dimension, die

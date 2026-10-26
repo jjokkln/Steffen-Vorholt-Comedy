@@ -18,6 +18,7 @@
     "@types/three": "^0.185.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "botid": "1.5.11",
     "canvas-confetti": "^1.9.4",
     "gsap": "^3.15.0",
     "leaflet": "^1.9.4",
